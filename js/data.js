@@ -4234,6 +4234,461 @@ window.BANK = {
    ]
   },
   {
+   "id": "code-l5-002",
+   "level": 5,
+   "title": "学生成绩统计",
+   "desc": "当前目录下有 data.csv，存放若干学生的选课成绩（首行为标题行，UTF-8 编码），列依次为：姓名,科目,分数。程序输入一个科目名（保证在文件中出现），统计该科目成绩：第一行输出该科目的平均分（保留 2 位小数），第二行输出该科目最高分学生的姓名；若最高分并列，输出文件中先出现的学生。",
+   "files": [
+    {
+     "name": "data.csv",
+     "content": "姓名,科目,分数\n张伟,数学,85\n李娜,数学,92\n王强,英语,78\n刘洋,数学,92\n陈静,英语,88\n赵磊,数学,67\n孙悦,语文,90\n周涛,语文,76\n"
+    }
+   ],
+   "starter": "# 读入 data.csv，统计输入科目的平均分与最高分学生\n",
+   "tests": [
+    {
+     "stdin": "数学\n",
+     "expected": "84.00\n李娜\n"
+    },
+    {
+     "stdin": "英语\n",
+     "expected": "83.00\n陈静\n"
+    },
+    {
+     "stdin": "语文\n",
+     "expected": "83.00\n孙悦\n"
+    }
+   ],
+   "ref": "f = open('data.csv', 'r', encoding='utf-8')\nnext(f)\nsub = input()\ntotal = 0\ncnt = 0\nmx = -1\ntop = ''\nfor line in f:\n    parts = line.strip().split(',')\n    if parts[1] == sub:\n        s = int(parts[2])\n        total += s\n        cnt += 1\n        if s > mx:\n            mx = s\n            top = parts[0]\nf.close()\nprint('{:.2f}'.format(total / cnt))\nprint(top)",
+   "hint": "用 next(f) 跳过标题行；每行 strip() 后 split(',')；累加总分和人数求平均，打擂台（大于才更新）求最高分，并列时自然保留先出现者。",
+   "exp": "综合考查 CSV 文件逐行读取、split 切分、类型转换、累加求平均与打擂台求最值——文件数据分析大题的标准套路。",
+   "tags": [
+    "文件",
+    "CSV",
+    "统计"
+   ]
+  },
+  {
+   "id": "code-l5-003",
+   "level": 5,
+   "title": "英文词频统计",
+   "desc": "当前目录下有 data.txt，存放一段英文（若干行，UTF-8 编码；单词只由英文字母组成，单词后可能跟逗号、句号等标点，标点不属于单词）。统计每个单词出现的次数（不区分大小写，统计前统一转为小写）：输出出现次数最多的前 3 个单词，每行格式为\"单词 次数\"（空格分隔）；次数相同的按单词字典序从小到大输出。数据保证第 3 名与第 4 名的次数不同。",
+   "files": [
+    {
+     "name": "data.txt",
+     "content": "Python is a great language.\nPython is easy to learn!\nMany people love python, because python is powerful.\nWe can use python for many things.\n"
+    }
+   ],
+   "starter": "# 读入 data.txt，统计每个单词出现次数，输出前 3 名\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "python 5\nis 3\nmany 2\n"
+    },
+    {
+     "stdin": "",
+     "expected": "python 5\nis 3\nmany 2\n"
+    }
+   ],
+   "ref": "f = open('data.txt', 'r', encoding='utf-8')\nd = {}\nfor line in f:\n    for ch in ',.!?;:':\n        line = line.replace(ch, ' ')\n    for w in line.lower().split():\n        d[w] = d.get(w, 0) + 1\nf.close()\nitems = sorted(d.items(), key=lambda x: (-x[1], x[0]))\nfor w, c in items[:3]:\n    print(w, c)",
+   "hint": "先把每行中的标点替换成空格再 split()；用 d.get(w, 0) + 1 计数；sorted(d.items(), key=lambda x: (-x[1], x[0])) 一步完成按次数降序、同次数按字典序升序。",
+   "exp": "考查文件读取、标点清洗、转小写、字典计数与多关键字排序——词频统计是 L5 的代表性大题。",
+   "tags": [
+    "文件",
+    "词频统计",
+    "字典"
+   ]
+  },
+  {
+   "id": "code-l5-004",
+   "level": 5,
+   "title": "手机月销量分析",
+   "desc": "当前目录下有 data.csv，存放某手机店各品牌的月销量数据（首行为标题行，UTF-8 编码），列依次为：品牌,销量,月份（月份为整数）。程序输入一个月份（整数），输出该月销售情况：第一行输出该月销量最高的品牌名与销量（空格分隔，若并列输出文件中先出现的品牌），第二行输出该月的总销量。",
+   "files": [
+    {
+     "name": "data.csv",
+     "content": "品牌,销量,月份\n华为,120,1\n苹果,98,1\n小米,150,1\n华为,135,2\n苹果,110,2\n小米,90,2\n华为,160,3\n苹果,105,3\n小米,88,3\nOPPO,200,3\n"
+    }
+   ],
+   "starter": "# 读入 data.csv，统计输入月份的销量最高品牌与总销量\n",
+   "tests": [
+    {
+     "stdin": "1\n",
+     "expected": "小米 150\n368\n"
+    },
+    {
+     "stdin": "3\n",
+     "expected": "OPPO 200\n553\n"
+    },
+    {
+     "stdin": "2\n",
+     "expected": "华为 135\n335\n"
+    }
+   ],
+   "ref": "f = open('data.csv', 'r', encoding='utf-8')\nnext(f)\nm = int(input())\nbest_name = ''\nbest_num = -1\ntotal = 0\nfor line in f:\n    parts = line.strip().split(',')\n    if int(parts[2]) == m:\n        num = int(parts[1])\n        total += num\n        if num > best_num:\n            best_num = num\n            best_name = parts[0]\nf.close()\nprint(best_name, best_num)\nprint(total)",
+   "hint": "列顺序是 品牌,销量,月份，注意下标；筛选出该月的记录后打擂台求最大销量，同时累加总销量。",
+   "exp": "考查按列筛选 CSV 记录、条件统计与求最值，贴近真实数据清洗场景。",
+   "tags": [
+    "文件",
+    "CSV",
+    "最值"
+   ]
+  },
+  {
+   "id": "code-l5-005",
+   "level": 5,
+   "title": "访问日志分析",
+   "desc": "当前目录下有 data.log，存放网站访问日志（UTF-8 编码），每行格式为：日期 IP 状态码（三部分用空格分隔，如 2024-05-01 192.168.1.5 200）。程序输入一个状态码（如 404）：第一行输出该状态码在日志中出现的次数，随后按首次出现顺序每行输出一个产生过该状态码的 IP（去重，每个 IP 只输出一次）。",
+   "files": [
+    {
+     "name": "data.log",
+     "content": "2024-05-01 192.168.1.5 200\n2024-05-01 192.168.1.12 404\n2024-05-01 192.168.1.5 404\n2024-05-02 10.0.0.8 200\n2024-05-02 192.168.1.12 404\n2024-05-02 172.16.0.3 500\n2024-05-02 10.0.0.8 404\n2024-05-03 192.168.1.5 200\n"
+    }
+   ],
+   "starter": "# 读入 data.log，统计输入状态码的出现次数与涉及的 IP\n",
+   "tests": [
+    {
+     "stdin": "404\n",
+     "expected": "4\n192.168.1.12\n192.168.1.5\n10.0.0.8\n"
+    },
+    {
+     "stdin": "200\n",
+     "expected": "3\n192.168.1.5\n10.0.0.8\n"
+    },
+    {
+     "stdin": "500\n",
+     "expected": "1\n172.16.0.3\n"
+    }
+   ],
+   "ref": "f = open('data.log', 'r', encoding='utf-8')\ncode = input()\ncnt = 0\nips = []\nfor line in f:\n    parts = line.split()\n    if parts[2] == code:\n        cnt += 1\n        if parts[1] not in ips:\n            ips.append(parts[1])\nf.close()\nprint(cnt)\nfor ip in ips:\n    print(ip)",
+   "hint": "line.split() 按空白切出三部分；用列表的 not in 判断 IP 是否已出现过，可保持首次出现的顺序。",
+   "exp": "考查 split 解析空格分隔的日志、条件筛选、计数与保序去重（列表 not in）。",
+   "tags": [
+    "文件",
+    "字符串",
+    "去重"
+   ]
+  },
+  {
+   "id": "code-l5-006",
+   "level": 5,
+   "title": "商品价格表合并",
+   "desc": "当前目录下有 goods1.csv 和 goods2.csv 两个商品价格表（首行为标题行，UTF-8 编码），每行格式为：品名,价格（价格为整数）。goods1 是旧价格表，goods2 是新价格表：合并时若品名相同，以 goods2 中的价格为准。把两个文件合并后，按价格从高到低输出全部商品，每行格式为\"品名 价格\"（空格分隔）；价格相同的按品名字典序从小到大输出。",
+   "files": [
+    {
+     "name": "goods1.csv",
+     "content": "品名,价格\n苹果,5\n牛奶,12\n面包,8\n鸡蛋,15\n"
+    },
+    {
+     "name": "goods2.csv",
+     "content": "品名,价格\n牛奶,13\n香蕉,6\n苹果,4\n咖啡,30\n"
+    }
+   ],
+   "starter": "# 合并 goods1.csv 与 goods2.csv，按价格降序输出全部商品\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "咖啡 30\n鸡蛋 15\n牛奶 13\n面包 8\n香蕉 6\n苹果 4\n"
+    },
+    {
+     "stdin": "",
+     "expected": "咖啡 30\n鸡蛋 15\n牛奶 13\n面包 8\n香蕉 6\n苹果 4\n"
+    }
+   ],
+   "ref": "d = {}\nf = open('goods1.csv', 'r', encoding='utf-8')\nnext(f)\nfor line in f:\n    parts = line.strip().split(',')\n    d[parts[0]] = int(parts[1])\nf.close()\nf = open('goods2.csv', 'r', encoding='utf-8')\nnext(f)\nfor line in f:\n    parts = line.strip().split(',')\n    d[parts[0]] = int(parts[1])\nf.close()\nitems = sorted(d.items(), key=lambda x: (-x[1], x[0]))\nfor name, price in items:\n    print(name, price)",
+   "hint": "用字典合并：先读 goods1 存入字典，再读 goods2 覆盖同名品名；sorted(d.items(), key=lambda x: (-x[1], x[0])) 按价格降序、同价按品名升序。",
+   "exp": "考查多文件读取、字典覆盖式合并与 sorted 多关键字排序。",
+   "tags": [
+    "文件",
+    "字典",
+    "排序"
+   ]
+  },
+  {
+   "id": "code-l5-007",
+   "level": 5,
+   "title": "文本字符分类统计",
+   "desc": "当前目录下有 data.txt，存放一段英文文本（若干行，UTF-8 编码）。逐行统计文件中各类字符的个数（每行先去掉行末换行符再统计，空格计入其他字符），输出 4 行，依次为：\"大写字母:N\"、\"小写字母:N\"、\"数字:N\"、\"其他字符:N\"（N 为相应个数）。",
+   "files": [
+    {
+     "name": "data.txt",
+     "content": "Hello Python 123!\nI like Python3.11\nRoom 404, Floor 2\n"
+    }
+   ],
+   "starter": "# 读入 data.txt，分类统计大写/小写/数字/其他字符\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "大写字母:6\n小写字母:25\n数字:10\n其他字符:10\n"
+    },
+    {
+     "stdin": "",
+     "expected": "大写字母:6\n小写字母:25\n数字:10\n其他字符:10\n"
+    }
+   ],
+   "ref": "f = open('data.txt', 'r', encoding='utf-8')\nupper = lower = digit = other = 0\nfor line in f:\n    line = line.strip('\\n')\n    for ch in line:\n        if ch.isupper():\n            upper += 1\n        elif ch.islower():\n            lower += 1\n        elif ch.isdigit():\n            digit += 1\n        else:\n            other += 1\nf.close()\nprint('大写字母:{}'.format(upper))\nprint('小写字母:{}'.format(lower))\nprint('数字:{}'.format(digit))\nprint('其他字符:{}'.format(other))",
+   "hint": "逐行读取，line.strip('\\n') 去掉换行；字符分类用 isupper()/islower()/isdigit()，都不满足即其他字符。",
+   "exp": "考查逐字符分类统计：isupper/islower/isdigit 与 else 兜底，注意先把换行符去掉。",
+   "tags": [
+    "文件",
+    "字符串",
+    "统计"
+   ]
+  },
+  {
+   "id": "code-l5-008",
+   "level": 5,
+   "title": "成绩分段统计",
+   "desc": "当前目录下有 data.csv，存放全班学生的程序设计成绩（首行为标题行，UTF-8 编码），每行格式为：姓名,分数（分数为 0~100 的整数）。按分数段统计人数并输出 5 行：前 4 行依次为\"90分及以上:N\"、\"80-89分:N\"、\"60-79分:N\"、\"60分以下:N\"；第 5 行输出\"不及格名单:\"，随后按文件原顺序每行输出一个不及格（60 分以下）学生的姓名。",
+   "files": [
+    {
+     "name": "data.csv",
+     "content": "姓名,分数\n张伟,95\n李娜,84\n王强,55\n刘洋,73\n陈静,88\n赵磊,91\n孙悦,64\n"
+    }
+   ],
+   "starter": "# 读入 data.csv，分段统计人数并输出不及格名单\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "90分及以上:2\n80-89分:2\n60-79分:2\n60分以下:1\n不及格名单:\n王强\n"
+    },
+    {
+     "stdin": "",
+     "expected": "90分及以上:2\n80-89分:2\n60-79分:2\n60分以下:1\n不及格名单:\n王强\n"
+    }
+   ],
+   "ref": "f = open('data.csv', 'r', encoding='utf-8')\nnext(f)\nc1 = c2 = c3 = c4 = 0\nfailed = []\nfor line in f:\n    parts = line.strip().split(',')\n    s = int(parts[1])\n    if s >= 90:\n        c1 += 1\n    elif s >= 80:\n        c2 += 1\n    elif s >= 60:\n        c3 += 1\n    else:\n        c4 += 1\n        failed.append(parts[0])\nf.close()\nprint('90分及以上:{}'.format(c1))\nprint('80-89分:{}'.format(c2))\nprint('60-79分:{}'.format(c3))\nprint('60分以下:{}'.format(c4))\nprint('不及格名单:')\nfor name in failed:\n    print(name)",
+   "hint": "if-elif 按从高到低的顺序判断边界；60 分以下的记录在计数的同时把姓名存入列表。",
+   "exp": "考查 if-elif 边界划分、分段计数以及\"边统计边收集\"输出名单。",
+   "tags": [
+    "文件",
+    "CSV",
+    "分段统计"
+   ]
+  },
+  {
+   "id": "code-l5-009",
+   "level": 5,
+   "title": "凯撒加密写文件",
+   "desc": "当前目录下有 data.txt，存放若干行英文文本（UTF-8 编码）。程序对每一行做凯撒加密：每行先去掉行末换行符，然后将其中的字母循环右移 3 位（a→d、b→e、…、x→a、y→b、z→c，大写字母同理），非字母字符保持不变。按原行顺序把加密后的每一行打印出来，同时把加密后的内容逐行写入当前目录下的 out.txt（每行末尾写一个换行符）。",
+   "files": [
+    {
+     "name": "data.txt",
+     "content": "Hello, Python!\nAttack at dawn\nabc XYZ 123\n"
+    }
+   ],
+   "starter": "# 读入 data.txt 逐行加密，打印并写入 out.txt\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "Khoor, Sbwkrq!\nDwwdfn dw gdzq\ndef ABC 123\n"
+    },
+    {
+     "stdin": "",
+     "expected": "Khoor, Sbwkrq!\nDwwdfn dw gdzq\ndef ABC 123\n"
+    }
+   ],
+   "ref": "f = open('data.txt', 'r', encoding='utf-8')\nout = open('out.txt', 'w', encoding='utf-8')\nfor line in f:\n    line = line.rstrip('\\n')\n    res = ''\n    for ch in line:\n        if 'a' <= ch <= 'z':\n            res += chr((ord(ch) - ord('a') + 3) % 26 + ord('a'))\n        elif 'A' <= ch <= 'Z':\n            res += chr((ord(ch) - ord('A') + 3) % 26 + ord('A'))\n        else:\n            res += ch\n    print(res)\n    out.write(res + '\\n')\nf.close()\nout.close()",
+   "hint": "循环移位用 chr((ord(ch) - ord('a') + 3) % 26 + ord('a'))，大写同理；每行加密结果 print 的同时 out.write(res + '\\n')。",
+   "exp": "考查逐行读写文件与 ord/chr 字符编码运算——凯撒密码是文件+字符处理的综合题。",
+   "tags": [
+    "文件",
+    "字符串",
+    "加密"
+   ]
+  },
+  {
+   "id": "code-l6-001",
+   "level": 6,
+   "title": "随机密码生成器",
+   "desc": "第一行输入一个整数作为随机数种子，第二行输入密码长度 n（1≤n≤16）。程序先执行 `random.seed(种子)`，再从固定字符池 `string.ascii_letters + string.digits`（52 个大小写字母在前、10 个数字在后，顺序固定）中用 `random.choice(字符池)` 依次随机取 n 个字符，拼接成密码后输出（只输出这一行密码）。",
+   "starter": "import random\nimport string\n\n# 读入种子和长度 n，先 random.seed(种子)，再用 random.choice 从固定字符池依次取 n 个字符\n",
+   "tests": [
+    {
+     "stdin": "10\n8\n",
+     "expected": "KcBEKanD\n"
+    },
+    {
+     "stdin": "2024\n12\n",
+     "expected": "ElULtm4UAWTW\n"
+    },
+    {
+     "stdin": "7\n1\n",
+     "expected": "u\n"
+    }
+   ],
+   "ref": "import random\nimport string\n\nseed = int(input())\nn = int(input())\nrandom.seed(seed)\npool = string.ascii_letters + string.digits\npw = ''\nfor i in range(n):\n    pw = pw + random.choice(pool)\nprint(pw)",
+   "hint": "random.seed 要在读入后立即调用；pool = string.ascii_letters + string.digits；循环 n 次 pw += random.choice(pool)。",
+   "exp": "考查 random.seed 固定随机序列、random.choice 取元素与字符串拼接——随机类题目必须先固定种子。",
+   "tags": [
+    "random",
+    "string",
+    "循环"
+   ]
+  },
+  {
+   "id": "code-l6-002",
+   "level": 6,
+   "title": "莱布尼茨级数求圆周率",
+   "desc": "用莱布尼茨级数近似圆周率：π/4 = 1 − 1/3 + 1/5 − 1/7 + 1/9 − …（分母依次为 1,3,5,7,…，第 1 项为正，之后各项符号交替）。输入一个正整数 n，计算前 n 项之和 s，按 π ≈ 4×s 输出近似值（保留 6 位小数）。如 n=1 时输出 4.000000。",
+   "starter": "# 读入 n，循环累加莱布尼茨级数前 n 项，输出 4*s（保留 6 位小数）\n",
+   "tests": [
+    {
+     "stdin": "1\n",
+     "expected": "4.000000\n"
+    },
+    {
+     "stdin": "10\n",
+     "expected": "3.041840\n"
+    },
+    {
+     "stdin": "10000\n",
+     "expected": "3.141493\n"
+    }
+   ],
+   "ref": "n = int(input())\ns = 0.0\nsign = 1\nfor i in range(n):\n    s = s + sign / (2 * i + 1)\n    sign = -sign\nprint('{:.6f}'.format(4 * s))",
+   "hint": "第 i 项（i 从 0 开始）为 sign / (2*i + 1)，sign 每轮取反；注意先乘 4 再用 '{:.6f}'.format 格式化。",
+   "exp": "考查循环累加交错级数与 format 保留小数——数学近似计算的经典题。",
+   "tags": [
+    "循环",
+    "格式化",
+    "数学近似"
+   ]
+  },
+  {
+   "id": "code-l6-003",
+   "level": 6,
+   "title": "闰年与月份天数",
+   "desc": "第一行输入年份（整数），第二行输入月份（1~12 的整数）。用 `calendar.isleap()` 判断该年是否闰年：第一行输出\"闰年\"或\"平年\"；第二行输出\"该月有N天\"（N 为该月实际天数，闰年 2 月为 29 天）。要求用 if 语句或列表手写各月天数表，不得使用 `calendar.monthrange`。",
+   "starter": "import calendar\n\n# 读入年、月，用 calendar.isleap 判断闰年，用手写天数表输出该月天数\n",
+   "tests": [
+    {
+     "stdin": "2024\n2\n",
+     "expected": "闰年\n该月有29天\n"
+    },
+    {
+     "stdin": "2023\n2\n",
+     "expected": "平年\n该月有28天\n"
+    },
+    {
+     "stdin": "1900\n2\n",
+     "expected": "平年\n该月有28天\n"
+    }
+   ],
+   "ref": "import calendar\n\ny = int(input())\nm = int(input())\ndays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]\nif calendar.isleap(y):\n    print('闰年')\n    days[1] = 29\nelse:\n    print('平年')\nprint('该月有{}天'.format(days[m - 1]))",
+   "hint": "days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]；闰年时把 days[1] 改成 29；calendar.isleap(y) 返回 True/False（整百年要能被 400 整除才算闰年）。",
+   "exp": "考查 calendar.isleap、列表下标与分支修改——万年历天数计算的常考点。",
+   "tags": [
+    "calendar",
+    "闰年",
+    "列表"
+   ]
+  },
+  {
+   "id": "code-l6-004",
+   "level": 6,
+   "title": "turtle 画正多边形",
+   "desc": "第一行输入正多边形的边数 n（3~8 的整数），第二行输入边长 d（正整数）。用红色画笔画这个正多边形：画笔从默认位置 (0,0)、朝向右方出发，每画一条长 d 的边就右转 360/n 度，共画 n 条边。画完后输出三行验证信息：第一行\"外角: X\"（X 为 360/n 的值，用 / 除法，形如 90.0）；第二行\"落点: X Y\"（画完后画笔的横、纵坐标，用 `round()` 取整）；第三行\"画笔颜色: red\"。本站已内置 turtle 画布，可直接运行。",
+   "starter": "import turtle\n\nn = int(input())\nd = int(input())\nt = turtle.Turtle()\n# 请补全：设红色画笔，循环画 n 条边（每条边后右转 360/n 度），最后打印三行验证信息\n",
+   "tests": [
+    {
+     "stdin": "4\n100\n",
+     "expected": "外角: 90.0\n落点: 0 0\n画笔颜色: red\n"
+    },
+    {
+     "stdin": "3\n100\n",
+     "expected": "外角: 120.0\n落点: 0 0\n画笔颜色: red\n"
+    },
+    {
+     "stdin": "6\n50\n",
+     "expected": "外角: 60.0\n落点: 0 0\n画笔颜色: red\n"
+    }
+   ],
+   "ref": "import turtle\n\nn = int(input())\nd = int(input())\nt = turtle.Turtle()\nt.pencolor('red')\nang = 360 / n\nfor i in range(n):\n    t.forward(d)\n    t.right(ang)\nprint('外角:', ang)\nprint('落点:', round(t.xcor()), round(t.ycor()))\nprint('画笔颜色:', t.pencolor())",
+   "hint": "for i in range(n): t.forward(d) 后 t.right(360 / n)；最后用 t.xcor()、t.ycor()、t.pencolor() 查询状态打印。",
+   "exp": "考查 turtle 画笔控制、循环画正多边形与 xcor/ycor/pencolor 状态查询，判题以打印的状态值为准。",
+   "tags": [
+    "turtle",
+    "循环",
+    "图形"
+   ]
+  },
+  {
+   "id": "code-l7-001",
+   "level": 7,
+   "title": "正则提取手机号",
+   "desc": "程序开头已给定字符串变量 text（starter 中已提供，内容包含若干手机号、邮箱和座机）。用 `re` 模块找出 text 中所有的手机号（以 1 开头、后面跟 10 位数字的连续 11 位数字），按出现顺序每行输出一个。",
+   "starter": "import re\n\ntext = \"请联系张先生，电话 13812345678；备用邮箱 zhang_wei@example.com，也可拨打 15901234567 或 150。李女士的电话是 18765432109，邮箱 li_miss@163.com 不必回复。应急电话 010-62785000 为座机。\"\n# 请补全：用 re 找出 text 中所有手机号并逐行输出\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "13812345678\n15901234567\n18765432109\n"
+    },
+    {
+     "stdin": "",
+     "expected": "13812345678\n15901234567\n18765432109\n"
+    }
+   ],
+   "ref": "import re\n\ntext = \"请联系张先生，电话 13812345678；备用邮箱 zhang_wei@example.com，也可拨打 15901234567 或 150。李女士的电话是 18765432109，邮箱 li_miss@163.com 不必回复。应急电话 010-62785000 为座机。\"\n\nfor p in re.findall(r'1\\d{10}', text):\n    print(p)",
+   "hint": "re.findall(r'1\\d{10}', text) 返回所有匹配的手机号列表，直接遍历打印。",
+   "exp": "考查 re.findall 与正则 r'1\\d{10}' 的书写——手机号匹配是正则最高频的考题。",
+   "tags": [
+    "re",
+    "正则",
+    "字符串"
+   ]
+  },
+  {
+   "id": "code-l7-002",
+   "level": 7,
+   "title": "解析 JSON 成绩数据",
+   "desc": "程序开头已给定 JSON 字符串 data_str（starter 中已提供，是一个班级的成绩数组，每个元素含 name、score 两个键）。用 `json` 模块解析后：第一行输出全班平均分（保留 2 位小数），第二行输出最高分学生的姓名（数据保证最高分唯一）。",
+   "starter": "import json\n\ndata_str = '[{\"name\": \"张伟\", \"score\": 85}, {\"name\": \"李娜\", \"score\": 92}, {\"name\": \"王强\", \"score\": 78}, {\"name\": \"刘洋\", \"score\": 90}, {\"name\": \"陈静\", \"score\": 88}]'\n# 请补全：解析 JSON，输出平均分（2 位小数）与最高分学生姓名\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "86.60\n李娜\n"
+    },
+    {
+     "stdin": "",
+     "expected": "86.60\n李娜\n"
+    }
+   ],
+   "ref": "import json\n\ndata_str = '[{\"name\": \"张伟\", \"score\": 85}, {\"name\": \"李娜\", \"score\": 92}, {\"name\": \"王强\", \"score\": 78}, {\"name\": \"刘洋\", \"score\": 90}, {\"name\": \"陈静\", \"score\": 88}]'\nstudents = json.loads(data_str)\ntotal = 0\nmx = -1\ntop = ''\nfor st in students:\n    total += st['score']\n    if st['score'] > mx:\n        mx = st['score']\n        top = st['name']\nprint('{:.2f}'.format(total / len(students)))\nprint(top)",
+   "hint": "json.loads(data_str) 得到字典列表；遍历累加 score 求平均，打擂台找最高分对应的名字。",
+   "exp": "考查 json.loads 解析、字典取值与累加统计——JSON 数据处理的基础题。",
+   "tags": [
+    "json",
+    "字典",
+    "统计"
+   ]
+  },
+  {
+   "id": "code-l7-003",
+   "level": 7,
+   "title": "JSON 转 CSV 输出",
+   "desc": "程序开头已给定 JSON 字符串 data_str（starter 中已提供，是一个商品数组，每个元素含 name、price 两个键）。解析后把数据转成 CSV 格式文本输出：第一行输出列名 name,price，随后按原顺序每行输出一个商品的 name,price（英文逗号分隔）。",
+   "starter": "import json\n\ndata_str = '[{\"name\": \"apple\", \"price\": 5}, {\"name\": \"milk\", \"price\": 12}, {\"name\": \"bread\", \"price\": 8}, {\"name\": \"egg\", \"price\": 15}, {\"name\": \"coffee\", \"price\": 30}]'\n# 请补全：解析 JSON，按 CSV 格式输出（首行 name,price）\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "name,price\napple,5\nmilk,12\nbread,8\negg,15\ncoffee,30\n"
+    },
+    {
+     "stdin": "",
+     "expected": "name,price\napple,5\nmilk,12\nbread,8\negg,15\ncoffee,30\n"
+    }
+   ],
+   "ref": "import json\n\ndata_str = '[{\"name\": \"apple\", \"price\": 5}, {\"name\": \"milk\", \"price\": 12}, {\"name\": \"bread\", \"price\": 8}, {\"name\": \"egg\", \"price\": 15}, {\"name\": \"coffee\", \"price\": 30}]'\nitems = json.loads(data_str)\nprint('name,price')\nfor it in items:\n    print('{},{}'.format(it['name'], it['price']))",
+   "hint": "json.loads 解析后先 print 表头，再遍历列表，用 '{},{}'.format(it['name'], it['price']) 拼每一行。",
+   "exp": "考查 JSON 解析与 CSV 格式拼装输出——两种数据格式的转换。",
+   "tags": [
+    "json",
+    "CSV",
+    "循环"
+   ]
+  },
+  {
    "id": "code-l5-001",
    "level": 5,
    "title": "书籍评论数统计",
