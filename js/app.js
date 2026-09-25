@@ -626,17 +626,20 @@ function renderResult(outBox, r, expected, passed, perBlank, details) {
       ));
     });
     outBox.append(tb);
-  } else if (r) {
-    outBox.append(h('div', { class: 'io-label' }, '程序输出：'));
-    const pre = h('pre', { class: 'output' });
-    pre.textContent = r.stdout || (r.error ? '' : '（无输出）');
-    if (r.error) {
-      const err = h('pre', { class: 'output' }, h('span', { class: 'out-err' }, '⚠ ' + r.error));
-      outBox.append(pre, err);
-    } else outBox.append(pre);
-    if (expected) {
-      outBox.append(h('div', { class: 'io-label' }, '期望输出：'));
-      outBox.append(h('pre', { class: 'output' }, expected));
+  } else {
+    const d = (details && details[0]) || (r ? { r, t: { stdin: '', expected } } : null);
+    if (d) {
+      outBox.append(h('div', { class: 'io-label' }, '程序输出：'));
+      const pre = h('pre', { class: 'output' });
+      pre.textContent = d.r.stdout || (d.r.error ? '' : '（无输出）');
+      outBox.append(pre);
+      if (d.r.error) {
+        outBox.append(h('pre', { class: 'output' }, h('span', { class: 'out-err' }, '⚠ ' + d.r.error)));
+      }
+      if (d.t.expected) {
+        outBox.append(h('div', { class: 'io-label' }, '期望输出：'));
+        outBox.append(h('pre', { class: 'output' }, d.t.expected));
+      }
     }
     if (perBlank) {
       outBox.append(h('div', { style: 'margin-top:8px' },

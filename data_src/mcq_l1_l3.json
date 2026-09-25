@@ -1,0 +1,785 @@
+{
+  "kind": "mcq",
+  "items": [
+    {
+      "id": "mcq-l1-001",
+      "level": 1,
+      "topic": "标识符规则",
+      "q": "下列选项中，不能作为 Python 变量名的是____。",
+      "opts": ["_score", "my_var", "2nd_name", "姓名"],
+      "ans": 2,
+      "exp": "变量名只能由字母、数字和下划线组成，且不能以数字开头。2nd_name 以数字 2 开头，非法；下划线和中文都可以作变量名。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-002",
+      "level": 1,
+      "topic": "关键字",
+      "q": "下列选项中，属于 Python 关键字（保留字）的是____。",
+      "opts": ["def", "printf", "function", "include"],
+      "ans": 0,
+      "exp": "def 是定义函数的关键字，不能用作变量名；printf、function、include 都是普通标识符，不是 Python 关键字。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-003",
+      "level": 1,
+      "topic": "书写格式",
+      "q": "下列关于 Python 程序书写格式的说法，正确的是____。",
+      "opts": ["Python 使用大括号 {} 划分代码块", "同一层级的语句缩进必须保持一致", "一行内绝对不能写多条语句", "注释只能单独占一行"],
+      "ans": 1,
+      "exp": "Python 靠缩进表示代码块，同一层级缩进不一致会报错。C 错：可用分号在一行写多条语句（不推荐）；D 错：# 注释也可以写在行尾。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-004",
+      "level": 1,
+      "topic": "编程环境与运行步骤",
+      "q": "下列关于 Python 程序编写与运行的说法，错误的是____。",
+      "opts": ["Python 源程序文件通常以 .py 为扩展名", "在 IDLE 中新建文件编写程序后，可按 F5 运行", "可以在命令行用 python 文件名.py 的方式运行程序", "Python 程序只能在交互式环境中逐行执行，不能整段运行"],
+      "ans": 3,
+      "exp": "Python 程序既可以交互式逐行执行，也可以保存为 .py 文件整段运行：IDLE 中按 F5（Run Module）或命令行 python 文件名.py。A、B、C 均正确。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-005",
+      "level": 1,
+      "topic": "input() 函数",
+      "q": "执行 `x = input()`，从键盘输入 123，则变量 x 的类型和值是____。",
+      "opts": ["整型，值为 123", "字符串，值为 '123'", "浮点型，值为 123.0", "列表，值为 ['1', '2', '3']"],
+      "ans": 1,
+      "exp": "input() 的返回值永远是字符串，输入 123 得到的是 '123'；要参与算术运算需先用 int() 或 eval() 转换。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-006",
+      "level": 1,
+      "topic": "eval() 与 input() 组合",
+      "q": "有如下程序：\nx = eval(input())\nprint(x)\n运行时输入 3+4，则输出结果是____。",
+      "opts": ["'3+4'", "3+4", "7", "程序报错"],
+      "ans": 2,
+      "exp": "eval() 把输入的字符串 '3+4' 当作 Python 表达式求值，结果为 7。若不用 eval()，input() 只能返回字符串 '3+4'。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-007",
+      "level": 1,
+      "topic": "print() 与 sep",
+      "q": "`print('a', 'b', 'c', sep='*')` 的输出结果是____。",
+      "opts": ["a*b*c", "abc", "a, b, c", "a b c"],
+      "ans": 0,
+      "exp": "sep 参数指定多个输出项之间的分隔符，默认是空格，这里改为 *，故输出 a*b*c。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-008",
+      "level": 1,
+      "topic": "print() 与 end",
+      "q": "有如下程序：\nprint(1, end='')\nprint(2)\nprint(3)\n输出结果是____。",
+      "opts": ["1、2、3 各占一行输出", "123 在一行输出", "1 2 3 在一行输出（空格分隔）", "12 在一行、3 在一行输出"],
+      "ans": 3,
+      "exp": "end 默认是换行符，改为 '' 后第一个 print 不换行，1 和 2 连在一行；print(2) 末尾换行，所以 3 单独一行。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-009",
+      "level": 1,
+      "topic": "整型",
+      "q": "下列关于 Python 整型（int）的说法，正确的是____。",
+      "opts": ["Python 整数的大小不受限制，可以表示任意大的整数", "整数的长度不能超过 32 位", "3.0 属于整型", "整型和浮点型不能混合运算"],
+      "ans": 0,
+      "exp": "Python 整数采用任意精度，可以表示很大的数。3.0 是浮点型；整型与浮点型可以混合运算，结果为浮点型。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-010",
+      "level": 1,
+      "topic": "浮点型与误差",
+      "q": "`print(0.1 + 0.2 == 0.3)` 的输出结果是____。",
+      "opts": ["True", "False", "0.3", "程序报错"],
+      "ans": 1,
+      "exp": "浮点数以二进制存储存在精度误差，0.1 + 0.2 的实际值是 0.30000000000000004，不等于 0.3，故输出 False。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-011",
+      "level": 1,
+      "topic": "复数",
+      "q": "有如下程序：\nz = 3 + 4j\nprint(z.real, z.imag)\n输出结果是____。",
+      "opts": ["3 4", "4.0 3.0", "3.0 4.0", "程序报错"],
+      "ans": 2,
+      "exp": "复数以 j 表示虚部，.real 取实部、.imag 取虚部，两个属性的值都是浮点型，输出 3.0 4.0。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-012",
+      "level": 1,
+      "topic": "字符串不可变性",
+      "q": "有如下程序：\ns = 'abc'\ns[0] = 'd'\n运行结果是____。",
+      "opts": ["s 变为 'dbc'", "s 变为 'dabc'", "s 变为 'abcd'", "程序报错（TypeError）"],
+      "ans": 3,
+      "exp": "字符串是不可变类型，不能对其中某个字符赋值，执行 s[0]='d' 抛出 TypeError；只能重新赋值整个字符串或用 replace 生成新串。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-013",
+      "level": 1,
+      "topic": "布尔型",
+      "q": "`print(True + True)` 的输出结果是____。",
+      "opts": ["2", "TrueTrue", "1", "程序报错"],
+      "ans": 0,
+      "exp": "布尔型是整型的子类，True 相当于 1、False 相当于 0，所以 True+True 参与算术运算结果为 2。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-014",
+      "level": 1,
+      "topic": "None",
+      "q": "下列关于 None 的说法，正确的是____。",
+      "opts": ["None 与 0 相等", "None 表示空值，其类型是 NoneType", "None 就是空字符串", "变量未赋值时其值自动为 None"],
+      "ans": 1,
+      "exp": "None 是 NoneType 类型的唯一值，表示空值；None == 0 和 None == '' 都是 False，使用未赋值的变量会报 NameError 而不是得到 None。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-015",
+      "level": 1,
+      "topic": "链式赋值",
+      "q": "有如下程序：\na = b = c = 10\na = 20\nprint(b)\n输出结果是____。",
+      "opts": ["20", "30", "10", "程序报错"],
+      "ans": 2,
+      "exp": "链式赋值 a=b=c=10 使三个变量都指向整数 10；对 a 重新赋值只是让 a 指向 20，不影响 b，故输出 10。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-016",
+      "level": 1,
+      "topic": "多重赋值与交换",
+      "q": "有如下程序：\na, b = 3, 5\na, b = b, a\nprint(a, b)\n输出结果是____。",
+      "opts": ["3 5", "3 3", "5 5", "5 3"],
+      "ans": 3,
+      "exp": "多重赋值 a, b = b, a 先把右侧按原值组成元组 (5, 3)，再分别赋给 a、b，实现两变量交换，输出 5 3。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-017",
+      "level": 1,
+      "topic": "多重赋值求值顺序",
+      "q": "有如下程序：\na, b = 1, 2\na, b = b, a + b\nprint(a, b)\n输出结果是____。",
+      "opts": ["2 3", "2 2", "2 4", "1 3"],
+      "ans": 0,
+      "exp": "多重赋值先整体求右侧：按旧值算出 (b, a+b) 即 (2, 3)，再同时赋给 a、b。误认为 a 先变成 2 再算 a+b 会错选 2 4。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l1-018",
+      "level": 1,
+      "topic": "类型转换 int()",
+      "q": "下列语句中，运行时会报错的是____。",
+      "opts": ["int('12')", "int(3.9)", "int('3.5')", "int(True)"],
+      "ans": 2,
+      "exp": "int() 直接转换字符串时要求是合法的整数形式，int('3.5') 抛出 ValueError；int(3.9) 截断小数得 3，int(True) 得 1。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-019",
+      "level": 1,
+      "topic": "类型转换 float()/str()",
+      "q": "`print(float('3') + 1, str(3) + '5')` 的输出结果是____。",
+      "opts": ["4 35", "4.0 35", "4.0 '35'", "程序报错"],
+      "ans": 1,
+      "exp": "float('3') 得 3.0，加 1 为 4.0；str(3) 得 '3'，与 '5' 拼接为 '35'，print 输出时不带引号，结果为 4.0 35。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-020",
+      "level": 1,
+      "topic": "eval() 函数",
+      "q": "下列关于 eval() 函数的说法，正确的是____。",
+      "opts": ["eval() 用于把整数转换成字符串", "eval() 只能处理整数字符串", "eval() 与 int() 的功能完全相同", "eval() 把字符串作为 Python 表达式求值并返回结果"],
+      "ans": 3,
+      "exp": "eval() 去掉字符串引号并按表达式求值，如 eval('3*4') 得 12；它不仅能转数字，还能计算表达式，与 int() 不同。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-021",
+      "level": 1,
+      "topic": "整除与取余",
+      "q": "`print(17 // 5, 17 % 5)` 的输出结果是____。",
+      "opts": ["3 2", "3.4 2", "3 3", "2 3"],
+      "ans": 0,
+      "exp": "// 是整除（向下取整），17//5=3；% 是取余数，17%5=2，满足 17 = 5*3 + 2。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l1-022",
+      "level": 1,
+      "topic": "幂运算与优先级",
+      "q": "`print(-3 ** 2, (-3) ** 2)` 的输出结果是____。",
+      "opts": ["9 9", "-9 9", "-9 -9", "9 -9"],
+      "ans": 1,
+      "exp": "** 的优先级高于负号，-3**2 相当于 -(3**2) 即 -9；加括号后 (-3)**2 是 9 的平方，结果为 9。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-023",
+      "level": 1,
+      "topic": "and/or 的返回值",
+      "q": "`print(3 and 5, 0 or 'x')` 的输出结果是____。",
+      "opts": ["True True", "3 x", "5 x", "程序报错"],
+      "ans": 2,
+      "exp": "and/or 的结果是参与运算的值而非布尔值：3 为真，and 返回后一个值 5；0 为假，or 返回第一个为真的值 'x'，输出 5 x。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l1-024",
+      "level": 1,
+      "topic": "not/and/or 优先级",
+      "q": "`print(not 2 > 3 and 4 > 5 or 6 > 5)` 的输出结果是____。",
+      "opts": ["True", "False", "None", "程序报错"],
+      "ans": 0,
+      "exp": "优先级从高到低为：比较运算、not、and、or。not(2>3)=True，True and (4>5)=False，False or (6>5)=True。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l1-025",
+      "level": 1,
+      "topic": "混合运算自动类型转换",
+      "q": "`print(3 / 2, 5 // 2.0)` 的输出结果是____。",
+      "opts": ["1 2", "1 2.0", "1.5 2", "1.5 2.0"],
+      "ans": 3,
+      "exp": "/ 的结果总是浮点型，3/2=1.5；// 只要有一个操作数是浮点型，结果就是浮点型，5//2.0=2.0。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l1-026",
+      "level": 1,
+      "topic": "表达式求值",
+      "q": "`print(2 + 3 * 4 ** 2 // 5 - 1)` 的输出结果是____。",
+      "opts": ["9", "10", "11", "16"],
+      "ans": 1,
+      "exp": "先算 4**2=16，* 与 // 同级从左到右：3*16=48、48//5=9，最后 2+9-1=10。漏掉 -1 会错选 11。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l2-001",
+      "level": 2,
+      "topic": "三种基本结构",
+      "q": "Python 程序的三种基本控制结构是____。",
+      "opts": ["输入结构、处理结构、输出结构", "顺序结构、分支结构、循环结构", "变量结构、函数结构、类结构", "单分支结构、双分支结构、多分支结构"],
+      "ans": 1,
+      "exp": "任何程序都可由顺序、分支（选择）、循环三种基本结构组合实现；输入/处理/输出是程序的功能步骤，单分支/双分支只是分支的具体形式。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-002",
+      "level": 2,
+      "topic": "if 语句语法",
+      "q": "下列 if 语句中，语法正确的是____。",
+      "opts": ["if x > 0:\n    print('正数')", "if x > 0\n    print('正数')", "if (x > 0) print('正数')", "if x > 0 then: print('正数')"],
+      "ans": 0,
+      "exp": "if 条件后必须跟冒号，分支体靠缩进表示；Python 中没有 then 关键字，条件后也不能直接跟语句而不写冒号。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-003",
+      "level": 2,
+      "topic": "if-elif-else 分支",
+      "q": "有如下程序：\nx = 75\nif x >= 90:\n    print('A')\nelif x >= 60:\n    print('B')\nelse:\n    print('C')\n输出结果是____。",
+      "opts": ["A", "C", "B", "程序报错"],
+      "ans": 2,
+      "exp": "多分支自上而下判断，75 不满足 x>=90，满足 x>=60，输出 B 后其余分支不再执行；只会输出一个分支。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-004",
+      "level": 2,
+      "topic": "嵌套 if 与求最大值",
+      "q": "有如下程序：\na, b, c = 3, 7, 5\nif a > b:\n    if a > c:\n        print(a)\n    else:\n        print(c)\nelse:\n    if b > c:\n        print(b)\n    else:\n        print(c)\n输出结果是____。",
+      "opts": ["3", "5", "7", "程序报错"],
+      "ans": 2,
+      "exp": "a>b 为假进入外层 else，b>c 为真输出 b 即 7。该程序用嵌套分支输出三个数中的最大值。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-005",
+      "level": 2,
+      "topic": "条件的真值判断",
+      "q": "有如下程序：\ns = '0'\nif s:\n    print('yes')\nelse:\n    print('no')\n输出结果是____。",
+      "opts": ["yes", "no", "0", "程序报错"],
+      "ans": 0,
+      "exp": "非空字符串作条件时为真，'0' 是长度为 1 的字符串，不是数值 0，输出 yes；空字符串 ''、0、None 作条件时才为假。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-006",
+      "level": 2,
+      "topic": "while 循环累加",
+      "q": "有如下程序：\ni, s = 1, 0\nwhile i <= 10:\n    s = s + i\n    i = i + 2\nprint(s)\n输出结果是____。",
+      "opts": ["55", "30", "20", "25"],
+      "ans": 3,
+      "exp": "i 依次取 1、3、5、7、9，累加和为 25，i=11 时不满足条件退出。误认为 1~10 全部累加会错选 55。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-007",
+      "level": 2,
+      "topic": "while 循环次数",
+      "q": "有如下程序：\nn = 100\ncount = 0\nwhile n > 1:\n    n = n // 2\n    count += 1\nprint(count)\n输出结果是____。",
+      "opts": ["5", "6", "7", "100"],
+      "ans": 1,
+      "exp": "n 依次变为 50、25、12、6、3、1，共循环 6 次；n 变为 1 时条件 n>1 不再成立。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l2-008",
+      "level": 2,
+      "topic": "无限循环",
+      "q": "下列程序段中，循环体会无限执行（死循环）的是____。",
+      "opts": ["i = 0\nwhile i < 5:\n    i += 1", "for i in range(10):\n    print(i)", "i = 10\nwhile i > 0:\n    i += 1", "n = 5\nwhile n:\n    n -= 1"],
+      "ans": 2,
+      "exp": "选项 C 中 i 不断增大，条件 i>0 永远成立，构成死循环；A 中 i 增到 5 退出，B 遍历完结束，D 中 n 减到 0 时条件为假退出。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-009",
+      "level": 2,
+      "topic": "for 与 range()",
+      "q": "有如下程序：\nfor i in range(1, 10, 3):\n    print(i, end=' ')\n输出结果是____。",
+      "opts": ["1 4 7", "1 4 7 10", "1 3 6 9", "3 6 9"],
+      "ans": 0,
+      "exp": "range(1, 10, 3) 从 1 开始、步长为 3，产生 1、4、7，含头不含尾，不会取到终点 10。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-010",
+      "level": 2,
+      "topic": "range() 遍历次数",
+      "q": "`for i in range(3, 10)` 的循环体共执行____次。",
+      "opts": ["8 次，i 依次取 3~10", "7 次，i 依次取 3~10", "6 次，i 依次取 4~9", "7 次，i 依次取 3~9"],
+      "ans": 3,
+      "exp": "range(起, 止) 含头不含尾，产生 3~9 共 10-3=7 个整数，循环 7 次。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-011",
+      "level": 2,
+      "topic": "for 遍历字符串",
+      "q": "有如下程序：\nfor ch in 'abc':\n    print(ch * 2, end='')\n输出结果是____。",
+      "opts": ["abc", "aabbcc", "aa bb cc", "程序报错"],
+      "ans": 1,
+      "exp": "逐字符遍历，ch*2 把每个字符重复 2 次得 aa、bb、cc，end='' 使输出连在一行，结果为 aabbcc。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-012",
+      "level": 2,
+      "topic": "循环嵌套与乘法表",
+      "q": "用双层 for 循环打印九九乘法表，内层循环用 print(算式, end='\\t') 输出一行中的多个乘式，每输出完一行后应执行____来实现换行。",
+      "opts": ["print()", "print(end='')", "break", "continue"],
+      "ans": 0,
+      "exp": "print() 默认输出换行符，用于一行结束后换行；print(end='') 不换行，break/continue 会改变循环流程而非换行。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-013",
+      "level": 2,
+      "topic": "循环嵌套与图形打印",
+      "q": "有如下程序：\nfor i in range(1, 4):\n    print('*' * i)\n输出结果是____。",
+      "opts": ["输出一行：******", "输出三行：***、**、*", "程序报错", "输出三行：*、**、***"],
+      "ans": 3,
+      "exp": "i 依次取 1、2、3，字符串乘法 '*'*i 使每行输出 i 个星号，共三行逐行增加；range(1,4) 不含 4。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-014",
+      "level": 2,
+      "topic": "嵌套循环与计数器",
+      "q": "有如下程序：\ncount = 0\nfor i in range(3):\n    for j in range(4):\n        count += 1\nprint(count)\n输出结果是____。",
+      "opts": ["3", "7", "12", "4"],
+      "ans": 2,
+      "exp": "外层执行 3 次、内层每次执行 4 次，计数器共累加 3×4=12 次，输出 12。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-015",
+      "level": 2,
+      "topic": "break 语句",
+      "q": "有如下程序：\nfor i in range(1, 6):\n    if i == 3:\n        break\n    print(i, end=' ')\n输出结果是____。",
+      "opts": ["1 2 3 4 5", "1 2", "1 2 4 5", "3"],
+      "ans": 1,
+      "exp": "i 为 3 时执行 break 立即跳出整个循环，3、4、5 都不再输出，只输出 1 2。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-016",
+      "level": 2,
+      "topic": "continue 语句",
+      "q": "有如下程序：\nfor i in range(1, 6):\n    if i == 3:\n        continue\n    print(i, end=' ')\n输出结果是____。",
+      "opts": ["1 2 3 4 5", "1 2", "3", "1 2 4 5"],
+      "ans": 3,
+      "exp": "i 为 3 时 continue 跳过本次循环剩余语句，只跳过 3 的输出，循环继续到 5，输出 1 2 4 5。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-017",
+      "level": 2,
+      "topic": "break 与 continue 区别",
+      "q": "关于 break 和 continue，下列说法正确的是____。",
+      "opts": ["break 跳出并结束整个循环，continue 跳过本次循环剩余语句、进入下一次循环", "break 结束本次循环，continue 结束整个循环", "break 和 continue 都只能用在 while 循环中", "continue 会终止整个程序的执行"],
+      "ans": 0,
+      "exp": "break 终止整个循环，continue 只结束本次进入下一次；两者都可用于 for 和 while 循环。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-018",
+      "level": 2,
+      "topic": "for-else 结构",
+      "q": "有如下程序：\nfor i in range(3):\n    print(i, end=' ')\nelse:\n    print('end')\n输出结果是____。",
+      "opts": ["只输出一行：0 1 2", "第一行输出 0 1 2，第二行输出 end", "只输出 end", "程序报错"],
+      "ans": 1,
+      "exp": "for 循环正常结束（未被 break 打断）时会执行 else 子句，故先输出 0 1 2，再输出 end。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l2-019",
+      "level": 2,
+      "topic": "while True 与 break",
+      "q": "有如下程序：\nn = 0\nwhile True:\n    n += 1\n    if n == 3:\n        break\nprint(n)\n输出结果是____。",
+      "opts": ["2", "4", "3", "程序死循环，无输出"],
+      "ans": 2,
+      "exp": "while True 条件恒真，需要靠 break 退出：n 增到 3 时执行 break 跳出循环，输出 3。这是“无限循环+break”的典型结构。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-020",
+      "level": 2,
+      "topic": "try-except 概念",
+      "q": "关于 try-except 异常处理语句，下列说法正确的是____。",
+      "opts": ["try 子句中的代码出现异常时，程序立即终止运行", "except 子句必须写在 try 子句之前", "try-except 语句只能处理语法错误", "try 子句中的代码出现异常时，转去执行 except 子句，程序不会中断"],
+      "ans": 3,
+      "exp": "try 中出现运行时异常会跳到 except 分支处理，程序继续运行；except 必须写在 try 之后，语法错误无法用 try-except 捕获。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-021",
+      "level": 2,
+      "topic": "try-except 执行流程",
+      "q": "有如下程序：\ntry:\n    x = int('abc')\n    print(x)\nexcept:\n    print('error')\n输出结果是____。",
+      "opts": ["error", "abc", "0", "程序报错终止"],
+      "ans": 0,
+      "exp": "int('abc') 抛出 ValueError，try 中剩余语句 print(x) 被跳过，转去执行 except 分支输出 error。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-022",
+      "level": 2,
+      "topic": "素数判断",
+      "q": "有如下程序：\nn = 17\nflag = True\nfor i in range(2, n):\n    if n % i == 0:\n        flag = False\n        break\nprint(flag)\n输出结果是____。",
+      "opts": ["False", "True", "17", "程序报错"],
+      "ans": 1,
+      "exp": "17 只能被 1 和它本身整除，2~16 中没有它的因数，flag 保持 True，输出 True，说明 17 是素数。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-023",
+      "level": 2,
+      "topic": "水仙花数",
+      "q": "水仙花数是一个三位数，其各位数字的立方和等于它本身。下列数中，是水仙花数的是____。",
+      "opts": ["100", "135", "153", "351"],
+      "ans": 2,
+      "exp": "153 = 1³+5³+3³ = 1+125+27，是水仙花数；100、135、351 各位数字的立方和都不等于自身。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l2-024",
+      "level": 2,
+      "topic": "斐波那契数列",
+      "q": "有如下程序：\na, b = 1, 1\nfor i in range(4):\n    a, b = b, a + b\nprint(b)\n输出结果是____。",
+      "opts": ["3", "5", "13", "8"],
+      "ans": 3,
+      "exp": "每次迭代 (a, b) 依次变为 (1,2)、(2,3)、(3,5)、(5,8)，输出 8，即斐波那契数列 1,1,2,3,5,8 的第 6 项。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l2-025",
+      "level": 2,
+      "topic": "累乘（阶乘）",
+      "q": "有如下程序：\np = 1\nfor i in range(1, 5):\n    p = p * i\nprint(p)\n输出结果是____。",
+      "opts": ["24", "10", "120", "4"],
+      "ans": 0,
+      "exp": "循环计算 1×2×3×4=24，即 4 的阶乘。累乘器初值必须是 1；若想算 5! 应写 range(1, 6)，结果是 120。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l2-026",
+      "level": 2,
+      "topic": "最大公约数（辗转相除法）",
+      "q": "有如下程序（辗转相除法求最大公约数）：\na, b = 12, 18\nwhile b:\n    a, b = b, a % b\nprint(a)\n输出结果是____。",
+      "opts": ["2", "3", "6", "36"],
+      "ans": 2,
+      "exp": "(a, b) 依次变为 (18,12)、(12,6)、(6,0)，b 为 0 时循环结束，a 即最大公约数 6。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l3-001",
+      "level": 3,
+      "topic": "字符串索引",
+      "q": "有如下程序：\ns = 'Python'\nprint(s[1], s[-1])\n输出结果是____。",
+      "opts": ["P n", "P o", "y n", "程序报错"],
+      "ans": 2,
+      "exp": "索引从 0 开始，s[1] 是第 2 个字符 y；负索引从末尾数起，s[-1] 是最后一个字符 n。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-002",
+      "level": 3,
+      "topic": "字符串切片",
+      "q": "`s = 'Python'`，则 `s[1:4]` 的值是____。",
+      "opts": ["'yth'", "'Pyt'", "'ytho'", "'Pyth'"],
+      "ans": 0,
+      "exp": "切片 s[起:止] 含头不含尾，取下标 1、2、3 的字符 y、t、h，结果为 'yth'。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-003",
+      "level": 3,
+      "topic": "切片步长",
+      "q": "`print('abcde'[::-1])` 的输出结果是____。",
+      "opts": ["abcde", "edc", "a", "edcba"],
+      "ans": 3,
+      "exp": "步长为 -1 表示从右往左逐个取字符，实现字符串反转，输出 edcba。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-004",
+      "level": 3,
+      "topic": "find 方法",
+      "q": "`print('hello world'.find('o'))` 的输出结果是____。",
+      "opts": ["7", "4", "-1", "5"],
+      "ans": 1,
+      "exp": "find 返回子串第一次出现的下标，第一个 o 在下标 4；若找不到返回 -1。第二个 o 在下标 7，但 find 只返回第一次出现的位置。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-005",
+      "level": 3,
+      "topic": "replace 方法",
+      "q": "`print('a-b-c'.replace('-', '+'))` 的输出结果是____。",
+      "opts": ["a-b-c", "a+b-c", "a+b+c", "['a', 'b', 'c']"],
+      "ans": 2,
+      "exp": "replace 把字符串中所有 - 替换为 +（不只是第一个），返回新字符串 a+b+c，原字符串不变。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-006",
+      "level": 3,
+      "topic": "split 方法",
+      "q": "`print('a,b,c'.split(','))` 的输出结果是____。",
+      "opts": ["['a', 'b', 'c']", "'a,b,c'", "('a', 'b', 'c')", "abc"],
+      "ans": 0,
+      "exp": "split 按指定分隔符切分字符串，返回列表 ['a', 'b', 'c']，是字符串转列表的常用方法。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-007",
+      "level": 3,
+      "topic": "strip 方法",
+      "q": "`print('  hi  '.strip() + '!')` 的输出结果是____。",
+      "opts": ["'  hi  !'", "'hi  !'", "'  hi!'", "hi!"],
+      "ans": 3,
+      "exp": "strip 去掉字符串首尾两端的空白字符（中间的空格保留），得到 'hi'，再拼接 ! 输出 hi!。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-008",
+      "level": 3,
+      "topic": "upper/lower 方法",
+      "q": "有如下程序：\ns = 'hello'\ns.upper()\nprint(s)\n输出结果是____。",
+      "opts": ["HELLO", "hello", "Hello", "程序报错"],
+      "ans": 1,
+      "exp": "字符串不可变，s.upper() 返回新字符串 'HELLO' 但不改变 s 本身；想生效需写 s = s.upper()。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-009",
+      "level": 3,
+      "topic": "count 方法",
+      "q": "`print('banana'.count('a'))` 的输出结果是____。",
+      "opts": ["3", "2", "4", "1"],
+      "ans": 0,
+      "exp": "count 统计子串出现的次数，banana 中有 3 个 a。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-010",
+      "level": 3,
+      "topic": "join 方法",
+      "q": "`print('-'.join(['2026', '09', '25']))` 的输出结果是____。",
+      "opts": ["['2026', '09', '25']", "20260925", "2026-09-25", "程序报错"],
+      "ans": 2,
+      "exp": "join 把列表中各字符串用指定分隔符连接成一个字符串，输出 2026-09-25；join 与 split 互为逆操作，常用于列表与字符串互转。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-011",
+      "level": 3,
+      "topic": "% 格式化",
+      "q": "`print('姓名:%s, 年龄:%d' % ('李明', 18))` 的输出结果是____。",
+      "opts": ["姓名:%s, 年龄:%d", "姓名:18, 年龄:李明", "程序报错", "姓名:李明, 年龄:18"],
+      "ans": 3,
+      "exp": "%s 对应字符串、%d 对应整数，右侧元组中的值按顺序填入占位符，输出 姓名:李明, 年龄:18。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-012",
+      "level": 3,
+      "topic": "format 方法",
+      "q": "`print('{:.2f}'.format(3.14159))` 的输出结果是____。",
+      "opts": ["3.14", "3.1416", "3.1", "3.15"],
+      "ans": 0,
+      "exp": "{:.2f} 表示保留两位小数（f 为浮点数格式），3.14159 四舍五入为 3.14。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-013",
+      "level": 3,
+      "topic": "f-string 格式化",
+      "q": "有如下程序：\nname, age = '王芳', 20\nprint(f'{name}今年{age}岁')\n输出结果是____。",
+      "opts": ["{name}今年{age}岁", "王芳今年20岁", "name今年age岁", "程序报错"],
+      "ans": 1,
+      "exp": "f 字符串中的 {变量名} 会被替换为变量的值，是最简洁的格式化方式；不加 f 前缀时花括号原样输出。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-014",
+      "level": 3,
+      "topic": "append 方法",
+      "q": "有如下程序：\nlst = [1, 2, 3]\nlst.append([4, 5])\nprint(len(lst))\n输出结果是____。",
+      "opts": ["5", "3", "4", "程序报错"],
+      "ans": 2,
+      "exp": "append 把整个 [4, 5] 作为单个元素追加到末尾，列表变为 [1, 2, 3, [4, 5]]，长度为 4。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-015",
+      "level": 3,
+      "topic": "insert 与 pop",
+      "q": "有如下程序：\nlst = [10, 20, 30, 40]\nlst.insert(1, 15)\nx = lst.pop(2)\nprint(lst, x)\n输出结果是____。",
+      "opts": ["[10, 15, 30, 40] 30", "[10, 20, 30, 40] 15", "[10, 15, 20, 40] 20", "[10, 15, 30, 40] 20"],
+      "ans": 3,
+      "exp": "insert(1, 15) 在下标 1 处插入得 [10,15,20,30,40]；pop(2) 删除并返回下标 2 的元素 20，列表变为 [10, 15, 30, 40]。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l3-016",
+      "level": 3,
+      "topic": "remove 方法",
+      "q": "有如下程序：\nlst = [1, 2, 2, 3]\nlst.remove(2)\nprint(lst)\n输出结果是____。",
+      "opts": ["[1, 2, 3]", "[1, 3]", "[1, 2, 2, 3]", "程序报错"],
+      "ans": 0,
+      "exp": "remove 只删除第一个值为 2 的元素，剩下的 2 保留；按位置删除应使用 pop 或 del。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-017",
+      "level": 3,
+      "topic": "sort 与 sorted",
+      "q": "有如下程序：\na = [3, 1, 2]\nb = sorted(a)\nprint(a, b)\n输出结果是____。",
+      "opts": ["[1, 2, 3] [1, 2, 3]", "[3, 1, 2] [1, 2, 3]", "[1, 2, 3] [3, 1, 2]", "[3, 1, 2] [3, 1, 2]"],
+      "ans": 1,
+      "exp": "sorted(a) 返回排序后的新列表，原列表 a 不变；a.sort() 才是原地排序、直接修改 a 本身。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-018",
+      "level": 3,
+      "topic": "reverse/index/count",
+      "q": "有如下程序：\nlst = [1, 2, 3, 2]\nlst.reverse()\nprint(lst, lst.index(2), lst.count(2))\n输出结果是____。",
+      "opts": ["[1, 2, 3, 2] 1 2", "[2, 3, 2, 1] 1 2", "[2, 3, 2, 1] 0 2", "[2, 3, 2, 1] 0 3"],
+      "ans": 2,
+      "exp": "reverse 原地反转为 [2, 3, 2, 1]；index 返回第一个匹配元素的下标 0，count 统计 2 共出现 2 次。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l3-019",
+      "level": 3,
+      "topic": "列表解析式",
+      "q": "`print([x * x for x in range(1, 5) if x % 2 == 0])` 的输出结果是____。",
+      "opts": ["[1, 4, 9, 16]", "[2, 4]", "[4, 16]", "[4]"],
+      "ans": 2,
+      "exp": "range(1, 5) 取 1~4，if 筛出偶数 2 和 4，平方后得 [4, 16]；列表解析式 = 遍历 + 过滤 + 表达式。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-020",
+      "level": 3,
+      "topic": "enumerate",
+      "q": "`print(list(enumerate('abc')))` 的输出结果是____。",
+      "opts": ["['a', 'b', 'c']", "[(1, 'a'), (2, 'b'), (3, 'c')]", "程序报错", "[(0, 'a'), (1, 'b'), (2, 'c')]"],
+      "ans": 3,
+      "exp": "enumerate 同时给出下标和元素，下标默认从 0 开始，组成 (下标, 元素) 元组的列表；for i, ch in enumerate(...) 就是在做元组解包。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-021",
+      "level": 3,
+      "topic": "深浅复制",
+      "q": "有如下程序：\na = [1, 2, 3]\nb = a[:]\nb[0] = 99\nprint(a)\n输出结果是____。",
+      "opts": ["[1, 2, 3]", "[99, 2, 3]", "[1, 2, 3, 99]", "程序报错"],
+      "ans": 0,
+      "exp": "b=a[:] 复制出一个新列表，修改 b 不影响 a；若写成 b=a，两个名字指向同一个列表，a 也会变成 [99, 2, 3]。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-022",
+      "level": 3,
+      "topic": "元组与单元素元组",
+      "q": "有如下程序：\nt = (5)\nprint(type(t))\n输出结果是____。",
+      "opts": ["<class 'tuple'>", "<class 'int'>", "<class 'float'>", "<class 'str'>"],
+      "ans": 1,
+      "exp": "(5) 只是带括号的整数表达式，定义单元素元组必须写 (5,)。元组是不可变类型，不能对其中元素赋值。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-023",
+      "level": 3,
+      "topic": "字典增删改",
+      "q": "有如下程序：\nd = {'a': 1, 'b': 2}\nd['c'] = 3\ndel d['a']\nprint(d)\n输出结果是____。",
+      "opts": ["{'a': 1, 'b': 2, 'c': 3}", "{'c': 3}", "{'b': 2, 'c': 3}", "程序报错"],
+      "ans": 2,
+      "exp": "d['c']=3 新增键值对，del d['a'] 删除键 'a'；也可以用 d.pop('a') 删除并返回对应的值。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l3-024",
+      "level": 3,
+      "topic": "字典分类计数",
+      "q": "有如下程序：\ns = 'ababc'\nd = {}\nfor ch in s:\n    d[ch] = d.get(ch, 0) + 1\nprint(d)\n输出结果是____。",
+      "opts": ["{'a': 2, 'b': 2, 'c': 1}", "{'a': 1, 'b': 1, 'c': 1}", "{'ababc': 1}", "程序报错"],
+      "ans": 0,
+      "exp": "d.get(ch, 0) 在键不存在时返回默认值 0，实现逐字符计数；遍历键值对可用 for k, v in d.items()（键值元组解包）。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l3-025",
+      "level": 3,
+      "topic": "不可变对象作键",
+      "q": "下列选项中，不能作为字典键的是____。",
+      "opts": ["'name'", "(1, 2)", "3.14", "[1, 2]"],
+      "ans": 3,
+      "exp": "字典的键必须是不可变对象：字符串、数值、元组都可以，列表是可变类型，作键会报 TypeError。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l3-026",
+      "level": 3,
+      "topic": "集合去重",
+      "q": "有如下程序：\nlst = [1, 2, 2, 3, 3, 3]\nprint(len(set(lst)))\n输出结果是____。",
+      "opts": ["6", "3", "1", "程序报错"],
+      "ans": 1,
+      "exp": "set() 把列表转成集合时自动去掉重复元素，得到 {1, 2, 3} 共 3 个元素；这是列表去重的常用方法。",
+      "difficulty": 1
+    }
+  ]
+}
