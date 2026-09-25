@@ -1170,6 +1170,1206 @@ window.BANK = {
    "ans": 1,
    "exp": "set() 把列表转成集合时自动去掉重复元素，得到 {1, 2, 3} 共 3 个元素；这是列表去重的常用方法。",
    "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-001",
+   "level": 4,
+   "topic": "函数定义",
+   "q": "下列关于函数定义的说法，错误的是____。",
+   "opts": [
+    "函数定义后，必须被调用才能执行函数体中的代码",
+    "def 语句定义函数时，函数体必须相对 def 缩进",
+    "函数体中必须包含 return 语句，否则定义函数时会报语法错误",
+    "函数名的命名规则与变量名相同"
+   ],
+   "ans": 2,
+   "exp": "函数可以没有 return 语句，此时函数返回 None，不会报语法错误；其余三项都是函数定义的正确规则。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-002",
+   "level": 4,
+   "topic": "返回值",
+   "q": "有如下程序：\ndef f(x):\n    x = x + 1\nprint(f(3))\n输出结果是____。",
+   "opts": [
+    "None",
+    "4",
+    "3",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "函数体中没有 return 语句时，函数返回 None。函数体虽然执行了 x=x+1，但没有把结果返回，print 输出 None。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-003",
+   "level": 4,
+   "topic": "多返回值",
+   "q": "有如下程序：\ndef f(a, b):\n    return a + b, a * b\nr = f(2, 3)\nprint(r)\n输出结果是____。",
+   "opts": [
+    "[5, 6]",
+    "5 6",
+    "程序报错",
+    "(5, 6)"
+   ],
+   "ans": 3,
+   "exp": "return 后跟多个值时会自动打包成一个元组返回，a+b=5、a*b=6，故 r 是元组 (5, 6)；5 6 是 print 多个值的输出形式，而 r 本身是一个元组对象。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-004",
+   "level": 4,
+   "topic": "形参与实参",
+   "q": "有函数定义 `def add(x, y):`，调用 `add(3, 5)` 时，下列说法正确的是____。",
+   "opts": [
+    "3 和 5 是形式参数",
+    "3 和 5 是实际参数",
+    "3 是形参，5 是实参",
+    "3 和 5 是关键字参数"
+   ],
+   "ans": 1,
+   "exp": "定义时括号中的 x、y 是形式参数（形参），调用时传入的具体值 3、5 是实际参数（实参）；按位置直接传值的不是关键字参数。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-005",
+   "level": 4,
+   "topic": "默认参数",
+   "q": "有如下程序：\ndef f(a, b=10):\n    return a + b\nprint(f(1), f(1, 2))\n输出结果是____。",
+   "opts": [
+    "11 12",
+    "11 3",
+    "3 12",
+    "程序报错"
+   ],
+   "ans": 1,
+   "exp": "f(1) 只按位置给 a 传 1，b 使用默认值 10，得 11；f(1, 2) 按位置给 b 传 2，覆盖默认值，得 3。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-006",
+   "level": 4,
+   "topic": "关键字参数",
+   "q": "有如下程序：\ndef f(a, b):\n    return a - b\nprint(f(b=1, a=5))\n输出结果是____。",
+   "opts": [
+    "-4",
+    "6",
+    "程序报错",
+    "4"
+   ],
+   "ans": 3,
+   "exp": "关键字参数按参数名传递，与书写顺序无关，相当于 a=5、b=1，故 a-b=4；若误按位置理解为 1-5 会错选 -4。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-007",
+   "level": 4,
+   "topic": "可变参数",
+   "q": "有如下程序：\ndef f(a, *b):\n    print(a, b)\nf(1, 2, 3)\n输出结果是____。",
+   "opts": [
+    "1 (2, 3)",
+    "1 [2, 3]",
+    "1 2 3",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "形参前的 * 号把多余的位置参数收集成一个元组，a 接收第一个实参 1，b 是元组 (2, 3)，print 输出 1 (2, 3)。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-008",
+   "level": 4,
+   "topic": "可变参数",
+   "q": "有如下程序：\ndef f(**kw):\n    return kw\nprint(f(x=1, y=2))\n输出结果是____。",
+   "opts": [
+    "[('x', 1), ('y', 2)]",
+    "(1, 2)",
+    "{'x': 1, 'y': 2}",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "形参前的 ** 号把关键字参数收集成一个字典，键是参数名字符串、值是对应实参，故返回 {'x': 1, 'y': 2}；*args 才是收集为元组。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-009",
+   "level": 4,
+   "topic": "作用域",
+   "q": "有如下程序：\ndef f():\n    x = 10\n    return x\nx = 5\nf()\nprint(x)\n输出结果是____。",
+   "opts": [
+    "5",
+    "10",
+    "15",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "函数内赋值的 x 是局部变量，只在函数内部有效，不影响外面的全局变量 x，故输出 5；要在函数内修改全局变量须先 global 声明。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-010",
+   "level": 4,
+   "topic": "global 语句",
+   "q": "有如下程序：\nn = 10\ndef f():\n    global n\n    n = n + 5\n    return n\nf()\nprint(n)\n输出结果是____。",
+   "opts": [
+    "10",
+    "5",
+    "15",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "global n 声明函数内的 n 就是全局变量，n=n+5 直接修改全局变量，调用后 n 变为 15，输出 15。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-011",
+   "level": 4,
+   "topic": "作用域",
+   "q": "有如下程序：\nn = 10\ndef f():\n    n = n + 1\nf()\nprint(n)\n运行结果是____。",
+   "opts": [
+    "11",
+    "程序报错，提示局部变量 n 在赋值前被引用",
+    "10",
+    "None"
+   ],
+   "ans": 1,
+   "exp": "函数内对 n 赋值使 n 被当作局部变量，但执行 n=n+1 时右侧的 n 还未赋值，引发 UnboundLocalError；想在函数内修改全局变量必须先写 global n。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l4-012",
+   "level": 4,
+   "topic": "lambda",
+   "q": "有如下程序：\nf = lambda x, y: x if x > y else y\nprint(f(3, 8))\n输出结果是____。",
+   "opts": [
+    "3",
+    "(3, 8)",
+    "程序报错",
+    "8"
+   ],
+   "ans": 3,
+   "exp": "lambda 冒号后是一个表达式，其值即返回值；条件表达式 x if x>y else y 取较大者，f(3, 8) 返回 8。该 lambda 相当于定义了求两数最大值的函数。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-013",
+   "level": 4,
+   "topic": "map()",
+   "q": "有如下程序：\nprint(list(map(lambda x: x * 2, [1, 2, 3])))\n输出结果是____。",
+   "opts": [
+    "[1, 4, 9]",
+    "[1, 2, 3]",
+    "程序报错",
+    "[2, 4, 6]"
+   ],
+   "ans": 3,
+   "exp": "map(f, 序列) 把函数 f 逐个作用于序列的每个元素并返回 map 对象，用 list() 转成列表得 [2, 4, 6]。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-014",
+   "level": 4,
+   "topic": "filter()",
+   "q": "有如下程序：\nprint(list(filter(lambda x: x % 2 == 1, [1, 2, 3, 4, 5])))\n输出结果是____。",
+   "opts": [
+    "[2, 4]",
+    "[1, 3, 5]",
+    "[1, 2, 3, 4, 5]",
+    "程序报错"
+   ],
+   "ans": 1,
+   "exp": "filter(f, 序列) 只保留使 f(x) 为真的元素，这里筛选奇数得 [1, 3, 5]；filter 只做筛选，不改变元素本身。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-015",
+   "level": 4,
+   "topic": "sorted(key=)",
+   "q": "有如下程序：\nwords = ['pear', 'fig', 'banana']\nprint(sorted(words, key=len))\n输出结果是____。",
+   "opts": [
+    "['banana', 'fig', 'pear']",
+    "程序报错",
+    "['fig', 'pear', 'banana']",
+    "['fig', 'banana', 'pear']"
+   ],
+   "ans": 2,
+   "exp": "key=len 表示按每个字符串的长度排序：fig 长 3、pear 长 4、banana 长 6；不加 key 时才按字典序，banana 会排在最前。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-016",
+   "level": 4,
+   "topic": "sorted(key=)",
+   "q": "有如下程序：\npairs = [(1, 3), (2, 1), (3, 2)]\nprint(sorted(pairs, key=lambda t: t[1]))\n输出结果是____。",
+   "opts": [
+    "[(2, 1), (3, 2), (1, 3)]",
+    "[(1, 3), (2, 1), (3, 2)]",
+    "[(1, 2, 3)]",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "key=lambda t: t[1] 指定按每个元组的第 2 个元素排序，三个元组的第 2 个元素分别为 3、1、2，升序排列后为 (2,1)、(3,2)、(1,3)。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l4-017",
+   "level": 4,
+   "topic": "递归",
+   "q": "有如下程序：\ndef f(n):\n    if n == 1:\n        return 1\n    return n * f(n - 1)\nprint(f(4))\n输出结果是____。",
+   "opts": [
+    "10",
+    "24",
+    "120",
+    "程序报错"
+   ],
+   "ans": 1,
+   "exp": "递归计算 4!=4×3×2×1=24；f(4)=4×f(3)，逐层展开到 f(1) 返回 1 后逐层回乘。120 是 5! 的结果。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-018",
+   "level": 4,
+   "topic": "递归调用次数",
+   "q": "有如下程序：\ncount = 0\ndef f(n):\n    global count\n    count += 1\n    if n == 0:\n        return 0\n    return f(n - 1)\nf(4)\nprint(count)\n输出结果是____。",
+   "opts": [
+    "5",
+    "4",
+    "程序报错",
+    "20"
+   ],
+   "ans": 0,
+   "exp": "f(4) 依次递归调用 f(3)、f(2)、f(1)、f(0)，加上 f(4) 本身共被调用 5 次，每次 count 加 1，输出 5。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l4-019",
+   "level": 4,
+   "topic": "递归",
+   "q": "下列关于递归的说法，错误的是____。",
+   "opts": [
+    "递归的执行效率一定比等效的循环实现高",
+    "递归是函数直接或间接调用自身",
+    "递归函数必须有终止条件，否则会无限递归下去",
+    "递归层次太深可能超过最大递归深度而报错"
+   ],
+   "ans": 0,
+   "exp": "递归每层调用都要占用栈空间且有函数调用开销，效率通常低于等效的循环实现，A 说法错误；B、C、D 都正确描述了递归的特点。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-020",
+   "level": 4,
+   "topic": "生成器",
+   "q": "有如下程序：\ndef gen():\n    yield 1\n    yield 2\ng = gen()\nprint(next(g))\n输出结果是____。",
+   "opts": [
+    "2",
+    "[1, 2]",
+    "1",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "函数体中含有 yield 时它是生成器函数，调用 gen() 不执行函数体而是返回生成器对象；第一次 next(g) 执行到第一个 yield 暂停并返回 1。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-021",
+   "level": 4,
+   "topic": "装饰器",
+   "q": "下列关于装饰器（decorator）的说法，正确的是____。",
+   "opts": [
+    "使用装饰器时必须修改被装饰函数的源代码",
+    "装饰器只能装饰内置函数，不能装饰自定义函数",
+    "装饰器本质是一个函数，它接收一个函数作为参数并返回一个新函数，可在不修改原函数代码的前提下扩展其功能",
+    "@装饰器名 必须写在被装饰函数的函数体内部"
+   ],
+   "ans": 2,
+   "exp": "装饰器接收函数并返回新函数，通过 @语法写在函数定义的上方使用；它不修改原函数源码，自定义函数同样可以装饰。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-022",
+   "level": 4,
+   "topic": "模块导入",
+   "q": "已执行 `import math`，下列调用 math 模块中 sqrt 函数的语句，正确的是____。",
+   "opts": [
+    "sqrt(4)",
+    "import.sqrt(4)",
+    "math->sqrt(4)",
+    "math.sqrt(4)"
+   ],
+   "ans": 3,
+   "exp": "import math 导入整个模块，使用其中函数要加模块名前缀，即 math.sqrt(4)；若使用 from math import sqrt 导入，才可以直接写 sqrt(4)。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-001",
+   "level": 5,
+   "topic": "文本与二进制文件",
+   "q": "下列关于文本文件与二进制文件的说法，正确的是____。",
+   "opts": [
+    "文本文件只能存储英文字符，不能存储中文",
+    "文本文件与二进制文件的存储格式完全相同，只是扩展名不同",
+    "二进制文件无法被计算机读取和处理",
+    "文本文件是基于字符编码保存的文件，二进制文件是由字节序列组成的文件，如图片、视频文件"
+   ],
+   "ans": 3,
+   "exp": "文本文件按某种字符编码（如 UTF-8）把字符转换为字节保存；二进制文件直接以字节序列保存，需按其固有格式解析。文本文件可以存中文，二进制文件当然能被计算机处理。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-002",
+   "level": 5,
+   "topic": "打开模式",
+   "q": "语句 `open('data.txt')` 中未指定打开模式，则默认使用的打开模式是____。",
+   "opts": [
+    "'w'（写入）",
+    "'r'（只读）",
+    "'a'（追加）",
+    "'rb'（二进制只读）"
+   ],
+   "ans": 1,
+   "exp": "open 不指定 mode 参数时默认为 'r' 只读文本模式；'w'、'a'、'rb' 等模式都需要显式写出。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-003",
+   "level": 5,
+   "topic": "w 模式",
+   "q": "已知文件 a.txt 的内容为 hello，执行以下程序后，a.txt 的内容是____。\nf = open('a.txt', 'w')\nf.write('123')\nf.close()",
+   "opts": [
+    "123",
+    "hello123",
+    "hello",
+    "123hello"
+   ],
+   "ans": 0,
+   "exp": "'w' 模式打开已存在的文件时会先清空文件的全部原内容，再从头写入，所以最终只剩新写入的 123；想在原内容后面添加应使用 'a' 追加模式。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-004",
+   "level": 5,
+   "topic": "a 模式",
+   "q": "已知文件 a.txt 的内容为 hello，执行以下程序后，a.txt 的内容是____。\nf = open('a.txt', 'a')\nf.write('123')\nf.close()",
+   "opts": [
+    "123",
+    "hello123",
+    "hello",
+    "123hello"
+   ],
+   "ans": 1,
+   "exp": "'a' 追加模式不清空原内容，文件指针定位在文件末尾，写入的内容接在原内容之后，得到 hello123。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-005",
+   "level": 5,
+   "topic": "打开模式",
+   "q": "当前目录下不存在文件 b.txt，执行 `f = open('b.txt', 'r')` 的结果是____。",
+   "opts": [
+    "自动创建空文件 b.txt",
+    "返回一个空文件对象，程序继续运行",
+    "弹出对话框提示是否新建文件",
+    "程序报错 FileNotFoundError"
+   ],
+   "ans": 3,
+   "exp": "'r' 模式要求文件必须已经存在，否则抛出 FileNotFoundError；'w' 模式打开不存在的文件时才会自动创建新文件。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-006",
+   "level": 5,
+   "topic": "read()",
+   "q": "文件 s.txt 的内容为两行：第一行 abc，第二行 xyz（文件末尾没有换行符）。有如下程序：\nf = open('s.txt')\nt = f.read()\nprint(len(t))\nf.close()\n输出结果是____。",
+   "opts": [
+    "3",
+    "6",
+    "7",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "read() 不带参数时一次读出整个文件内容为一个字符串，'abc\\nxyz' 包含中间的换行符共 3+1+3=7 个字符。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-007",
+   "level": 5,
+   "topic": "读取方法",
+   "q": "下列关于 read()、readline()、readlines() 的说法，正确的是____。",
+   "opts": [
+    "readlines() 返回一个字符串，包含文件的全部内容",
+    "readline() 每次读取文件的全部内容",
+    "read() 每次只能读取一行内容",
+    "readline() 每次读取一行内容，readlines() 把各行作为元素组成列表返回"
+   ],
+   "ans": 3,
+   "exp": "readline() 每次读一行（含行尾换行符），readlines() 返回由各行组成的列表，read() 读取整个文件为字符串；A、B、C 都把三者的功能弄反了。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-008",
+   "level": 5,
+   "topic": "readlines()",
+   "q": "文件 s.txt 的内容为 abc\\nxyz\\n（两行，每行末尾有换行符）。有如下程序：\nf = open('s.txt')\nlines = f.readlines()\nf.close()\nprint(lines)\n输出结果是____。",
+   "opts": [
+    "['abc', 'xyz']",
+    "'abc\\nxyz\\n'",
+    "['abc\\n', 'xyz\\n']",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "readlines() 按行读取并把每行（含行尾的换行符）作为列表的一个元素，屏幕显示为 ['abc\\n', 'xyz\\n']；要去掉换行符需对各元素使用 strip()。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-009",
+   "level": 5,
+   "topic": "with 语句",
+   "q": "下列关于 with 语句打开文件的说法，错误的是____。",
+   "opts": [
+    "with 语句块结束时自动关闭文件，不必再写 f.close()",
+    "使用 with 打开的文件必须再写一行 f.close() 才能关闭",
+    "with open('a.txt') as f: 中的 f 是文件对象",
+    "即使读取过程中发生异常，with 也能保证文件被关闭"
+   ],
+   "ans": 1,
+   "exp": "with 上下文管理机制会在语句块结束（无论是否发生异常）时自动调用 close 关闭文件，这正是它比直接 open 更安全的地方，B 说法错误。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-010",
+   "level": 5,
+   "topic": "seek()",
+   "q": "文件 s.txt 的内容为 abcdef。有如下程序：\nf = open('s.txt')\nprint(f.read(2))\nf.seek(3)\nprint(f.read(2))\nf.close()\n输出结果是____。",
+   "opts": [
+    "ab 和 de（分两行输出）",
+    "ab 和 cd（分两行输出）",
+    "ab 和 ef（分两行输出）",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "read(2) 从当前位置读取 2 个字符得 ab，指针移到下标 2；seek(3) 把指针移到下标 3（字符 d 处），再读 2 个字符得 de。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-011",
+   "level": 5,
+   "topic": "编码",
+   "q": "某中文文本文件是以 GBK 编码保存的，却用 `open('note.txt', encoding='utf-8')` 读取它，最可能出现的现象是____。",
+   "opts": [
+    "读取到的内容比原文件多一倍",
+    "抛出 UnicodeDecodeError 异常或出现乱码",
+    "Python 会自动转换编码，正常读出中文",
+    "读取到的内容为空"
+   ],
+   "ans": 1,
+   "exp": "文件实际是 GBK 编码却按 UTF-8 解码，字节序列无法正确对应字符，通常会抛出 UnicodeDecodeError 或显示乱码；open 的 encoding 参数必须与文件的实际编码一致。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-012",
+   "level": 5,
+   "topic": "write()",
+   "q": "有如下程序：\nf = open('out.txt', 'w')\nn = f.write('hello')\nprint(n)\nf.close()\n输出结果是____。",
+   "opts": [
+    "'hello'",
+    "None",
+    "5",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "write(s) 把字符串写入文件，并返回写入的字符个数，'hello' 共 5 个字符，故输出 5；写入的内容在文件里，返回值是字符个数。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l5-013",
+   "level": 5,
+   "topic": "writelines()",
+   "q": "有如下程序：\nf = open('out.txt', 'w')\nf.writelines(['aa', 'bb', 'cc'])\nf.close()\nt = open('out.txt').read()\nprint(t)\n输出结果是____。",
+   "opts": [
+    "aabbcc",
+    "aa bb cc",
+    "['aa', 'bb', 'cc']",
+    "aa,bb,cc"
+   ],
+   "ans": 0,
+   "exp": "writelines() 把列表中的字符串依次原样写入文件，不会自动添加换行符或分隔符，文件内容为 aabbcc；想分行需要在元素中自带 \\n。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-014",
+   "level": 5,
+   "topic": "CSV 处理",
+   "q": "data.csv 每行格式为：姓名,年龄（英文逗号分隔，UTF-8 编码，无标题行）。要逐行读出每个人的姓名和年龄，横线处应填入的是____。\nfor line in open('data.csv', encoding='utf-8'):\n    name, age = ____",
+   "opts": [
+    "line.split()",
+    "line.strip().split('，')",
+    "line.split(' ')",
+    "line.strip().split(',')"
+   ],
+   "ans": 3,
+   "exp": "先用 strip() 去掉行尾换行符，再用英文逗号 split(',') 切分并解包；不 strip 会把换行符留在年龄里，split() 默认按空白切分，中文逗号也切不开英文逗号分隔的数据。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-015",
+   "level": 5,
+   "topic": "词频统计",
+   "q": "文件 stat.txt 的内容为一行：apple banana apple。有如下程序：\ncounts = {}\nfor line in open('stat.txt'):\n    for word in line.split():\n        counts[word] = counts.get(word, 0) + 1\nprint(counts['apple'])\n输出结果是____。",
+   "opts": [
+    "2",
+    "1",
+    "3",
+    "程序报错"
+   ],
+   "ans": 0,
+   "exp": "程序逐行、逐词统计词频：line.split() 按空白切出单词，counts.get(word, 0) 在键不存在时返回 0，apple 出现 2 次，输出 2。这是基于文件的词频统计典型模式。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l5-016",
+   "level": 5,
+   "topic": "文件统计",
+   "q": "文件 nums.txt 中每行一个整数：10、20、30。有如下程序：\ns = 0\nfor line in open('nums.txt'):\n    s += int(line)\nprint(s)\n输出结果是____。",
+   "opts": [
+    "10",
+    "102030",
+    "程序报错",
+    "60"
+   ],
+   "ans": 3,
+   "exp": "逐行读取文件，int(line) 把每行内容（int 会自动忽略首尾空白）转成整数后累加，10+20+30=60。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-017",
+   "level": 5,
+   "topic": "遍历文件",
+   "q": "下列关于文件遍历与读取的说法，错误的是____。",
+   "opts": [
+    "for line in f 可以直接逐行遍历已打开的文件对象 f",
+    "文件读取结束后应及时调用 f.close() 释放资源",
+    "文件对象 f 必须先用 readlines() 把内容读成列表，才能逐行处理",
+    "for line in f 取出的 line 末尾通常带有换行符，常配合 strip() 使用"
+   ],
+   "ans": 2,
+   "exp": "文件对象是可迭代对象，可以直接用 for line in f 逐行读取，不必先 readlines()，C 说法错误；直接遍历得到的每行末尾带换行符，常需 strip()。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l5-018",
+   "level": 5,
+   "topic": "二进制读取",
+   "q": "有如下程序（a.txt 是当前目录下已存在的文件）：\nf = open('a.txt', 'rb')\ndata = f.read()\nprint(type(data))\nf.close()\n输出结果是____。",
+   "opts": [
+    "<class 'str'>",
+    "<class 'bytes'>",
+    "<class 'list'>",
+    "<class 'dict'>"
+   ],
+   "ans": 1,
+   "exp": "'rb' 以二进制模式打开文件，read() 返回 bytes（字节串）对象；文本模式 'r' 读出的才是 str 字符串。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l5-019",
+   "level": 5,
+   "topic": "读写模式",
+   "q": "有如下程序：\nf = open('t.txt', 'w+')\nf.write('hello')\nprint(f.read())\nf.close()\n输出结果是____。",
+   "opts": [
+    "hello",
+    "程序报错",
+    "输出一个空行（空字符串）",
+    "hellohello"
+   ],
+   "ans": 2,
+   "exp": "'w+' 允许读写，先写入 hello 后文件指针停在文件末尾，接着 read() 从指针处开始读，读不到任何内容，输出空字符串；先 f.seek(0) 把指针移回开头再读才能得到 hello。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l5-020",
+   "level": 5,
+   "topic": "文件统计",
+   "q": "文件 score.txt 中每行一个整数：80、90、60。有如下程序：\nc = 0\nfor line in open('score.txt'):\n    if int(line) >= 80:\n        c += 1\nprint(c)\n输出结果是____。",
+   "opts": [
+    "1",
+    "2",
+    "3",
+    "程序报错"
+   ],
+   "ans": 1,
+   "exp": "程序逐行读取并统计不小于 80 的数的个数，80 和 90 满足条件，输出 2。基于文件做统计的一般套路是：逐行读取、类型转换、判断、计数。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-001",
+   "level": 6,
+   "topic": "pip 安装",
+   "q": "要安装第三方库 jieba，下列命令行命令正确的是____。",
+   "opts": [
+    "install jieba pip",
+    "python install jieba",
+    "download jieba",
+    "pip install jieba"
+   ],
+   "ans": 3,
+   "exp": "pip 是 Python 的包管理工具，在命令行执行 pip install 库名 即可在线安装，如 pip install jieba；其余写法都不是有效命令。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-002",
+   "level": 6,
+   "topic": "whl 安装",
+   "q": "在无网络的计算机上安装第三方库，可以先从网上下载该库的 whl 文件到本地，然后执行的命令是____。",
+   "opts": [
+    "pip install 路径/xxx.whl",
+    "pip download 路径/xxx.whl",
+    "python 路径/xxx.whl",
+    "import 路径/xxx.whl"
+   ],
+   "ans": 0,
+   "exp": "whl 是已打包的库文件，用 pip install 路径/xxx.whl 即可离线安装；download 是下载命令，whl 文件不能当作脚本运行，也不能直接 import。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-003",
+   "level": 6,
+   "topic": "模块导入",
+   "q": "下列关于 import 与 from…import 的说法，正确的是____。",
+   "opts": [
+    "from random import randint 之后，使用 randint 仍需写成 random.randint(1, 10)",
+    "import 与 from…import 两种导入方式的使用方法完全相同",
+    "import 语句只能写在程序的最后一行",
+    "import random 之后需用 random.函数名() 的方式调用，而 from random import randint 之后可以直接写 randint(1, 10)"
+   ],
+   "ans": 3,
+   "exp": "import 模块 导入整个模块，调用其中函数要加模块名前缀；from 模块 import 函数 把函数直接引入，可按名字直接调用。import 通常写在程序开头，但并非只能写在最后一行。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-004",
+   "level": 6,
+   "topic": "as 别名",
+   "q": "执行 `import numpy as np` 后，下列调用正确的是____。",
+   "opts": [
+    "np.array([1, 2])",
+    "numpy.array([1, 2])",
+    "as.array([1, 2])",
+    "n.array([1, 2])"
+   ],
+   "ans": 0,
+   "exp": "as 为模块指定别名后，只能用别名 np 访问模块内容，再写原名 numpy 会报 NameError；as 和 n 都不是导入时定义的名称。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-005",
+   "level": 6,
+   "topic": "random.seed()",
+   "q": "在生成随机数前执行 `random.seed(10)`，其作用是____。",
+   "opts": [
+    "生成 10 个随机数",
+    "设置随机数种子，使每次运行程序生成的随机数序列相同",
+    "把随机数的取值范围限定在 10 以内",
+    "清除之前生成的随机数"
+   ],
+   "ans": 1,
+   "exp": "seed 设置随机数生成器的种子，种子相同则每次运行产生的随机序列完全相同，便于结果复现和测试；它不会改变随机数的取值范围。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-006",
+   "level": 6,
+   "topic": "randint",
+   "q": "`random.randint(1, 10)` 生成的随机整数的范围是____。",
+   "opts": [
+    "1 ~ 9 的整数",
+    "0 ~ 10 的整数",
+    "1 ~ 10 的整数（含 1 和 10）",
+    "0 ~ 9 的整数"
+   ],
+   "ans": 2,
+   "exp": "randint(a, b) 返回 [a, b] 区间内的随机整数，包含两个端点，因此既能取到 1 也能取到 10。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-007",
+   "level": 6,
+   "topic": "random.seed()",
+   "q": "有如下程序：\nimport random\nrandom.seed(2)\na = random.randint(1, 100)\nrandom.seed(2)\nb = random.randint(1, 100)\nprint(a == b)\n输出结果是____。",
+   "opts": [
+    "False",
+    "True",
+    "程序报错",
+    "每次运行结果都不同"
+   ],
+   "ans": 1,
+   "exp": "第二次 random.seed(2) 把随机序列重置回开头，随后的 randint 与第一次得到相同的值，a 与 b 相等，输出 True；这正是种子可复现随机序列的体现。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l6-008",
+   "level": 6,
+   "topic": "random()",
+   "q": "`random.random()` 返回的随机数的范围是____。",
+   "opts": [
+    "0 ~ 1 之间的随机整数",
+    "1 ~ 10 之间的随机小数",
+    "0 ~ 100 之间的随机数",
+    "0.0 ~ 1.0 之间的随机小数（含 0.0 不含 1.0）"
+   ],
+   "ans": 3,
+   "exp": "random.random() 返回 [0.0, 1.0) 区间的随机小数，能取到 0.0 取不到 1.0；要生成 1~10 的随机整数应使用 randint(1, 10)。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-009",
+   "level": 6,
+   "topic": "shuffle",
+   "q": "有如下程序：\nimport random\nlst = [1, 2, 3, 4, 5]\nr = random.shuffle(lst)\nprint(r)\n输出结果是____。",
+   "opts": [
+    "打乱顺序后的新列表",
+    "[1, 2, 3, 4, 5]",
+    "None",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "shuffle(lst) 将列表 lst 原地打乱顺序，返回值是 None；想查看打乱结果应输出 lst 本身。返回 None 是考试常见的坑。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l6-010",
+   "level": 6,
+   "topic": "floor 与 ceil",
+   "q": "有如下程序：\nimport math\nprint(math.floor(-3.5), math.ceil(-3.5))\n输出结果是____。",
+   "opts": [
+    "-4 -3",
+    "-3 -4",
+    "-3 -3",
+    "-4 -4"
+   ],
+   "ans": 0,
+   "exp": "floor 是向下取整，-3.5 往小的方向取 -4；ceil 是向上取整，-3.5 往大的方向取 -3。负数取整的方向容易弄反。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-011",
+   "level": 6,
+   "topic": "sqrt 与 pi",
+   "q": "有如下程序：\nimport math\nprint(math.sqrt(16), math.pi > 3.14)\n输出结果是____。",
+   "opts": [
+    "4.0 True",
+    "4 True",
+    "4.0 False",
+    "16 True"
+   ],
+   "ans": 0,
+   "exp": "math.sqrt(16) 返回浮点数 4.0；math.pi 是圆周率常量 3.14159…，大于 3.14，输出 True。注意 sqrt 的结果总是浮点型。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-012",
+   "level": 6,
+   "topic": "time",
+   "q": "下列关于 time 模块常用函数的说法，正确的是____。",
+   "opts": [
+    "time.time() 返回当前时间的字符串",
+    "time.sleep(2) 可以使程序快进 2 秒",
+    "time.time() 返回从 1970 年 1 月 1 日 0 时到当前时刻的秒数（浮点数），time.sleep(2) 使程序暂停 2 秒",
+    "time.sleep() 会结束整个程序"
+   ],
+   "ans": 2,
+   "exp": "time.time() 返回时间戳（1970 年至今的浮点秒数）；time.sleep(秒数) 使程序暂停指定秒数，常用于控制执行节奏，并非加速或退出程序。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-013",
+   "level": 6,
+   "topic": "strftime",
+   "q": "执行 `time.strftime('%Y-%m-%d %H:%M:%S')`，输出结果形如____。",
+   "opts": [
+    "2026/9/25 14:30",
+    "Friday",
+    "14:30 2026-09-25",
+    "2026-09-25 14:30:05"
+   ],
+   "ans": 3,
+   "exp": "strftime 按格式符生成时间字符串：%Y 是四位年份，%m、%d 是两位月、日，%H:%M:%S 是两位时分秒（不足补零），格式串中的 - 和 : 原样输出，故形如 2026-09-25 14:30:05。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-014",
+   "level": 6,
+   "topic": "calendar",
+   "q": "有如下程序：\nimport calendar\nprint(calendar.isleap(2024), calendar.isleap(2023))\n输出结果是____。",
+   "opts": [
+    "False False",
+    "True False",
+    "True True",
+    "False True"
+   ],
+   "ans": 1,
+   "exp": "isleap(y) 判断 y 是否为闰年（能被 4 整除但不能被 100 整除，或能被 400 整除）。2024 是闰年、2023 不是，输出 True False。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-015",
+   "level": 6,
+   "topic": "turtle",
+   "q": "有如下程序（turtle 画笔初始位于画布中心、朝向右方）：\nimport turtle\nt = turtle.Pen()\nt.forward(100)\nt.left(90)\nt.forward(100)\n程序执行后，画笔相对起点的位置是____。",
+   "opts": [
+    "位于起点正右方 200 处",
+    "回到起点",
+    "先向右前进 100，左转 90 度后向上前进 100，最终位于起点正上方 100 处",
+    "位于起点正下方 100 处"
+   ],
+   "ans": 2,
+   "exp": "forward(100) 沿当前方向（向右）前进，left(90) 使画笔逆时针左转 90 度改为朝上，再前进 100，最终停在起点上方 100 处。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-016",
+   "level": 6,
+   "topic": "turtle",
+   "q": "下列关于 turtle 画笔状态的说法，正确的是____。",
+   "opts": [
+    "penup() 抬笔后移动画笔不留痕迹，pendown() 落笔后移动才画线",
+    "penup() 之后移动画笔仍会画出线条",
+    "pendown() 的作用是抬起画笔停止画线",
+    "goto(x, y) 只能改变画笔的方向，不能改变画笔的位置"
+   ],
+   "ans": 0,
+   "exp": "penup() 抬笔，之后的移动不画线；pendown() 落笔，之后移动才画线；goto(x, y) 使画笔直接移动到坐标 (x, y) 处（抬笔状态下移动不留痕迹）。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-017",
+   "level": 6,
+   "topic": "jieba",
+   "q": "有如下程序：\nimport jieba\ns = jieba.lcut('我爱人工智能')\nprint(len(s))\n下列说法正确的是____。",
+   "opts": [
+    "jieba.lcut 返回生成器，len 会报错",
+    "jieba.lcut 把中文句子切分成词语组成的列表，len 输出列表中词语的个数",
+    "jieba.lcut 返回一个字符串，len 求字符串长度",
+    "程序报错，中文句子无法分词"
+   ],
+   "ans": 1,
+   "exp": "jieba.lcut(s) 对中文文本分词并返回由词语组成的列表（jieba.cut 才返回生成器），len 统计的是列表中词语的个数。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l6-018",
+   "level": 6,
+   "topic": "wordcloud",
+   "q": "使用 wordcloud 库由文本生成词云图片的基本流程是____。",
+   "opts": [
+    "把文本文件路径直接赋值给变量即可自动生成图片",
+    "先调用 to_file() 保存，再调用 generate() 生成词云",
+    "词云必须配合 turtle 库才能显示出来",
+    "先创建 WordCloud 对象，调用 generate(文本) 生成词云，再用 to_file(文件名) 把词云保存为图片"
+   ],
+   "ans": 3,
+   "exp": "标准流程：wc = WordCloud(参数) 创建对象 → wc.generate(text) 根据文本生成词云 → wc.to_file('wc.png') 输出图片文件，顺序不能颠倒。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l6-019",
+   "level": 6,
+   "topic": "openpyxl",
+   "q": "使用 openpyxl 读取已有 Excel 文件 score.xlsx 中 A1 单元格的值，下列代码正确的是____。",
+   "opts": [
+    "wb = open('score.xlsx')，然后 print(wb.A1.value)",
+    "wb = load_workbook('score.xlsx')，然后直接 print(wb['A1'])",
+    "ws = Workbook('score.xlsx')，然后 print(ws['A1'])",
+    "wb = load_workbook('score.xlsx')，ws = wb.active，然后 print(ws['A1'].value)"
+   ],
+   "ans": 3,
+   "exp": "读取流程：load_workbook(文件名) 打开工作簿，wb.active 取得当前工作表，ws['A1'].value 取单元格的值；open 是文件操作函数，Workbook 用于新建工作簿，都不能读取已有文件，且单元格的值要取 .value。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l6-020",
+   "level": 6,
+   "topic": "Pillow",
+   "q": "有如下程序（当前目录下存在图片 pic.png）：\nfrom PIL import Image\nim = Image.open('pic.png')\nprint(im.size)\nim.save('new.jpg')\n下列说法正确的是____。",
+   "opts": [
+    "im.size 返回图片文件的大小（字节数）",
+    "im.size 返回由图片宽度和高度组成的元组，save 把图片另存为 new.jpg",
+    "程序报错，png 格式的图片不能保存为 jpg",
+    "Image.open 会直接在屏幕上显示图片"
+   ],
+   "ans": 1,
+   "exp": "im.size 是 (宽, 高) 形式的元组；save(路径) 按扩展名转换格式并保存，PNG 可以另存为 JPG；要在屏幕上显示图片应使用 im.show()。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-001",
+   "level": 7,
+   "topic": "正则元字符",
+   "q": "正则表达式中，能匹配任意一个数字字符（0~9）的是____。",
+   "opts": [
+    "\\d",
+    "\\w",
+    "\\s",
+    "."
+   ],
+   "ans": 0,
+   "exp": "\\d 匹配一个数字字符；\\w 匹配字母、数字或下划线，\\s 匹配一个空白字符，. 匹配除换行符外的任意单个字符。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-002",
+   "level": 7,
+   "topic": "正则量词",
+   "q": "关于正则表达式中的量词 * 和 +，下列说法正确的是____。",
+   "opts": [
+    "* 匹配 1 次或多次，+ 匹配 0 次或多次",
+    "* 和 + 的功能完全相同",
+    "* 匹配前面的字符 0 次或多次，+ 匹配前面的字符 1 次或多次",
+    "* 只能匹配数字，+ 只能匹配字母"
+   ],
+   "ans": 2,
+   "exp": "x* 表示 x 出现 0 次或多次，x+ 表示 x 出现 1 次或多次；量词作用于它前面的字符或分组，与字符种类无关。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-003",
+   "level": 7,
+   "topic": "正则量词",
+   "q": "有如下程序：\nimport re\nprint(re.findall(r'go?d', 'gd god good'))\n输出结果是____。",
+   "opts": [
+    "['gd', 'god', 'good']",
+    "['gd', 'god']",
+    "['god', 'good']",
+    "['good']"
+   ],
+   "ans": 1,
+   "exp": "量词 ? 表示前面的字符出现 0 次或 1 次，o? 即 o 可有可无，故能匹配 gd 和 god；good 中有两个 o，无法匹配。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-004",
+   "level": 7,
+   "topic": "正则锚点",
+   "q": "有如下程序：\nimport re\nprint(re.findall(r'^\\w+$', 'hello'))\nprint(re.findall(r'^\\w+$', 'hello world'))\n输出结果是____。",
+   "opts": [
+    "第一行 ['hello']，第二行 []",
+    "第一行 []，第二行 ['hello world']",
+    "两行都输出 ['hello']",
+    "两行都报错"
+   ],
+   "ans": 0,
+   "exp": "^ 匹配字符串开头，$ 匹配字符串结尾，^\\w+$ 要求整个字符串都由字母数字下划线组成：'hello' 整体匹配，'hello world' 中含空格不能整体匹配，findall 返回空列表 []。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-005",
+   "level": 7,
+   "topic": "match 与 search",
+   "q": "下列关于 re.match() 与 re.search() 的说法，正确的是____。",
+   "opts": [
+    "两者都从字符串的任意位置开始查找",
+    "两者都要求匹配整个字符串",
+    "re.match() 只从字符串开头进行匹配，re.search() 会扫描整个字符串并返回第一个匹配",
+    "re.match() 返回所有匹配的结果，re.search() 只返回一个匹配"
+   ],
+   "ans": 2,
+   "exp": "match 只在字符串开头尝试匹配，开头不匹配就返回 None；search 从头到尾扫描，返回第一个匹配对象。返回所有匹配结果的是 findall。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-006",
+   "level": 7,
+   "topic": "findall",
+   "q": "`re.findall(r'\\d+', 'a1b22c333')` 的返回结果是____。",
+   "opts": [
+    "['a', 'b', 'c']",
+    "'122333'",
+    "['1b22c333']",
+    "['1', '22', '333']"
+   ],
+   "ans": 3,
+   "exp": "findall 返回字符串中所有与模式匹配的子串组成的列表，\\d+ 匹配一串连续数字，得到 ['1', '22', '333']。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-007",
+   "level": 7,
+   "topic": "sub",
+   "q": "有如下程序：\nimport re\nprint(re.sub(r'\\d+', '*', 'a1b22c333'))\n输出结果是____。",
+   "opts": [
+    "a*b*c*",
+    "*1b22c333",
+    "['*', '*', '*']",
+    "a*b*c"
+   ],
+   "ans": 0,
+   "exp": "sub(模式, 替换串, 原串) 把原串中所有匹配的子串都替换为指定内容，末尾的 333 也被替换成 *，输出 a*b*c*；漏掉末尾替换是常见错误。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-008",
+   "level": 7,
+   "topic": "贪婪与非贪婪",
+   "q": "有如下程序：\nimport re\nprint(re.findall(r'a.*b', 'a1ba2b'))\nprint(re.findall(r'a.*?b', 'a1ba2b'))\n输出结果是____。",
+   "opts": [
+    "第一行 ['a1b', 'a2b']，第二行 ['a1b', 'a2b']",
+    "第一行 ['a1ba2b']，第二行 ['a1ba2b']",
+    "第一行 ['a1b', 'a2b']，第二行 ['a1ba2b']",
+    "第一行 ['a1ba2b']，第二行 ['a1b', 'a2b']"
+   ],
+   "ans": 3,
+   "exp": "量词 * 默认贪婪，尽可能多地匹配，a.*b 一次匹配到 a1ba2b；在量词后加 ? 变为非贪婪，尽可能少地匹配，得到 a1b 和 a2b 两个结果。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l7-009",
+   "level": 7,
+   "topic": "类与对象",
+   "q": "下列关于类与对象的说法，错误的是____。",
+   "opts": [
+    "__init__ 方法在创建对象时自动执行，用于初始化对象的属性",
+    "修改一个对象的实例属性会影响该类的其他对象，因为实例属性被所有实例共享",
+    "类中方法的第一个参数习惯上命名为 self，代表当前对象本身",
+    "创建对象的过程称为实例化，如 s = Student() 就是实例化"
+   ],
+   "ans": 1,
+   "exp": "实例属性属于各个对象自己，互相独立，修改一个对象的实例属性不影响其他对象，B 错误；被所有实例共享的是类属性（定义在类中、方法之外）。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-010",
+   "level": 7,
+   "topic": "实例化",
+   "q": "有如下程序：\nclass Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n    def info(self):\n        return self.name + ':' + str(self.score)\n\ns = Student('李明', 90)\nprint(s.info())\n输出结果是____。",
+   "opts": [
+    "name:score",
+    "程序报错",
+    "李明:90",
+    "李明"
+   ],
+   "ans": 2,
+   "exp": "实例化时 __init__ 自动执行，把 '李明' 和 90 存为对象属性；s.info() 中 self 绑定到 s，拼接输出 李明:90。调用方法时 self 由 Python 自动传入。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l7-011",
+   "level": 7,
+   "topic": "继承",
+   "q": "有如下程序：\nclass A:\n    def hello(self):\n        return 'A'\n\nclass B(A):\n    def hello(self):\n        return 'B' + super().hello()\n\nprint(B().hello())\n输出结果是____。",
+   "opts": [
+    "A",
+    "B",
+    "BA",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "B 继承 A；B 中重写了 hello 方法，其中 super().hello() 调用父类 A 的版本得 'A'，与 'B' 拼接后输出 BA。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l7-012",
+   "level": 7,
+   "topic": "sqlite3",
+   "q": "使用 sqlite3 模块操作 SQLite 数据库的基本步骤，下列顺序正确的是____。",
+   "opts": [
+    "创建游标 → 连接数据库 → 关闭连接 → 执行 SQL",
+    "执行 SQL → 连接数据库 → 获取结果 → 创建游标",
+    "连接数据库 → 执行 SQL → 创建游标 → 关闭连接",
+    "连接数据库 → 创建游标 → 执行 SQL → 获取结果 → 关闭连接"
+   ],
+   "ans": 3,
+   "exp": "标准流程：sqlite3.connect(文件名) 建立连接，conn.cursor() 创建游标，cursor.execute(SQL) 执行语句，用 fetchone()/fetchall() 获取结果，最后 conn.close() 关闭连接。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-013",
+   "level": 7,
+   "topic": "sqlite3",
+   "q": "数据库 test.db 的表 t 中共有 3 条记录。有如下程序：\nimport sqlite3\nconn = sqlite3.connect('test.db')\ncur = conn.cursor()\ncur.execute('SELECT * FROM t')\nrows = cur.fetchall()\nprint(len(rows))\nconn.close()\n输出结果是____。",
+   "opts": [
+    "1",
+    "3",
+    "0",
+    "程序报错"
+   ],
+   "ans": 1,
+   "exp": "fetchall() 取回结果集中的全部记录，组成的列表长度等于记录条数 3；fetchone() 每次只取一条记录。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-014",
+   "level": 7,
+   "topic": "json",
+   "q": "有如下程序：\nimport json\ns = '{\"a\": 1, \"b\": [2, 3]}'\nd = json.loads(s)\nprint(d['b'][1])\nprint(type(d))\n输出结果是____。",
+   "opts": [
+    "第一行 3，第二行 <class 'dict'>",
+    "第一行 2，第二行 <class 'list'>",
+    "程序报错",
+    "第一行 3，第二行 <class 'str'>"
+   ],
+   "ans": 0,
+   "exp": "json.loads 把 JSON 字符串解析成 Python 对象：JSON 对象对应字典、JSON 数组对应列表。d['b'] 是 [2, 3]，下标 1 的元素是 3，d 的类型是字典。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-015",
+   "level": 7,
+   "topic": "RESTful",
+   "q": "关于 RESTful 风格的网络接口，下列说法正确的是____。",
+   "opts": [
+    "RESTful 接口中，GET 请求用于创建新资源，POST 请求用于查询资源",
+    "RESTful 用 URL 表示资源，用 GET/POST/PUT/DELETE 等 HTTP 方法表示对资源的查询、创建、更新、删除操作",
+    "RESTful 要求所有请求都使用 GET 方法完成",
+    "RESTful 是 Python 特有的协议，其他编程语言无法使用"
+   ],
+   "ans": 1,
+   "exp": "RESTful 以资源为中心设计 URL，用标准 HTTP 方法表达操作语义：GET 查询、POST 创建、PUT 更新、DELETE 删除；它与编程语言无关。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-016",
+   "level": 7,
+   "topic": "Flask 路由",
+   "q": "有如下 Flask 程序：\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.route('/hello')\ndef hello():\n    return 'hi'\n\napp.run()\n程序运行后，在浏览器中访问 http://127.0.0.1:5000/hello，页面显示的内容是____。",
+   "opts": [
+    "404 页面，因为路由不存在",
+    "hello",
+    "hi",
+    "程序报错，Flask 必须搭配数据库才能运行"
+   ],
+   "ans": 2,
+   "exp": "@app.route('/hello') 把 URL 路径 /hello 映射到函数 hello，访问该路径时返回函数的返回值 'hi'；页面显示的是函数结果而不是函数名。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-017",
+   "level": 7,
+   "topic": "matplotlib",
+   "q": "有如下程序：\nimport matplotlib.pyplot as plt\nplt.plot([1, 2, 3], [2, 4, 6], label='line1')\nplt.legend()\nplt.show()\n下列说法正确的是____。",
+   "opts": [
+    "plt.plot 绘制折线图，label 设置图例文字，plt.legend() 显示图例，plt.show() 弹出窗口显示图形",
+    "plt.plot 绘制的是柱状图",
+    "删去 plt.show() 图形也会自动弹出窗口",
+    "plt.legend() 的作用是把图形保存为图片文件"
+   ],
+   "ans": 0,
+   "exp": "plot 画折线图（bar 画柱状图、pie 画饼图），legend 显示由 label 标注的图例，show 显示绘图窗口；保存图片用 savefig，不调用 show 通常不会弹出窗口。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-018",
+   "level": 7,
+   "topic": "matplotlib",
+   "q": "要用 matplotlib 展示各品牌手机的市场份额占比（各部分占整体的百分比），最合适的绘图函数是____。",
+   "opts": [
+    "plt.plot()",
+    "plt.scatter()",
+    "plt.bar()",
+    "plt.pie()"
+   ],
+   "ans": 3,
+   "exp": "pie 绘制饼图，适合表示各部分占整体的比例；plot 折线图适合表现变化趋势，bar 柱状图适合比较数量大小，scatter 散点图适合呈现分布与相关性。",
+   "difficulty": 1
   }
  ],
  "blanks": [
