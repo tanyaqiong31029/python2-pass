@@ -14,7 +14,7 @@ kind 取值：`mcq`（单选）| `blank`（程序填空）| `fix`（调试改错
    - L5 文件与数据分析（文本/二进制、编码 UTF-8/GBK、open 读写追加、指针 seek、with、CSV 逐行处理、词频统计）
    - L6 常用库与生态（import/from/as/with、pip/whl 安装、random/math/calendar/time、turtle、jieba/wordcloud/openpyxl/Pillow/matplotlib【理解层面】、tkinter GUI【理解层面】）
    - L7 冲刺三级（正则 re、SQLite、面向对象、JSON、RESTful/FastAPI/Flask【理解层面】、matplotlib 数据可视化）
-3. **判题型代码题（blank/fix/coding）只能用浏览器可运行的标准库**（csv、re、json、math、random、time、collections、string、os 不行——没有真实文件系统的操作可以用题内 files 提供）。**禁止**在判题型题目代码中使用：tkinter、PIL/Pillow、wordcloud、jieba、matplotlib、numpy、pandas、openpyxl、sqlite3、turtle、os/subprocess 中涉及真实路径的操作。这些考点出成 mcq 选择题。
+3. **判题型代码题（blank/fix/coding）可用能力**（浏览器 Pyodide 3.14，已验证）：csv、re、json、math、random（须 seed）、time、collections、string、**sqlite3**、**turtle**（站内有画布模拟，支持 forward/right/left/goto/penup/pendown/circle/pencolor/write/heading 等）、**matplotlib**（须 `matplotlib.use('Agg')`，判题靠 print 数据不靠图）。需要数据文件用题内 `files` 提供（二进制如 .db 用 `"b64": true`）。**仍不可用**：tkinter、PIL/Pillow、wordcloud、jieba、openpyxl（概念题除外）、真实路径操作。
 4. **input() 一律不带提示文字**（写 `input()`，提示语写进 desc）。输出只打印题目要求的数据行，不要装饰性文字（除非题目明确要求格式）。
 5. **禁止随机性**：判题型题目不得依赖 random 未定种子结果；如需随机必须 `random.seed(...)` 固定。
 6. 题目文本全中文，代码中的变量名/输出内容可用英文。文本中的代码用反引号包裹（如 \`len(s)\`）。

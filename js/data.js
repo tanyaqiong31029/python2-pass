@@ -3778,6 +3778,232 @@ window.BANK = {
    "ref": "import re\ns = input()\nphones = re.findall(r'1[35789]\\d{9}', s)\nemails = re.findall(r'\\w+@\\w+\\.\\w+', s)\nprint('手机号:', phones)\nprint('邮箱:', emails)\nprint('共提取手机号', len(phones), '个')"
   },
   {
+   "id": "blk-l7-002",
+   "level": 7,
+   "title": "SQLite 内存库建表与查询",
+   "desc": "程序使用 SQLite 在内存中建库：创建 scores 表（name TEXT, score INTEGER），用占位符 ? 插入 3 条记录（张三 85、李四 92、王强 78），提交事务后，根据输入的姓名查询成绩：查到输出“姓名的成绩是分数”，查不到输出“查无此人”。测试输入：李四",
+   "code": "import sqlite3\n\nconn = ___(1)___\ncur = ___(2)___\ncur.execute('CREATE TABLE scores(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('李四', 92))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('王强', 78))\n___(3)___\nname = input()\ncur.execute('SELECT score FROM scores WHERE name = ?', (name,))\nrow = ___(4)___\nif row is None:\n    print('查无此人')\nelse:\n    print(f'{name}的成绩是{row[0]}')",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "sqlite3.connect(':memory:')",
+      "sqlite3.connect(\":memory:\")"
+     ],
+     "hint": "连接内存数据库：sqlite3.connect(':memory:')"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "conn.cursor()"
+     ],
+     "hint": "由连接对象创建游标"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "conn.commit()"
+     ],
+     "hint": "插入数据后要提交事务"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "cur.fetchone()",
+      "cur.fetchall()[0]"
+     ],
+     "hint": "取出查询结果中的一条记录"
+    }
+   ],
+   "stdin": "李四\n",
+   "expected": "李四的成绩是92",
+   "ref": "import sqlite3\n\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\ncur.execute('CREATE TABLE scores(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('李四', 92))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('王强', 78))\nconn.commit()\nname = input()\ncur.execute('SELECT score FROM scores WHERE name = ?', (name,))\nrow = cur.fetchone()\nif row is None:\n    print('查无此人')\nelse:\n    print(f'{name}的成绩是{row[0]}')",
+   "hint": "connect 建连接、cursor() 建游标、INSERT 后要 commit、fetchone() 取一条记录",
+   "exp": "考查 SQLite 编程关键步骤：connect 连接（:memory: 内存库）、cursor 创建游标、execute 占位符传参、commit 提交事务、fetchone 获取查询结果。"
+  },
+  {
+   "id": "blk-l7-003",
+   "level": 7,
+   "title": "正则解析访问日志",
+   "desc": "输入若干行 Web 服务器访问日志（空行结束），每行格式形如：192.168.1.5 - - [25/Sep/2026:10:01:02] \"GET /index.html HTTP/1.1\" 200 2326。用 re.findall 配合两个分组同时提取每行的 IP 和状态码，先输出共提取多少条记录，再逐行输出“IP 的状态码是 状态码”，最后输出其中状态码为 200 的条数。",
+   "code": "import re\n\nresult = []    # 每个元素是 (IP, 状态码) 元组\nwhile True:\n    line = input()\n    if line == '':\n        break\n    result += re.findall(___(1)___, line)\n\nprint('共提取', ___(2)___, '条记录')\nn200 = 0\nfor ip, code in result:\n    print(ip, '的状态码是', code)\n    if ___(3)___:\n        n200 += 1\nprint('其中状态码为200的有', n200, '条')",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3}) '",
+      "r'(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*?\" (\\d{3}) '",
+      "r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3})'",
+      "'(\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+).*?\" (\\\\d{3}) '"
+     ],
+     "hint": "两个分组：IP（每个点号都要转义 \\.）与引号后的三位状态码 (\\d{3})，中间用 .*? 连接"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "len(result)"
+     ],
+     "hint": "统计元组列表的长度"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "code == '200'",
+      "code == \"200\"",
+      "int(code) == 200",
+      "'200' == code"
+     ],
+     "hint": "分组取出的状态码是字符串，与 '200' 比较"
+    }
+   ],
+   "stdin": "192.168.1.5 - - [25/Sep/2026:10:01:02] \"GET /index.html HTTP/1.1\" 200 2326\n10.0.0.88 - - [25/Sep/2026:10:02:15] \"POST /api/login HTTP/1.1\" 404 512\n\n",
+   "expected": "共提取 2 条记录\n192.168.1.5 的状态码是 200\n10.0.0.88 的状态码是 404\n其中状态码为200的有 1 条",
+   "ref": "import re\n\nresult = []    # 每个元素是 (IP, 状态码) 元组\nwhile True:\n    line = input()\n    if line == '':\n        break\n    result += re.findall(r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3}) ', line)\n\nprint('共提取', len(result), '条记录')\nn200 = 0\nfor ip, code in result:\n    print(ip, '的状态码是', code)\n    if code == '200':\n        n200 += 1\nprint('其中状态码为200的有', n200, '条')",
+   "hint": "findall 配合两个分组返回 (IP, 状态码) 元组列表；正则里的点号必须转义",
+   "exp": "考查 re.findall 分组提取（有多个分组时返回元组列表）、元字符 . 的转义、.*? 懒惰匹配、遍历解包与条件统计。"
+  },
+  {
+   "id": "blk-l7-004",
+   "level": 7,
+   "title": "定义 Student 类并评定等级",
+   "desc": "定义 Student 类：构造方法接收姓名 name 和分数 score 并保存为实例属性；实例方法 grade() 按分数返回等级（90 分及以上为“优秀”，60 分及以上为“及格”，否则“不及格”）。输入姓名和分数（各占一行），创建 Student 实例并按“姓名 分数 等级”输出。测试输入：王五、73",
+   "code": "class Student:\n    def ___(1)___(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(___(2)___):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\nname = input()\nscore = int(input())\ns = ___(3)___(name, score)\nprint(s.name, s.score, s.___(4)___())",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "__init__"
+     ],
+     "hint": "构造方法名，前后各两个下划线"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "self"
+     ],
+     "hint": "实例方法的第一个参数代表实例本身"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "Student"
+     ],
+     "hint": "用 类名(参数) 创建实例"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "grade"
+     ],
+     "hint": "通过实例调用评定等级的方法"
+    }
+   ],
+   "stdin": "王五\n73\n",
+   "expected": "王五 73 及格",
+   "ref": "class Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(self):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\nname = input()\nscore = int(input())\ns = Student(name, score)\nprint(s.name, s.score, s.grade())",
+   "hint": "构造方法名是 __init__；方法内通过 self 访问实例属性；实例化写 类名(实参)",
+   "exp": "考查面向对象基础：__init__ 构造方法、self 参数、实例属性、类实例化与实例方法调用。"
+  },
+  {
+   "id": "blk-l7-005",
+   "level": 7,
+   "title": "递归实现二分查找",
+   "desc": "程序用递归函数 bsearch 在有序列表 data = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91] 中二分查找。输入两个待查找的整数（各占一行），逐个查找：找到输出“x的下标是索引”，找不到输出“x不在列表中”。测试输入：23、50",
+   "code": "def bsearch(lst, low, high, x):\n    if ___(1)___:\n        return -1\n    mid = ___(2)___\n    if lst[mid] == x:\n        return ___(3)___\n    elif lst[mid] > x:\n        return bsearch(lst, low, ___(4)___, x)\n    else:\n        return bsearch(lst, mid + 1, high, x)\n\ndata = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nfor i in range(2):\n    t = int(input())\n    pos = bsearch(data, 0, len(data) - 1, t)\n    if pos == -1:\n        print(f'{t}不在列表中')\n    else:\n        print(f'{t}的下标是{pos}')",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "low > high",
+      "high < low"
+     ],
+     "hint": "查找区间为空（low 越过 high）是递归基例"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "(low + high) // 2",
+      "(low+high)//2",
+      "(high + low) // 2",
+      "low + (high - low) // 2"
+     ],
+     "hint": "计算中间位置下标（整除）"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "mid"
+     ],
+     "hint": "命中时返回中间位置下标"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "mid - 1",
+      "mid-1"
+     ],
+     "hint": "查左半段时，上界收窄到 mid 的左侧"
+    }
+   ],
+   "stdin": "23\n50\n",
+   "expected": "23的下标是5\n50不在列表中",
+   "ref": "def bsearch(lst, low, high, x):\n    if low > high:\n        return -1\n    mid = (low + high) // 2\n    if lst[mid] == x:\n        return mid\n    elif lst[mid] > x:\n        return bsearch(lst, low, mid - 1, x)\n    else:\n        return bsearch(lst, mid + 1, high, x)\n\ndata = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nfor i in range(2):\n    t = int(input())\n    pos = bsearch(data, 0, len(data) - 1, t)\n    if pos == -1:\n        print(f'{t}不在列表中')\n    else:\n        print(f'{t}的下标是{pos}')",
+   "hint": "基例是区间为空返回 -1；中点 (low + high) // 2；找到返回 mid；左半段上界为 mid - 1",
+   "exp": "考查递归二分查找：基例（区间空返回 -1）、中点计算、命中返回下标、向左右子区间递归（参数收敛）。"
+  },
+  {
+   "id": "blk-l7-006",
+   "level": 7,
+   "title": "JSON 图书清单筛选与写回",
+   "desc": "books.json 存放图书数组（每个元素含 name、price 两个键）。程序读取并解析该文件，输入一个价格上限，把 price 不超过上限的书组成新列表，用 json.dumps（ensure_ascii=False）写回 result.json；最后输出符合条件的本书数，并把 result.json 的内容原样输出。测试输入：50",
+   "code": "import json\n\nfr = open('books.json', 'r', encoding='utf-8')\nbooks = ___(1)___\nfr.close()\nlimit = int(input())\nresult = []\nfor b in books:\n    if ___(2)___:\n        result.append(b)\nfw = open('result.json', ___(3)___, encoding='utf-8')\nfw.write(json.dumps(___(4)___, ensure_ascii=False))\nfw.close()\nprint('价格不超过', limit, '的书共', len(result), '本')\nfr2 = open('result.json', 'r', encoding='utf-8')\nprint(fr2.read())\nfr2.close()",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "json.loads(fr.read())",
+      "json.load(fr)"
+     ],
+     "hint": "loads 接收字符串，load 直接接收文件对象，二者皆可"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "b['price'] <= limit",
+      "b['price']<=limit",
+      "b.get('price') <= limit"
+     ],
+     "hint": "b 是字典，取键 'price' 与上限比较"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "'w'",
+      "\"w\""
+     ],
+     "hint": "写文件要用写模式 'w'"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "result"
+     ],
+     "hint": "把筛选出的列表序列化写回"
+    }
+   ],
+   "stdin": "50\n",
+   "files": [
+    {
+     "name": "books.json",
+     "content": "[{\"name\": \"Python入门\", \"price\": 49}, {\"name\": \"数据结构\", \"price\": 65}, {\"name\": \"机器学习\", \"price\": 88}, {\"name\": \"C语言程序设计\", \"price\": 36}, {\"name\": \"算法导论\", \"price\": 102}]"
+    }
+   ],
+   "expected": "价格不超过 50 的书共 2 本\n[{\"name\": \"Python入门\", \"price\": 49}, {\"name\": \"C语言程序设计\", \"price\": 36}]",
+   "ref": "import json\n\nfr = open('books.json', 'r', encoding='utf-8')\nbooks = json.loads(fr.read())\nfr.close()\nlimit = int(input())\nresult = []\nfor b in books:\n    if b['price'] <= limit:\n        result.append(b)\nfw = open('result.json', 'w', encoding='utf-8')\nfw.write(json.dumps(result, ensure_ascii=False))\nfw.close()\nprint('价格不超过', limit, '的书共', len(result), '本')\nfr2 = open('result.json', 'r', encoding='utf-8')\nprint(fr2.read())\nfr2.close()",
+   "hint": "json.loads 解析字符串（json.load 可直接读文件）；写文件用 'w' 模式；dumps 的对象是筛选结果",
+   "exp": "考查 JSON 与文件综合应用：loads/load 解析、遍历字典列表筛选、open 'w' 模式、json.dumps 序列化写回并读回验证。"
+  },
+  {
    "id": "blk-l2-001",
    "level": 2,
    "title": "密码强度判断",
@@ -4321,6 +4547,142 @@ window.BANK = {
    ],
    "ref": "import turtle\nt = turtle.Turtle()\nt.pencolor('red')\nfor i in range(4):\n    t.forward(100)\n    t.left(90)\nt.penup()\nprint('画笔颜色:', t.pencolor())\nprint('落点:', round(t.xcor()), round(t.ycor()))\nprint('画笔按下:', t.isdown())",
    "exp": "考查 turtle 画笔颜色、正方形转角 90 度与 penup/pendown 画笔状态。"
+  },
+  {
+   "id": "fix-l7-002",
+   "level": 7,
+   "title": "SQLite 成绩入库与查询",
+   "desc": "程序先把 3 名学生的成绩写入 stu.db（先删除旧表再新建）并提交，然后重新连接数据库，输入一个分数线，查询并输出所有成绩不低于该分数线的记录（按成绩升序，每行“姓名 分数”）。程序中有 3 处错误，请修改（不增删语句）。测试输入：80",
+   "buggy": "import sqlite3\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\ncur.execute('DROP TABLE IF EXISTS stu')\ncur.execute('CREATE TABLE stu(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('李四', 72))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('王强', 90))\nconn.commit\nconn.close()\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\nn = int(input())\ncur.execute('SELECT name, score FROM stu WHERE score >= ? ORDER BY score', n)\nrows = cur.fetchone()\nfor row in rows:\n    print(row[0], row[1])\nconn.close()",
+   "stdin": "80\n",
+   "expected": "张三 85\n王强 90",
+   "errors": [
+    {
+     "line": 10,
+     "hint": "commit 是方法，必须加括号调用才会真正提交事务；现在数据没有提交，关闭连接后被回滚，重新连接查不到数据"
+    },
+    {
+     "line": 16,
+     "hint": "占位符 ? 的参数必须以元组形式提供：单个元素要写成 (n,)，直接传 n 会绑定失败"
+    },
+    {
+     "line": 17,
+     "hint": "题目要输出所有满足条件的记录，fetchone() 只取第一条，应使用 fetchall()"
+    }
+   ],
+   "ref": "import sqlite3\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\ncur.execute('DROP TABLE IF EXISTS stu')\ncur.execute('CREATE TABLE stu(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('李四', 72))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('王强', 90))\nconn.commit()\nconn.close()\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\nn = int(input())\ncur.execute('SELECT name, score FROM stu WHERE score >= ? ORDER BY score', (n,))\nrows = cur.fetchall()\nfor row in rows:\n    print(row[0], row[1])\nconn.close()",
+   "hint": "commit 要加括号调用；占位符参数用 (n,)；取全部记录用 fetchall()",
+   "exp": "考查 SQLite 事务提交（未提交即关闭会被回滚）、占位符参数必须以元组传入、fetchone 与 fetchall 的区别。"
+  },
+  {
+   "id": "fix-l7-003",
+   "level": 7,
+   "title": "提取文本中的小数",
+   "desc": "输入一行文本，先输出其中第一个小数（形如 12.5，小数点前至少一位数字），再逐行输出文本中的所有小数，最后输出小数总个数。程序中有 3 处错误，请修改（不增删语句）。测试输入：订单号 2026，苹果 12.5 元，香蕉 3.99 元",
+   "buggy": "import re\n\ns = input()\nm = re.findall(r'\\d+\\.\\d+', s)\nprint('第一个小数:', m.group())\nnums = re.findall(r'\\d+.\\d+', s)\nfor x in nums:\n    print(x)\nprint('共', len(m), '个小数')",
+   "stdin": "订单号 2026，苹果 12.5 元，香蕉 3.99 元\n",
+   "expected": "第一个小数: 12.5\n12.5\n3.99\n共 2 个小数",
+   "errors": [
+    {
+     "line": 4,
+     "hint": "取第一个匹配应该用 re.search；re.findall 返回的是列表，列表没有 group 方法"
+    },
+    {
+     "line": 6,
+     "hint": "模式中的小数点没有转义，. 会匹配任意字符，把 2026 这样的整数也误判为小数；应写成 \\."
+    },
+    {
+     "line": 9,
+     "hint": "统计所有小数的个数应该用 nums 的长度；search 得到的匹配对象没有长度"
+    }
+   ],
+   "ref": "import re\n\ns = input()\nm = re.search(r'\\d+\\.\\d+', s)\nprint('第一个小数:', m.group())\nnums = re.findall(r'\\d+\\.\\d+', s)\nfor x in nums:\n    print(x)\nprint('共', len(nums), '个小数')",
+   "hint": "取第一个匹配用 search；findall 才返回全部匹配；模式中的点号必须转义成 \\.",
+   "exp": "考查 re.search 与 re.findall 的区别、匹配对象与列表用法的不同、元字符 . 未转义造成的误匹配。"
+  },
+  {
+   "id": "fix-l7-004",
+   "level": 7,
+   "title": "Student 类的三处错误",
+   "desc": "定义 Student 类：构造方法保存姓名和分数，实例方法 grade() 按分数返回等级（≥90 优秀，≥60 及格，否则不及格）。程序创建实例并按“姓名 分数 等级”输出。程序中有 3 处错误，请修改（不增删语句）。本题无输入。",
+   "buggy": "class Student:\n    def __init(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade():\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\ns = Student(73, '王五')\nprint(s.name, s.score, s.grade())",
+   "stdin": "",
+   "expected": "王五 73 及格",
+   "errors": [
+    {
+     "line": 2,
+     "hint": "构造方法名拼写错误：必须是 __init__（前后各两个下划线），否则实例化传参会报 TypeError"
+    },
+    {
+     "line": 6,
+     "hint": "实例方法定义缺少第一个参数 self，实例调用 s.grade() 时会自动传入对象，导致参数个数不符"
+    },
+    {
+     "line": 14,
+     "hint": "实例化时实参顺序与形参不一致：73 会赋给 name、'王五' 赋给 score，等级比较时发生类型错误"
+    }
+   ],
+   "ref": "class Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(self):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\ns = Student('王五', 73)\nprint(s.name, s.score, s.grade())",
+   "hint": "构造方法名是 __init__；实例方法必须有 self；实参顺序要与形参一致",
+   "exp": "考查构造方法 __init__ 的拼写、实例方法 self 参数、实例化时实参与形参的对应关系。"
+  },
+  {
+   "id": "fix-l7-005",
+   "level": 7,
+   "title": "递归求阶乘",
+   "desc": "输入正整数 n，用递归函数 fact 计算 n 的阶乘并输出结果。程序中有 3 处错误，请修改（不增删语句）。测试输入：5",
+   "buggy": "def fact(n):\n    if n >= 1:\n        return 0\n    return n * fact(n)\n\nn = int(input())\nprint(fact(n))",
+   "stdin": "5\n",
+   "expected": "120",
+   "errors": [
+    {
+     "line": 2,
+     "hint": "基例条件写错：n >= 1 把所有正整数输入都拦截并直接返回了，应当只在 n == 1 时返回基例值"
+    },
+    {
+     "line": 3,
+     "hint": "基例返回值错误：递归到 1 时应返回 1，返回 0 会使整个乘积变成 0"
+    },
+    {
+     "line": 4,
+     "hint": "递归调用的参数不收敛：fact(n) 传的还是 n，会无限递归，应改为 fact(n - 1)"
+    }
+   ],
+   "ref": "def fact(n):\n    if n == 1:\n        return 1\n    return n * fact(n - 1)\n\nn = int(input())\nprint(fact(n))",
+   "hint": "基例 n == 1 时返回 1；递归调用必须用 n - 1 向基例收敛",
+   "exp": "考查递归三要素：基例条件、基例返回值、递归调用参数必须向基例收敛（否则无限递归）。"
+  },
+  {
+   "id": "fix-l7-006",
+   "level": 7,
+   "title": "JSON 城市人口统计",
+   "desc": "city.json 存放城市人口 JSON 数组（每个元素含 city、pop 两个键）。程序读取并解析该文件，累加总人口，把 {\"total\": 总人口} 用 json.dumps 写入 out.json，再读回并输出“统计结果: {...}”。程序中有 3 处错误，请修改（不增删语句）。本题无输入。",
+   "buggy": "import json\n\nf = open('city.json', 'r', encoding='utf-8')\ndata = json.dumps(f)\nf.close()\ntotal = 0\nfor d in data.keys():\n    total = total + d['pop']\nfw = open('out.json', 'r', encoding='utf-8')\nfw.write(json.dumps({'total': total}, ensure_ascii=False))\nfw.close()\nfr = open('out.json', 'r', encoding='utf-8')\nprint('统计结果:', fr.read())\nfr.close()",
+   "stdin": "",
+   "files": [
+    {
+     "name": "city.json",
+     "content": "[{\"city\": \"北京\", \"pop\": 2189}, {\"city\": \"上海\", \"pop\": 2487}, {\"city\": \"广州\", \"pop\": 1868}]"
+    }
+   ],
+   "expected": "统计结果: {\"total\": 6544}",
+   "errors": [
+    {
+     "line": 4,
+     "hint": "从文件读取 JSON 应该用 json.load(f)；json.dumps 是把对象序列化成字符串，方向用反了，而且文件对象不能被序列化"
+    },
+    {
+     "line": 7,
+     "hint": "data 是列表，列表没有 keys 方法；应直接遍历列表，每个 d 是一个城市字典"
+    },
+    {
+     "line": 9,
+     "hint": "要把统计结果写入 out.json，必须用 'w' 写模式打开，用 'r' 打开后不可写"
+    }
+   ],
+   "ref": "import json\n\nf = open('city.json', 'r', encoding='utf-8')\ndata = json.load(f)\nf.close()\ntotal = 0\nfor d in data:\n    total = total + d['pop']\nfw = open('out.json', 'w', encoding='utf-8')\nfw.write(json.dumps({'total': total}, ensure_ascii=False))\nfw.close()\nfr = open('out.json', 'r', encoding='utf-8')\nprint('统计结果:', fr.read())\nfr.close()",
+   "hint": "读 JSON 用 json.load；遍历列表直接 for d in data；写文件用 'w' 模式",
+   "exp": "考查 json.load 与 json.dumps 的方向、列表与字典遍历方式的区别、open 写模式的正确使用。"
   },
   {
    "id": "fix-l2-001",
@@ -5402,6 +5764,357 @@ window.BANK = {
    ]
   },
   {
+   "id": "code-l7-004",
+   "level": 7,
+   "title": "数据库查询——商品销售额统计",
+   "desc": "sales.db（SQLite 数据库，本站判题环境已提供）中有表 orders，字段为：id（INTEGER 主键）、product（TEXT，商品名）、qty（INTEGER，数量）、price（REAL，单价），共 10 行记录。编程：输入一个商品名，在 orders 中查询该商品的全部记录：若存在，第一行输出“{商品名}总销售额:X”（X 为该商品所有记录的 数量×单价 之和，保留 2 位小数），第二行输出“最大单笔数量:N”（N 为该商品记录中 qty 的最大值）；若不存在，只输出一行“无该商品记录”。",
+   "files": [
+    {
+     "name": "sales.db",
+     "content": "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAAAgAAAAIAAAAAAAAAAAAAAAEAAAAEAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAC6N+A0AAAABD5MAD5MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAawEHFxkZAYExdGFibGVvcmRlcnNvcmRlcnMCQ1JFQVRFIFRBQkxFIG9yZGVycyhpZCBJTlRFR0VSIFBSSU1BUlkgS0VZLCBwcm9kdWN0IFRFWFQsIHF0eSBJTlRFR0VSLCBwcmljZSBSRUFMKQ0AAAAKDyIAD+cPyw+7D6IPjw9zD2MPTQ81DyIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARCgUAHwEC5pi+56S65ZmoBgUTFgkFACsJAueslOiusOacrOeUteiEkROHFAgFABkBB1VTQue6vxRAL8zMzMzMzQ4HBQAZAQLplK7nm5gMAMcaBgUAJQEH5peg57q/6byg5qCHCEBWYAAAAAAAEQUFAB8BAuaYvuekuuWZqAQFExcEBQArAQLnrJTorrDmnKznlLXohJECE4cOAwUAGQEC6ZSu55uYBQDHGgIFACUBB+aXoOe6v+m8oOaghwpAVmAAAAAAABcBBQArAQLnrJTorrDmnKznlLXohJEDE4c=",
+     "b64": true
+    }
+   ],
+   "starter": "import sqlite3\n\nconn = sqlite3.connect('sales.db')\ncur = conn.cursor()\n# 1. 输入商品名，用参数化查询取回该商品所有记录的 qty、price\n# 2. 有记录：输出总销售额（保留2位）与最大单笔数量\n# 3. 无记录：输出 无该商品记录\n",
+   "tests": [
+    {
+     "stdin": "笔记本电脑\n",
+     "expected": "笔记本电脑总销售额:29994.00\n最大单笔数量:3\n"
+    },
+    {
+     "stdin": "键盘\n",
+     "expected": "键盘总销售额:3383.00\n最大单笔数量:12\n"
+    },
+    {
+     "stdin": "耳机\n",
+     "expected": "无该商品记录\n"
+    }
+   ],
+   "ref": "import sqlite3\n\nconn = sqlite3.connect('sales.db')\ncur = conn.cursor()\nname = input()\ncur.execute('SELECT qty, price FROM orders WHERE product=?', (name,))\nrows = cur.fetchall()\nif len(rows) == 0:\n    print('无该商品记录')\nelse:\n    total = 0\n    maxq = rows[0][0]\n    for qty, price in rows:\n        total += qty * price\n        if qty > maxq:\n            maxq = qty\n    print('{}总销售额:{:.2f}'.format(name, total))\n    print('最大单笔数量:{}'.format(maxq))\nconn.close()\n",
+   "hint": "cur.execute 的 SQL 里用 ? 占位，参数写成 (name,)；fetchall() 返回元组列表，逐行累加 qty*price；格式化 {:.2f} 保留 2 位。",
+   "exp": "考查 sqlite3 连接查询、参数化 SQL 防注入写法、聚合思想的循环实现与 {:.2f} 格式化，为三级数据库应用大题原型。",
+   "tags": [
+    "SQLite",
+    "SQL 查询",
+    "聚合统计"
+   ]
+  },
+  {
+   "id": "code-l7-005",
+   "level": 7,
+   "title": "数据库建表与降序输出",
+   "desc": "用 sqlite3 在内存中建库：conn = sqlite3.connect(':memory:')，建表 student，字段 name（TEXT）、score（INTEGER）。循环读入 3 行“姓名 分数”（空格分隔，分数互不相同）插入表中并 commit，然后按 score 从高到低逐行输出“姓名 分数”（空格分隔）。本站判题环境已支持 sqlite3。",
+   "files": [],
+   "starter": "import sqlite3\n\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\n# 1. 建表 student(name TEXT, score INTEGER)\n# 2. 循环 3 次读入“姓名 分数”并 INSERT（用 ? 占位）\n# 3. conn.commit() 后按 score 降序 SELECT，逐行输出\n",
+   "tests": [
+    {
+     "stdin": "张三 78\n李四 95\n王五 86\n",
+     "expected": "李四 95\n王五 86\n张三 78\n"
+    },
+    {
+     "stdin": "赵六 60\n钱七 92\n孙八 73\n",
+     "expected": "钱七 92\n孙八 73\n赵六 60\n"
+    },
+    {
+     "stdin": "周一 88\n吴二 55\n郑三 100\n",
+     "expected": "郑三 100\n周一 88\n吴二 55\n"
+    }
+   ],
+   "ref": "import sqlite3\n\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\ncur.execute('CREATE TABLE student(name TEXT, score INTEGER)')\nfor i in range(3):\n    parts = input().split()\n    cur.execute('INSERT INTO student VALUES (?, ?)', (parts[0], int(parts[1])))\nconn.commit()\ncur.execute('SELECT name, score FROM student ORDER BY score DESC')\nfor row in cur.fetchall():\n    print(row[0], row[1])\nconn.close()\n",
+   "hint": "建表与插入都用 cur.execute；插入参数 (name, int(score))；排序在 SQL 里用 ORDER BY score DESC，不必在 Python 里再排。",
+   "exp": "考查 SQLite 建库建表、INSERT 参数化、commit 与 ORDER BY 排序查询的完整流程，对应三级数据库大题“建—插—查”全链路。",
+   "tags": [
+    "SQLite",
+    "建表插入",
+    "排序查询"
+   ]
+  },
+  {
+   "id": "code-l7-006",
+   "level": 7,
+   "title": "正则日志分析",
+   "desc": "app.log（UTF-8 编码，本站已提供）记录了服务运行日志，每行格式为“日期 时间 级别 消息”（以空格分隔；日期形如 2024-05-20，时间形如 09:15:32，级别为 INFO/DEBUG/WARNING/ERROR 之一，消息中可能含空格）。输入一个级别字符串，用 re 模块解析每一行：第一行输出该级别的日志条数；第二行输出该级别最后一条日志的“日期 时间”（即日期与时间之间保留一个空格）。测试数据保证所查级别在日志中至少出现一次。",
+   "files": [
+    {
+     "name": "app.log",
+     "content": "2024-05-20 09:15:32 INFO 服务启动完成\n2024-05-20 09:15:40 DEBUG 加载配置文件 config.ini\n2024-05-20 09:16:02 INFO 收到用户请求 /index\n2024-05-20 09:17:15 ERROR 数据库连接失败\n2024-05-20 09:18:03 WARNING 内存使用率达到75%\n2024-05-20 09:18:30 INFO 收到用户请求 /login\n2024-05-20 09:19:47 ERROR 接口响应超时\n2024-05-20 09:20:55 DEBUG 会话已清理\n2024-05-20 09:21:10 INFO 数据已保存\n2024-05-20 09:22:33 WARNING 磁盘剩余空间不足\n2024-05-20 09:23:01 ERROR 文件写入失败\n2024-05-20 09:24:18 DEBUG 缓存已刷新\n"
+    }
+   ],
+   "starter": "import re\n\nlevel = input()\n# 逐行读取 app.log，用 re.match 拆出 日期、时间、级别、消息\n# 统计该级别条数，并记录最后一条的“日期 时间”\n",
+   "tests": [
+    {
+     "stdin": "ERROR\n",
+     "expected": "3\n2024-05-20 09:23:01\n"
+    },
+    {
+     "stdin": "INFO\n",
+     "expected": "4\n2024-05-20 09:21:10\n"
+    },
+    {
+     "stdin": "WARNING\n",
+     "expected": "2\n2024-05-20 09:22:33\n"
+    }
+   ],
+   "ref": "import re\n\nlevel = input()\ncount = 0\nlast = ''\nfor line in open('app.log', encoding='utf-8'):\n    m = re.match(r'(\\S+) (\\S+) (\\S+) (.+)', line.strip())\n    if m is not None and m.group(3) == level:\n        count += 1\n        last = m.group(1) + ' ' + m.group(2)\nprint(count)\nprint(last)\n",
+   "hint": "\\S+ 匹配一段非空白字符：前两段合起来是完整时间（日期 空格 时间），第 3 段是级别，剩下 (.+) 是消息；最后一条时间在每次命中时覆盖 last 即可。",
+   "exp": "考查 re.match 分组提取（\\S+ 与 .+ 的区别）、文件逐行处理与“最后一条”的记录技巧，是三级正则应用大题的典型形态。",
+   "tags": [
+    "re",
+    "正则分组",
+    "文件"
+   ]
+  },
+  {
+   "id": "code-l7-007",
+   "level": 7,
+   "title": "正则提取重量并排序",
+   "desc": "输入一行文本，其中混有若干“数字+单位”片段：数字为整数或小数（如 12、1.5），单位仅可能是 mg、g、kg、t，形如 12kg、1.5t、200mg、500g。用 re 模块提取出全部片段（不必做单位换算），按片段中数字的数值从小到大排序后，每行输出一个原始片段。数据保证各片段数值互不相同。",
+   "files": [],
+   "starter": "import re\n\ntext = input()\n# 用 re.findall 配合分组 (数字)(单位) 提取全部片段\n# 按数字值从小到大排序后逐行输出原始片段\n",
+   "tests": [
+    {
+     "stdin": "今日入库：苹果12kg、大米5t、食盐500g、白糖800g、钢材3t\n",
+     "expected": "3t\n5t\n12kg\n500g\n800g\n"
+    },
+    {
+     "stdin": "面粉25.5kg、茶叶2.4kg、大豆1.5t、药材200mg\n",
+     "expected": "1.5t\n2.4kg\n25.5kg\n200mg\n"
+    },
+    {
+     "stdin": "包裹A重4kg，内含光盘50g与说明书1kg，外箱1.2kg\n",
+     "expected": "1kg\n1.2kg\n4kg\n50g\n"
+    }
+   ],
+   "ref": "import re\n\ntext = input()\npairs = re.findall(r'(\\d+(?:\\.\\d+)?)(mg|kg|t|g)', text)\npairs.sort(key=lambda p: float(p[0]))\nfor num, unit in pairs:\n    print(num + unit)\n",
+   "hint": "re.findall 带两个分组时返回 (数字, 单位) 元组列表；\\d+(?:\\.\\d+)? 匹配整数或小数；sort 的 key 用 float(数字) 保证 1.2 与 1 按数值比较。",
+   "exp": "考查 re.findall 分组捕获、(?: ) 非捕获组、可选小数点写法与 lambda 作 sort key 的数值排序，是三级正则重点题型。",
+   "tags": [
+    "re",
+    "正则分组",
+    "排序"
+   ]
+  },
+  {
+   "id": "code-l7-008",
+   "level": 7,
+   "title": "银行账户类 BankAccount",
+   "desc": "定义类 BankAccount：__init__(self, owner, balance) 保存户主名和余额；deposit(self, amount) 存款，余额增加 amount 并输出“{户主}存入{amount}元，余额{余额}元”；withdraw(self, amount) 取款：若 amount 不超过余额，扣款并输出“{户主}取出{amount}元，余额{余额}元”，否则输出“余额不足，{户主}取款失败”（余额不变）。输入一个整数作为初始余额（第一行），主程序已按下面顺序调用（不得改动）：创建户主为“小明”的账户后，依次 deposit(200)、withdraw(450)、withdraw(300)。输出即三次调用的打印结果。",
+   "files": [],
+   "starter": "class BankAccount:\n    def __init__(self, owner, balance):\n        pass\n\n    def deposit(self, amount):\n        pass\n\n    def withdraw(self, amount):\n        pass\n\nbalance = int(input())\nacc = BankAccount('小明', balance)\nacc.deposit(200)\nacc.withdraw(450)\nacc.withdraw(300)\n",
+   "tests": [
+    {
+     "stdin": "100\n",
+     "expected": "小明存入200元，余额300元\n余额不足，小明取款失败\n小明取出300元，余额0元\n"
+    },
+    {
+     "stdin": "400\n",
+     "expected": "小明存入200元，余额600元\n小明取出450元，余额150元\n余额不足，小明取款失败\n"
+    },
+    {
+     "stdin": "50\n",
+     "expected": "小明存入200元，余额250元\n余额不足，小明取款失败\n余额不足，小明取款失败\n"
+    }
+   ],
+   "ref": "class BankAccount:\n    def __init__(self, owner, balance):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        self.balance += amount\n        print('{}存入{}元，余额{}元'.format(self.owner, amount, self.balance))\n\n    def withdraw(self, amount):\n        if amount > self.balance:\n            print('余额不足，{}取款失败'.format(self.owner))\n        else:\n            self.balance -= amount\n            print('{}取出{}元，余额{}元'.format(self.owner, amount, self.balance))\n\nbalance = int(input())\nacc = BankAccount('小明', balance)\nacc.deposit(200)\nacc.withdraw(450)\nacc.withdraw(300)\n",
+   "hint": "余额应存为实例属性 self.balance，方法里用 self.balance 更新；取款前先比较 amount 与 self.balance 决定走哪个分支。",
+   "exp": "考查类的定义、__init__ 与实例属性、实例方法及分支逻辑，是三级面向对象大题“账户口令”原型。",
+   "tags": [
+    "面向对象",
+    "类与实例",
+    "方法"
+   ]
+  },
+  {
+   "id": "code-l7-009",
+   "level": 7,
+   "title": "动物继承与多态",
+   "desc": "基类 Animal 与主程序已给出：Animal 的 __init__ 保存名字，speak(self) 返回 '...'；主程序先输入 n，再输入 n 行“类型 名字”（类型只可能是 dog 或 cat，空格分隔），把创建的对象存入列表，最后逐个调用 speak 多态输出“{名字}的叫声是{叫声}”。请补全两个子类：Dog 继承 Animal 并重写 speak 返回 '汪汪'，Cat 继承 Animal 并重写 speak 返回 '喵喵'（都不得改动主程序）。",
+   "files": [],
+   "starter": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return '...'\n\nclass Dog(Animal):\n    pass\n\nclass Cat(Animal):\n    pass\n\nn = int(input())\nanimals = []\nfor i in range(n):\n    t, name = input().split()\n    if t == 'dog':\n        animals.append(Dog(name))\n    else:\n        animals.append(Cat(name))\nfor a in animals:\n    print('{}的叫声是{}'.format(a.name, a.speak()))\n",
+   "tests": [
+    {
+     "stdin": "3\ndog 旺财\ncat 咪咪\ndog 小黑\n",
+     "expected": "旺财的叫声是汪汪\n咪咪的叫声是喵喵\n小黑的叫声是汪汪\n"
+    },
+    {
+     "stdin": "2\ncat 咪咪\ncat 蓝蓝\n",
+     "expected": "咪咪的叫声是喵喵\n蓝蓝的叫声是喵喵\n"
+    },
+    {
+     "stdin": "4\ndog 阿黄\ncat 雪球\ndog 大壮\ncat 煤球\n",
+     "expected": "阿黄的叫声是汪汪\n雪球的叫声是喵喵\n大壮的叫声是汪汪\n煤球的叫声是喵喵\n"
+    }
+   ],
+   "ref": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return '...'\n\nclass Dog(Animal):\n    def speak(self):\n        return '汪汪'\n\nclass Cat(Animal):\n    def speak(self):\n        return '喵喵'\n\nn = int(input())\nanimals = []\nfor i in range(n):\n    t, name = input().split()\n    if t == 'dog':\n        animals.append(Dog(name))\n    else:\n        animals.append(Cat(name))\nfor a in animals:\n    print('{}的叫声是{}'.format(a.name, a.speak()))\n",
+   "hint": "子类只需重写 speak 方法（class Dog(Animal): 下重新定义 speak 并 return），__init__ 从父类继承不必重写；同一个 speak() 调用对不同子类对象表现出不同行为即多态。",
+   "exp": "考查继承语法 class 子类(父类)、方法重写与多态调用，是三级面向对象“动物叫声”经典题。",
+   "tags": [
+    "面向对象",
+    "继承",
+    "多态"
+   ]
+  },
+  {
+   "id": "code-l7-010",
+   "level": 7,
+   "title": "matplotlib 销售额折线图",
+   "desc": "第一行输入月份数 n（2≤n≤12），第二行输入 n 个整数（空格分隔），依次为 1~n 月的销售额。用 matplotlib 绘制折线图（x 轴为月份 1..n，画法用 plt.plot(xs, ys, 'o-')，即带圆点标记），保存为 sales.png（本站判题不显示图，不必调用 plt.show()，图不影响判题）；同时在屏幕输出 n 行“{月份}月:{销售额}”，最后一行输出“最高:{月份}月”（销售额最高的月份，数据保证唯一）。本站判题环境已支持 matplotlib。",
+   "files": [],
+   "starter": "import matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\nn = int(input())\nys = list(map(int, input().split()))\n# 1. 构造月份列表 xs = 1..n，plt.plot(xs, ys, 'o-') 后 plt.savefig('sales.png')\n# 2. 逐行输出每月销售额，最后输出最高销售额的月份\n",
+   "tests": [
+    {
+     "stdin": "6\n45 51 38 62 57 70\n",
+     "expected": "1月:45\n2月:51\n3月:38\n4月:62\n5月:57\n6月:70\n最高:6月\n"
+    },
+    {
+     "stdin": "5\n88 92 79 95 83\n",
+     "expected": "1月:88\n2月:92\n3月:79\n4月:95\n5月:83\n最高:4月\n"
+    },
+    {
+     "stdin": "12\n30 42 38 55 61 58 72 69 84 77 90 86\n",
+     "expected": "1月:30\n2月:42\n3月:38\n4月:55\n5月:61\n6月:58\n7月:72\n8月:69\n9月:84\n10月:77\n11月:90\n12月:86\n最高:11月\n"
+    }
+   ],
+   "ref": "import matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\n\nn = int(input())\nys = list(map(int, input().split()))\nxs = list(range(1, n + 1))\nplt.plot(xs, ys, 'o-')\nplt.savefig('sales.png')\nbest = 1\nfor i in range(1, n):\n    if ys[i] > ys[best - 1]:\n        best = i + 1\nfor i in range(n):\n    print('{}月:{}'.format(xs[i], ys[i]))\nprint('最高:{}月'.format(best))\n",
+   "hint": "xs 用 list(range(1, n+1)) 生成；最高月份用打擂台（记录下标）或 ys.index(max(ys))+1 求出；savefig 之前不要调用 plt.show()。",
+   "exp": "考查 matplotlib 折线图绘制与 savefig 保存（Agg 后端），配合列表遍历求最值；判题以 print 的数据为准，图作为练习产物。",
+   "tags": [
+    "matplotlib",
+    "数据可视化",
+    "求最值"
+   ]
+  },
+  {
+   "id": "code-l7-011",
+   "level": 7,
+   "title": "JSON 商品数据 Top-N",
+   "desc": "data.json（UTF-8 编码，本站已提供）是某电商的商品数组，每个元素含三个键：name（名称）、price（价格，数字）、sales（月销量，整数），共 10 个商品。第一行输入销量下限 k，第二行输入整数 N：从数组中筛选出 sales 不小于 k 的全部商品，按 sales 从高到低输出前 N 个（不足 N 个则全部输出），每行“名称 销量”（空格分隔，数据保证销量互不相同）；最后输出一行“平均价格:X”，X 为全部符合条件商品 price 的平均值（保留 2 位小数）。",
+   "files": [
+    {
+     "name": "data.json",
+     "content": "[\n {\n  \"name\": \"保温杯\",\n  \"price\": 45.0,\n  \"sales\": 1200\n },\n {\n  \"name\": \"蓝牙耳机\",\n  \"price\": 199.0,\n  \"sales\": 3500\n },\n {\n  \"name\": \"数据线\",\n  \"price\": 12.5,\n  \"sales\": 8000\n },\n {\n  \"name\": \"充电宝\",\n  \"price\": 89.0,\n  \"sales\": 2600\n },\n {\n  \"name\": \"手机壳\",\n  \"price\": 25.0,\n  \"sales\": 5200\n },\n {\n  \"name\": \"键盘\",\n  \"price\": 159.0,\n  \"sales\": 980\n },\n {\n  \"name\": \"鼠标垫\",\n  \"price\": 19.9,\n  \"sales\": 4100\n },\n {\n  \"name\": \"音箱\",\n  \"price\": 299.0,\n  \"sales\": 1500\n },\n {\n  \"name\": \"摄像头\",\n  \"price\": 129.0,\n  \"sales\": 2200\n },\n {\n  \"name\": \"U盘\",\n  \"price\": 39.9,\n  \"sales\": 6300\n }\n]\n"
+    }
+   ],
+   "starter": "import json\n\nitems = json.load(open('data.json', encoding='utf-8'))\nk = int(input())\nn = int(input())\n# 1. 列表解析筛选 sales >= k 的商品\n# 2. 按 sales 降序排序，输出前 n 个“名称 销量”\n# 3. 输出全部符合条件商品的平均价格（保留2位）\n",
+   "tests": [
+    {
+     "stdin": "1000\n3\n",
+     "expected": "数据线 8000\nU盘 6300\n手机壳 5200\n平均价格:95.37\n"
+    },
+    {
+     "stdin": "2000\n2\n",
+     "expected": "数据线 8000\nU盘 6300\n平均价格:73.47\n"
+    },
+    {
+     "stdin": "6000\n5\n",
+     "expected": "数据线 8000\nU盘 6300\n平均价格:26.20\n"
+    }
+   ],
+   "ref": "import json\n\nitems = json.load(open('data.json', encoding='utf-8'))\nk = int(input())\nn = int(input())\npicked = [it for it in items if it['sales'] >= k]\npicked.sort(key=lambda it: -it['sales'])\ntotal = 0\nfor it in picked:\n    total += it['price']\nfor it in picked[:n]:\n    print(it['name'], it['sales'])\nprint('平均价格:{:.2f}'.format(total / len(picked)))\n",
+   "hint": "json.load 直接得到字典列表；筛选用列表解析 [it for it in items if it['sales'] >= k]；降序可用 key=lambda it: -it['sales']；平均价按全部筛选结果而非前 N 个计算。",
+   "exp": "考查 json 文件解析、字典取键、列表解析过滤、lambda 排序与格式化统计的 JSON 综合大题。",
+   "tags": [
+    "json",
+    "过滤",
+    "排序统计"
+   ]
+  },
+  {
+   "id": "code-l7-012",
+   "level": 7,
+   "title": "网页书单综合分析",
+   "desc": "books.html（UTF-8 编码，本站已提供）中书目行形如：<li><span class=\"title\">书名</span><span class=\"price\">价格</span></li>，价格是形如 45.80 的数字。输入一个价格阈值 t（整数或小数）：用 re 模块提取全部书名和价格；先按文件中出现顺序输出价格不低于 t 的书，每行“书名 价格”（价格保留 2 位小数）；再输出一行“平均价格:X”（全部书的均价，保留 2 位小数）；最后输出一行“最贵:书名 价格”（保留 2 位小数，数据保证最贵的书唯一）。",
+   "files": [
+    {
+     "name": "books.html",
+     "content": "<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\"><title>计算机书店</title></head>\n<body>\n<h1>本月书单</h1>\n<ul class=\"books\">\n<li><span class=\"title\">Python编程入门</span><span class=\"price\">45.80</span></li>\n<li><span class=\"title\">数据结构</span><span class=\"price\">52.00</span></li>\n<li><span class=\"title\">深度学习实战</span><span class=\"price\">89.00</span></li>\n<li><span class=\"title\">算法导论</span><span class=\"price\">128.50</span></li>\n<li><span class=\"title\">机器学习</span><span class=\"price\">75.00</span></li>\n<li><span class=\"title\">数据库原理</span><span class=\"price\">39.90</span></li>\n<li><span class=\"title\">计算机网络</span><span class=\"price\">49.50</span></li>\n<li><span class=\"title\">操作系统</span><span class=\"price\">55.50</span></li>\n</ul>\n</body>\n</html>\n"
+    }
+   ],
+   "starter": "import re\n\nt = float(input())\nhtml = open('books.html', encoding='utf-8').read()\n# 1. 用 re.findall 提取 (书名, 价格) 列表\n# 2. 按文件顺序输出价格 >= t 的“书名 价格”\n# 3. 输出全部书的平均价格与最贵的书\n",
+   "tests": [
+    {
+     "stdin": "50\n",
+     "expected": "数据结构 52.00\n深度学习实战 89.00\n算法导论 128.50\n机器学习 75.00\n操作系统 55.50\n平均价格:66.90\n最贵:算法导论 128.50\n"
+    },
+    {
+     "stdin": "128\n",
+     "expected": "算法导论 128.50\n平均价格:66.90\n最贵:算法导论 128.50\n"
+    },
+    {
+     "stdin": "999\n",
+     "expected": "平均价格:66.90\n最贵:算法导论 128.50\n"
+    }
+   ],
+   "ref": "import re\n\nt = float(input())\nhtml = open('books.html', encoding='utf-8').read()\npairs = re.findall(r'<span class=\"title\">([^<]+)</span><span class=\"price\">([\\d.]+)</span>', html)\nbooks = {}\nfor name, price in pairs:\n    books[name] = float(price)\ntotal = 0\nmaxname = ''\nmaxp = -1\nfor name, price in books.items():\n    total += price\n    if price >= t:\n        print('{} {:.2f}'.format(name, price))\n    if price > maxp:\n        maxp = price\n        maxname = name\nprint('平均价格:{:.2f}'.format(total / len(books)))\nprint('最贵:{} {:.2f}'.format(maxname, maxp))\n",
+   "hint": "正则里 [^<]+ 匹配标签之间的书名、[\\d.]+ 匹配价格；字典 books[name]=float(price) 天然按插入顺序保存；最贵与阈值输出可在同一次遍历中完成。",
+   "exp": "三级综合大题：正则分组提取 HTML 内容、字典组织数据、浮点格式化与求最值一次贯通。",
+   "tags": [
+    "re",
+    "字典",
+    "文件"
+   ]
+  },
+  {
+   "id": "code-l4-005",
+   "level": 4,
+   "title": "递归输出全排列",
+   "desc": "输入一行 3 个互不相同的字符（无分隔符，如 bca）。用递归生成并输出这 3 个字符的全排列：先把字符按字典序（升序）排列，再按字典序每行输出一个排列，共 6 行。要求用递归函数实现（每层固定一个位置的字符，对剩余字符递归）。",
+   "files": [],
+   "starter": "def perm(chars, prefix):\n    # 递归生成并输出全排列\n    pass\n\ns = sorted(input())\nperm(s, '')\n",
+   "tests": [
+    {
+     "stdin": "bca\n",
+     "expected": "abc\nacb\nbac\nbca\ncab\ncba\n"
+    },
+    {
+     "stdin": "312\n",
+     "expected": "123\n132\n213\n231\n312\n321\n"
+    },
+    {
+     "stdin": "zay\n",
+     "expected": "ayz\nazy\nyaz\nyza\nzay\nzya\n"
+    }
+   ],
+   "ref": "def perm(chars, prefix):\n    if len(chars) == 0:\n        print(prefix)\n        return\n    for i in range(len(chars)):\n        perm(chars[:i] + chars[i + 1:], prefix + chars[i])\n\ns = sorted(input())\nperm(s, '')\n",
+   "hint": "递归出口是剩余字符为空时输出 prefix；每层依次把第 i 个字符接到 prefix，剩余字符 chars[:i]+chars[i+1:] 继续递归；因每层按升序尝试且初始已 sorted，输出天然是字典序。",
+   "exp": "考查递归分解问题（固定前缀+缩小规模）、切片拼接与回溯式枚举，是三级递归难度的代表题。",
+   "tags": [
+    "递归",
+    "全排列",
+    "切片"
+   ]
+  },
+  {
+   "id": "code-l4-006",
+   "level": 4,
+   "title": "递归求各位和与逆序数",
+   "desc": "定义两个递归函数：digit_sum(n) 返回非负整数 n 的各位数字之和（如 digit_sum(12345)=15）；rev(n, acc=0) 用累加器参数递归返回 n 的逆序数（如 rev(12345)=54321，rev(1200)=21，前导 0 自动消失）。两个函数都必须用递归实现（借助 % 10 与 // 10，不得用字符串切片）。输入一个非负整数 n：第一行输出各位数字之和，第二行输出逆序数。",
+   "files": [],
+   "starter": "def digit_sum(n):\n    # 递归返回 n 的各位数字之和\n    pass\n\ndef rev(n, acc=0):\n    # 递归返回 n 的逆序数\n    pass\n\nn = int(input())\nprint(digit_sum(n))\nprint(rev(n))\n",
+   "tests": [
+    {
+     "stdin": "12345\n",
+     "expected": "15\n54321\n"
+    },
+    {
+     "stdin": "1200\n",
+     "expected": "3\n21\n"
+    },
+    {
+     "stdin": "90807\n",
+     "expected": "24\n70809\n"
+    }
+   ],
+   "ref": "def digit_sum(n):\n    if n == 0:\n        return 0\n    return n % 10 + digit_sum(n // 10)\n\ndef rev(n, acc=0):\n    if n == 0:\n        return acc\n    return rev(n // 10, acc * 10 + n % 10)\n\nn = int(input())\nprint(digit_sum(n))\nprint(rev(n))\n",
+   "hint": "digit_sum 出口 n==0 返回 0，否则 末位 + 对 n//10 递归；rev 每层把 acc 扩大 10 倍再 加 末位，n==0 时返回 acc，1200 的两个 0 自然被丢掉。",
+   "exp": "考查递归出口设计、整数分解 % 10 与 // 10、默认参数（累加器）技巧，覆盖三级递归两大高频考法。",
+   "tags": [
+    "递归",
+    "整数分解",
+    "默认参数"
+   ]
+  },
+  {
    "id": "code-l5-001",
    "level": 5,
    "title": "书籍评论数统计",
@@ -5705,5 +6418,40 @@ window.BANK = {
    "url": "https://search.bilibili.com/all?keyword=%E4%B8%8A%E6%B5%B7%E9%AB%98%E6%A0%A1%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%B0%B4%E5%B9%B3%E8%80%83%E8%AF%95python",
    "desc": "模拟卷讲解、真题回忆视频，配合本站刷题食用"
   }
- ]
+ ],
+ "official": {
+  "title": "官方模拟卷 27A（2026 年 · A 场）",
+  "source": "上海市教育考试院官网公开模拟卷",
+  "url": "https://scite.shmeea.edu.cn/home/TestPaper",
+  "note": "判分：单选 1.5 分/题；填空 2.5 分/空；改错 10 分/题；编程 17/18/15/12/13 分。原卷部分素材（数据文件、whl）由本站等价复刻，题干中已注明。",
+  "mcq_ids": [
+   "p27-m1",
+   "p27-m2",
+   "p27-m3",
+   "p27-m4",
+   "p27-m5",
+   "p27-m6",
+   "p27-m7",
+   "p27-m8",
+   "p27-m9",
+   "p27-m10"
+  ],
+  "blank_ids": [
+   "p27-b1",
+   "p27-b2",
+   "p27-b3"
+  ],
+  "fix_ids": [
+   "p27-f1",
+   "p27-f2",
+   "p27-f3"
+  ],
+  "coding_ids": [
+   "p27-c1",
+   "p27-c2",
+   "p27-c3",
+   "p27-c4",
+   "p27-c5"
+  ]
+ }
 };

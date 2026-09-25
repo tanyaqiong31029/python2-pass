@@ -788,7 +788,13 @@ const Mock = {
     };
     if (variant === 'official') {
       const O = B.official;
-      return { mcq: O.mcq.slice(), blank: O.blank.slice(), fix: O.fix.slice(), coding: O.coding.slice() };
+      const byId = (arr, ids) => ids.map(id => arr.find(q => q.id === id)).filter(Boolean);
+      return {
+        mcq: byId(B.mcq, O.mcq_ids || []),
+        blank: byId(B.blanks, O.blank_ids || []),
+        fix: byId(B.fixes, O.fix_ids || []),
+        coding: byId(B.coding, O.coding_ids || [])
+      };
     }
     if (variant === 'tier3') {
       const [mt3, mo] = split(B.mcq);
@@ -990,12 +996,20 @@ const Mock = {
       const tests = q.tests && q.tests.length ? q.tests : [{ stdin: q.stdin || '', expected: q.expected || '' }];
       let got = 0;
       const rows = [];
-      for (const t of tests) {
-        const r = await Engine.run(userCode, { stdin: t.stdin || '', files: q.files });
-        const cmp = compareOutput(r.stdout, t.expected || '');
-        const pass = r.ok && (t.expectCanvas ? (r.hasCanvas && (!t.expected || cmp.ok)) : cmp.ok);
-        if (pass) got += perTestScore;
-        rows.push({ i: rows.length + 1, pass, stdin: t.stdin || '', expected: t.expected || '', got: r.stdout || '', err: r.error || '' });
+      // 隐藏挂载点：turtle 画布题需要真实 DOM 容器才能生成画布
+      const mount = document.createElement('div');
+      mount.style.display = 'none';
+      document.body.appendChild(mount);
+      try {
+        for (const t of tests) {
+          const r = await Engine.run(userCode, { stdin: t.stdin || '', files: q.files, mount });
+          const cmp = compareOutput(r.stdout, t.expected || '');
+          const pass = r.ok && (t.expectCanvas ? (r.hasCanvas && (!t.expected || cmp.ok)) : cmp.ok);
+          if (pass) got += perTestScore;
+          rows.push({ i: rows.length + 1, pass, stdin: t.stdin || '', expected: t.expected || '', got: r.stdout || '', err: r.error || '' });
+        }
+      } finally {
+        mount.remove();
       }
       return { got: Math.round(got * 10) / 10, rows };
     };

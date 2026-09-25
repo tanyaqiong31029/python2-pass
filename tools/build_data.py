@@ -14,6 +14,7 @@
 
 import json
 import re
+import time
 import sys
 import glob
 import os
@@ -313,7 +314,11 @@ def main():
                 nerr += validate_coding(q, fname)
                 nerr += check_files(q, fname, 0)
                 codings.append(q)
-            official_meta = meta
+            official_meta = dict(meta)
+            official_meta["mcq_ids"] = [q["id"] for q in data.get("mcq", [])]
+            official_meta["blank_ids"] = [q["id"] for q in data.get("blank", [])]
+            official_meta["fix_ids"] = [q["id"] for q in data.get("fix", [])]
+            official_meta["coding_ids"] = [q["id"] for q in data.get("coding", [])]
         elif kind == "resources":
             for r in data.get("items", []):
                 if not r.get("title") or not r.get("url") or not r.get("desc"):
@@ -365,6 +370,8 @@ def main():
         "lessons": {str(k): v for k, v in sorted(lessons.items())},
         "resources": resources,
     }
+    if official_meta:
+        bank["official"] = official_meta
     js = (
         "/* 本文件由 tools/build_data.py 自动生成，请勿手改；源数据在 data_src/ */\n"
         "window.BANK = " + json.dumps(bank, ensure_ascii=False, indent=1) + ";\n"
@@ -372,6 +379,17 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(js)
     print(f"✓ 已生成 {OUT}（{os.path.getsize(OUT) // 1024} KB）")
+
+    # 版本戳：更新 index.html 中的静态资源版本号，保证部署后浏览器拉到新数据
+    stamp = "v=" + time.strftime("%Y%m%d%H%M", time.localtime())
+    index_path = os.path.join(ROOT, "index.html")
+    with open(index_path, encoding="utf-8") as f:
+        html = f.read()
+    html2 = re.sub(r"(js/(?:config|data|util|state|runner|app)\.js\?v=)\d+", r"\g<1>" + stamp[2:], html)
+    if html2 != html:
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write(html2)
+        print("✓ 资源版本戳已更新为", stamp)
 
 
 if __name__ == "__main__":

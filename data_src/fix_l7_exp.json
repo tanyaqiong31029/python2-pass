@@ -1,0 +1,141 @@
+{
+  "kind": "fix",
+  "items": [
+    {
+      "id": "fix-l7-002",
+      "level": 7,
+      "title": "SQLite 成绩入库与查询",
+      "desc": "程序先把 3 名学生的成绩写入 stu.db（先删除旧表再新建）并提交，然后重新连接数据库，输入一个分数线，查询并输出所有成绩不低于该分数线的记录（按成绩升序，每行“姓名 分数”）。程序中有 3 处错误，请修改（不增删语句）。测试输入：80",
+      "buggy": "import sqlite3\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\ncur.execute('DROP TABLE IF EXISTS stu')\ncur.execute('CREATE TABLE stu(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('李四', 72))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('王强', 90))\nconn.commit\nconn.close()\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\nn = int(input())\ncur.execute('SELECT name, score FROM stu WHERE score >= ? ORDER BY score', n)\nrows = cur.fetchone()\nfor row in rows:\n    print(row[0], row[1])\nconn.close()",
+      "stdin": "80\n",
+      "expected": "张三 85\n王强 90",
+      "errors": [
+        {
+          "line": 10,
+          "hint": "commit 是方法，必须加括号调用才会真正提交事务；现在数据没有提交，关闭连接后被回滚，重新连接查不到数据"
+        },
+        {
+          "line": 16,
+          "hint": "占位符 ? 的参数必须以元组形式提供：单个元素要写成 (n,)，直接传 n 会绑定失败"
+        },
+        {
+          "line": 17,
+          "hint": "题目要输出所有满足条件的记录，fetchone() 只取第一条，应使用 fetchall()"
+        }
+      ],
+      "ref": "import sqlite3\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\ncur.execute('DROP TABLE IF EXISTS stu')\ncur.execute('CREATE TABLE stu(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('李四', 72))\ncur.execute('INSERT INTO stu VALUES(?, ?)', ('王强', 90))\nconn.commit()\nconn.close()\n\nconn = sqlite3.connect('stu.db')\ncur = conn.cursor()\nn = int(input())\ncur.execute('SELECT name, score FROM stu WHERE score >= ? ORDER BY score', (n,))\nrows = cur.fetchall()\nfor row in rows:\n    print(row[0], row[1])\nconn.close()",
+      "hint": "commit 要加括号调用；占位符参数用 (n,)；取全部记录用 fetchall()",
+      "exp": "考查 SQLite 事务提交（未提交即关闭会被回滚）、占位符参数必须以元组传入、fetchone 与 fetchall 的区别。"
+    },
+    {
+      "id": "fix-l7-003",
+      "level": 7,
+      "title": "提取文本中的小数",
+      "desc": "输入一行文本，先输出其中第一个小数（形如 12.5，小数点前至少一位数字），再逐行输出文本中的所有小数，最后输出小数总个数。程序中有 3 处错误，请修改（不增删语句）。测试输入：订单号 2026，苹果 12.5 元，香蕉 3.99 元",
+      "buggy": "import re\n\ns = input()\nm = re.findall(r'\\d+\\.\\d+', s)\nprint('第一个小数:', m.group())\nnums = re.findall(r'\\d+.\\d+', s)\nfor x in nums:\n    print(x)\nprint('共', len(m), '个小数')",
+      "stdin": "订单号 2026，苹果 12.5 元，香蕉 3.99 元\n",
+      "expected": "第一个小数: 12.5\n12.5\n3.99\n共 2 个小数",
+      "errors": [
+        {
+          "line": 4,
+          "hint": "取第一个匹配应该用 re.search；re.findall 返回的是列表，列表没有 group 方法"
+        },
+        {
+          "line": 6,
+          "hint": "模式中的小数点没有转义，. 会匹配任意字符，把 2026 这样的整数也误判为小数；应写成 \\."
+        },
+        {
+          "line": 9,
+          "hint": "统计所有小数的个数应该用 nums 的长度；search 得到的匹配对象没有长度"
+        }
+      ],
+      "ref": "import re\n\ns = input()\nm = re.search(r'\\d+\\.\\d+', s)\nprint('第一个小数:', m.group())\nnums = re.findall(r'\\d+\\.\\d+', s)\nfor x in nums:\n    print(x)\nprint('共', len(nums), '个小数')",
+      "hint": "取第一个匹配用 search；findall 才返回全部匹配；模式中的点号必须转义成 \\.",
+      "exp": "考查 re.search 与 re.findall 的区别、匹配对象与列表用法的不同、元字符 . 未转义造成的误匹配。"
+    },
+    {
+      "id": "fix-l7-004",
+      "level": 7,
+      "title": "Student 类的三处错误",
+      "desc": "定义 Student 类：构造方法保存姓名和分数，实例方法 grade() 按分数返回等级（≥90 优秀，≥60 及格，否则不及格）。程序创建实例并按“姓名 分数 等级”输出。程序中有 3 处错误，请修改（不增删语句）。本题无输入。",
+      "buggy": "class Student:\n    def __init(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade():\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\ns = Student(73, '王五')\nprint(s.name, s.score, s.grade())",
+      "stdin": "",
+      "expected": "王五 73 及格",
+      "errors": [
+        {
+          "line": 2,
+          "hint": "构造方法名拼写错误：必须是 __init__（前后各两个下划线），否则实例化传参会报 TypeError"
+        },
+        {
+          "line": 6,
+          "hint": "实例方法定义缺少第一个参数 self，实例调用 s.grade() 时会自动传入对象，导致参数个数不符"
+        },
+        {
+          "line": 14,
+          "hint": "实例化时实参顺序与形参不一致：73 会赋给 name、'王五' 赋给 score，等级比较时发生类型错误"
+        }
+      ],
+      "ref": "class Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(self):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\ns = Student('王五', 73)\nprint(s.name, s.score, s.grade())",
+      "hint": "构造方法名是 __init__；实例方法必须有 self；实参顺序要与形参一致",
+      "exp": "考查构造方法 __init__ 的拼写、实例方法 self 参数、实例化时实参与形参的对应关系。"
+    },
+    {
+      "id": "fix-l7-005",
+      "level": 7,
+      "title": "递归求阶乘",
+      "desc": "输入正整数 n，用递归函数 fact 计算 n 的阶乘并输出结果。程序中有 3 处错误，请修改（不增删语句）。测试输入：5",
+      "buggy": "def fact(n):\n    if n >= 1:\n        return 0\n    return n * fact(n)\n\nn = int(input())\nprint(fact(n))",
+      "stdin": "5\n",
+      "expected": "120",
+      "errors": [
+        {
+          "line": 2,
+          "hint": "基例条件写错：n >= 1 把所有正整数输入都拦截并直接返回了，应当只在 n == 1 时返回基例值"
+        },
+        {
+          "line": 3,
+          "hint": "基例返回值错误：递归到 1 时应返回 1，返回 0 会使整个乘积变成 0"
+        },
+        {
+          "line": 4,
+          "hint": "递归调用的参数不收敛：fact(n) 传的还是 n，会无限递归，应改为 fact(n - 1)"
+        }
+      ],
+      "ref": "def fact(n):\n    if n == 1:\n        return 1\n    return n * fact(n - 1)\n\nn = int(input())\nprint(fact(n))",
+      "hint": "基例 n == 1 时返回 1；递归调用必须用 n - 1 向基例收敛",
+      "exp": "考查递归三要素：基例条件、基例返回值、递归调用参数必须向基例收敛（否则无限递归）。"
+    },
+    {
+      "id": "fix-l7-006",
+      "level": 7,
+      "title": "JSON 城市人口统计",
+      "desc": "city.json 存放城市人口 JSON 数组（每个元素含 city、pop 两个键）。程序读取并解析该文件，累加总人口，把 {\"total\": 总人口} 用 json.dumps 写入 out.json，再读回并输出“统计结果: {...}”。程序中有 3 处错误，请修改（不增删语句）。本题无输入。",
+      "buggy": "import json\n\nf = open('city.json', 'r', encoding='utf-8')\ndata = json.dumps(f)\nf.close()\ntotal = 0\nfor d in data.keys():\n    total = total + d['pop']\nfw = open('out.json', 'r', encoding='utf-8')\nfw.write(json.dumps({'total': total}, ensure_ascii=False))\nfw.close()\nfr = open('out.json', 'r', encoding='utf-8')\nprint('统计结果:', fr.read())\nfr.close()",
+      "stdin": "",
+      "files": [
+        {
+          "name": "city.json",
+          "content": "[{\"city\": \"北京\", \"pop\": 2189}, {\"city\": \"上海\", \"pop\": 2487}, {\"city\": \"广州\", \"pop\": 1868}]"
+        }
+      ],
+      "expected": "统计结果: {\"total\": 6544}",
+      "errors": [
+        {
+          "line": 4,
+          "hint": "从文件读取 JSON 应该用 json.load(f)；json.dumps 是把对象序列化成字符串，方向用反了，而且文件对象不能被序列化"
+        },
+        {
+          "line": 7,
+          "hint": "data 是列表，列表没有 keys 方法；应直接遍历列表，每个 d 是一个城市字典"
+        },
+        {
+          "line": 9,
+          "hint": "要把统计结果写入 out.json，必须用 'w' 写模式打开，用 'r' 打开后不可写"
+        }
+      ],
+      "ref": "import json\n\nf = open('city.json', 'r', encoding='utf-8')\ndata = json.load(f)\nf.close()\ntotal = 0\nfor d in data:\n    total = total + d['pop']\nfw = open('out.json', 'w', encoding='utf-8')\nfw.write(json.dumps({'total': total}, ensure_ascii=False))\nfw.close()\nfr = open('out.json', 'r', encoding='utf-8')\nprint('统计结果:', fr.read())\nfr.close()",
+      "hint": "读 JSON 用 json.load；遍历列表直接 for d in data；写文件用 'w' 模式",
+      "exp": "考查 json.load 与 json.dumps 的方向、列表与字典遍历方式的区别、open 写模式的正确使用。"
+    }
+  ]
+}

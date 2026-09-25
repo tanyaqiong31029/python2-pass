@@ -1,0 +1,231 @@
+{
+  "kind": "blank",
+  "items": [
+    {
+      "id": "blk-l7-002",
+      "level": 7,
+      "title": "SQLite 内存库建表与查询",
+      "desc": "程序使用 SQLite 在内存中建库：创建 scores 表（name TEXT, score INTEGER），用占位符 ? 插入 3 条记录（张三 85、李四 92、王强 78），提交事务后，根据输入的姓名查询成绩：查到输出“姓名的成绩是分数”，查不到输出“查无此人”。测试输入：李四",
+      "code": "import sqlite3\n\nconn = ___(1)___\ncur = ___(2)___\ncur.execute('CREATE TABLE scores(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('李四', 92))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('王强', 78))\n___(3)___\nname = input()\ncur.execute('SELECT score FROM scores WHERE name = ?', (name,))\nrow = ___(4)___\nif row is None:\n    print('查无此人')\nelse:\n    print(f'{name}的成绩是{row[0]}')",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "sqlite3.connect(':memory:')",
+            "sqlite3.connect(\":memory:\")"
+          ],
+          "hint": "连接内存数据库：sqlite3.connect(':memory:')"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "conn.cursor()"
+          ],
+          "hint": "由连接对象创建游标"
+        },
+        {
+          "n": 3,
+          "answers": [
+            "conn.commit()"
+          ],
+          "hint": "插入数据后要提交事务"
+        },
+        {
+          "n": 4,
+          "answers": [
+            "cur.fetchone()",
+            "cur.fetchall()[0]"
+          ],
+          "hint": "取出查询结果中的一条记录"
+        }
+      ],
+      "stdin": "李四\n",
+      "expected": "李四的成绩是92",
+      "ref": "import sqlite3\n\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\ncur.execute('CREATE TABLE scores(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('张三', 85))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('李四', 92))\ncur.execute('INSERT INTO scores VALUES(?, ?)', ('王强', 78))\nconn.commit()\nname = input()\ncur.execute('SELECT score FROM scores WHERE name = ?', (name,))\nrow = cur.fetchone()\nif row is None:\n    print('查无此人')\nelse:\n    print(f'{name}的成绩是{row[0]}')",
+      "hint": "connect 建连接、cursor() 建游标、INSERT 后要 commit、fetchone() 取一条记录",
+      "exp": "考查 SQLite 编程关键步骤：connect 连接（:memory: 内存库）、cursor 创建游标、execute 占位符传参、commit 提交事务、fetchone 获取查询结果。"
+    },
+    {
+      "id": "blk-l7-003",
+      "level": 7,
+      "title": "正则解析访问日志",
+      "desc": "输入若干行 Web 服务器访问日志（空行结束），每行格式形如：192.168.1.5 - - [25/Sep/2026:10:01:02] \"GET /index.html HTTP/1.1\" 200 2326。用 re.findall 配合两个分组同时提取每行的 IP 和状态码，先输出共提取多少条记录，再逐行输出“IP 的状态码是 状态码”，最后输出其中状态码为 200 的条数。",
+      "code": "import re\n\nresult = []    # 每个元素是 (IP, 状态码) 元组\nwhile True:\n    line = input()\n    if line == '':\n        break\n    result += re.findall(___(1)___, line)\n\nprint('共提取', ___(2)___, '条记录')\nn200 = 0\nfor ip, code in result:\n    print(ip, '的状态码是', code)\n    if ___(3)___:\n        n200 += 1\nprint('其中状态码为200的有', n200, '条')",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3}) '",
+            "r'(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}).*?\" (\\d{3}) '",
+            "r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3})'",
+            "'(\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+).*?\" (\\\\d{3}) '"
+          ],
+          "hint": "两个分组：IP（每个点号都要转义 \\.）与引号后的三位状态码 (\\d{3})，中间用 .*? 连接"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "len(result)"
+          ],
+          "hint": "统计元组列表的长度"
+        },
+        {
+          "n": 3,
+          "answers": [
+            "code == '200'",
+            "code == \"200\"",
+            "int(code) == 200",
+            "'200' == code"
+          ],
+          "hint": "分组取出的状态码是字符串，与 '200' 比较"
+        }
+      ],
+      "stdin": "192.168.1.5 - - [25/Sep/2026:10:01:02] \"GET /index.html HTTP/1.1\" 200 2326\n10.0.0.88 - - [25/Sep/2026:10:02:15] \"POST /api/login HTTP/1.1\" 404 512\n\n",
+      "expected": "共提取 2 条记录\n192.168.1.5 的状态码是 200\n10.0.0.88 的状态码是 404\n其中状态码为200的有 1 条",
+      "ref": "import re\n\nresult = []    # 每个元素是 (IP, 状态码) 元组\nwhile True:\n    line = input()\n    if line == '':\n        break\n    result += re.findall(r'(\\d+\\.\\d+\\.\\d+\\.\\d+).*?\" (\\d{3}) ', line)\n\nprint('共提取', len(result), '条记录')\nn200 = 0\nfor ip, code in result:\n    print(ip, '的状态码是', code)\n    if code == '200':\n        n200 += 1\nprint('其中状态码为200的有', n200, '条')",
+      "hint": "findall 配合两个分组返回 (IP, 状态码) 元组列表；正则里的点号必须转义",
+      "exp": "考查 re.findall 分组提取（有多个分组时返回元组列表）、元字符 . 的转义、.*? 懒惰匹配、遍历解包与条件统计。"
+    },
+    {
+      "id": "blk-l7-004",
+      "level": 7,
+      "title": "定义 Student 类并评定等级",
+      "desc": "定义 Student 类：构造方法接收姓名 name 和分数 score 并保存为实例属性；实例方法 grade() 按分数返回等级（90 分及以上为“优秀”，60 分及以上为“及格”，否则“不及格”）。输入姓名和分数（各占一行），创建 Student 实例并按“姓名 分数 等级”输出。测试输入：王五、73",
+      "code": "class Student:\n    def ___(1)___(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(___(2)___):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\nname = input()\nscore = int(input())\ns = ___(3)___(name, score)\nprint(s.name, s.score, s.___(4)___())",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "__init__"
+          ],
+          "hint": "构造方法名，前后各两个下划线"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "self"
+          ],
+          "hint": "实例方法的第一个参数代表实例本身"
+        },
+        {
+          "n": 3,
+          "answers": [
+            "Student"
+          ],
+          "hint": "用 类名(参数) 创建实例"
+        },
+        {
+          "n": 4,
+          "answers": [
+            "grade"
+          ],
+          "hint": "通过实例调用评定等级的方法"
+        }
+      ],
+      "stdin": "王五\n73\n",
+      "expected": "王五 73 及格",
+      "ref": "class Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\n    def grade(self):\n        if self.score >= 90:\n            return '优秀'\n        elif self.score >= 60:\n            return '及格'\n        else:\n            return '不及格'\n\nname = input()\nscore = int(input())\ns = Student(name, score)\nprint(s.name, s.score, s.grade())",
+      "hint": "构造方法名是 __init__；方法内通过 self 访问实例属性；实例化写 类名(实参)",
+      "exp": "考查面向对象基础：__init__ 构造方法、self 参数、实例属性、类实例化与实例方法调用。"
+    },
+    {
+      "id": "blk-l7-005",
+      "level": 7,
+      "title": "递归实现二分查找",
+      "desc": "程序用递归函数 bsearch 在有序列表 data = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91] 中二分查找。输入两个待查找的整数（各占一行），逐个查找：找到输出“x的下标是索引”，找不到输出“x不在列表中”。测试输入：23、50",
+      "code": "def bsearch(lst, low, high, x):\n    if ___(1)___:\n        return -1\n    mid = ___(2)___\n    if lst[mid] == x:\n        return ___(3)___\n    elif lst[mid] > x:\n        return bsearch(lst, low, ___(4)___, x)\n    else:\n        return bsearch(lst, mid + 1, high, x)\n\ndata = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nfor i in range(2):\n    t = int(input())\n    pos = bsearch(data, 0, len(data) - 1, t)\n    if pos == -1:\n        print(f'{t}不在列表中')\n    else:\n        print(f'{t}的下标是{pos}')",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "low > high",
+            "high < low"
+          ],
+          "hint": "查找区间为空（low 越过 high）是递归基例"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "(low + high) // 2",
+            "(low+high)//2",
+            "(high + low) // 2",
+            "low + (high - low) // 2"
+          ],
+          "hint": "计算中间位置下标（整除）"
+        },
+        {
+          "n": 3,
+          "answers": [
+            "mid"
+          ],
+          "hint": "命中时返回中间位置下标"
+        },
+        {
+          "n": 4,
+          "answers": [
+            "mid - 1",
+            "mid-1"
+          ],
+          "hint": "查左半段时，上界收窄到 mid 的左侧"
+        }
+      ],
+      "stdin": "23\n50\n",
+      "expected": "23的下标是5\n50不在列表中",
+      "ref": "def bsearch(lst, low, high, x):\n    if low > high:\n        return -1\n    mid = (low + high) // 2\n    if lst[mid] == x:\n        return mid\n    elif lst[mid] > x:\n        return bsearch(lst, low, mid - 1, x)\n    else:\n        return bsearch(lst, mid + 1, high, x)\n\ndata = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nfor i in range(2):\n    t = int(input())\n    pos = bsearch(data, 0, len(data) - 1, t)\n    if pos == -1:\n        print(f'{t}不在列表中')\n    else:\n        print(f'{t}的下标是{pos}')",
+      "hint": "基例是区间为空返回 -1；中点 (low + high) // 2；找到返回 mid；左半段上界为 mid - 1",
+      "exp": "考查递归二分查找：基例（区间空返回 -1）、中点计算、命中返回下标、向左右子区间递归（参数收敛）。"
+    },
+    {
+      "id": "blk-l7-006",
+      "level": 7,
+      "title": "JSON 图书清单筛选与写回",
+      "desc": "books.json 存放图书数组（每个元素含 name、price 两个键）。程序读取并解析该文件，输入一个价格上限，把 price 不超过上限的书组成新列表，用 json.dumps（ensure_ascii=False）写回 result.json；最后输出符合条件的本书数，并把 result.json 的内容原样输出。测试输入：50",
+      "code": "import json\n\nfr = open('books.json', 'r', encoding='utf-8')\nbooks = ___(1)___\nfr.close()\nlimit = int(input())\nresult = []\nfor b in books:\n    if ___(2)___:\n        result.append(b)\nfw = open('result.json', ___(3)___, encoding='utf-8')\nfw.write(json.dumps(___(4)___, ensure_ascii=False))\nfw.close()\nprint('价格不超过', limit, '的书共', len(result), '本')\nfr2 = open('result.json', 'r', encoding='utf-8')\nprint(fr2.read())\nfr2.close()",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "json.loads(fr.read())",
+            "json.load(fr)"
+          ],
+          "hint": "loads 接收字符串，load 直接接收文件对象，二者皆可"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "b['price'] <= limit",
+            "b['price']<=limit",
+            "b.get('price') <= limit"
+          ],
+          "hint": "b 是字典，取键 'price' 与上限比较"
+        },
+        {
+          "n": 3,
+          "answers": [
+            "'w'",
+            "\"w\""
+          ],
+          "hint": "写文件要用写模式 'w'"
+        },
+        {
+          "n": 4,
+          "answers": [
+            "result"
+          ],
+          "hint": "把筛选出的列表序列化写回"
+        }
+      ],
+      "stdin": "50\n",
+      "files": [
+        {
+          "name": "books.json",
+          "content": "[{\"name\": \"Python入门\", \"price\": 49}, {\"name\": \"数据结构\", \"price\": 65}, {\"name\": \"机器学习\", \"price\": 88}, {\"name\": \"C语言程序设计\", \"price\": 36}, {\"name\": \"算法导论\", \"price\": 102}]"
+        }
+      ],
+      "expected": "价格不超过 50 的书共 2 本\n[{\"name\": \"Python入门\", \"price\": 49}, {\"name\": \"C语言程序设计\", \"price\": 36}]",
+      "ref": "import json\n\nfr = open('books.json', 'r', encoding='utf-8')\nbooks = json.loads(fr.read())\nfr.close()\nlimit = int(input())\nresult = []\nfor b in books:\n    if b['price'] <= limit:\n        result.append(b)\nfw = open('result.json', 'w', encoding='utf-8')\nfw.write(json.dumps(result, ensure_ascii=False))\nfw.close()\nprint('价格不超过', limit, '的书共', len(result), '本')\nfr2 = open('result.json', 'r', encoding='utf-8')\nprint(fr2.read())\nfr2.close()",
+      "hint": "json.loads 解析字符串（json.load 可直接读文件）；写文件用 'w' 模式；dumps 的对象是筛选结果",
+      "exp": "考查 JSON 与文件综合应用：loads/load 解析、遍历字典列表筛选、open 'w' 模式、json.dumps 序列化写回并读回验证。"
+    }
+  ]
+}

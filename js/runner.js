@@ -132,7 +132,8 @@ _run_user(_code, _stdin, _timeout, _maxev, _cid)
 `);
       const obj = raw.toJs({ dict_converter: Object.fromEntries });
       raw.destroy();
-      obj.hasCanvas = !!document.getElementById(id);
+      const hostEl = document.getElementById(mountId);
+      obj.hasCanvas = !!(hostEl && hostEl.querySelector('canvas[data-turtle]'));
       return obj;
     } catch (e) {
       return { ok: false, stdout: '', prompts: '', error: String(e.message || e), hasCanvas: false };
@@ -545,9 +546,16 @@ def _install(js):
         mod = types.ModuleType('turtle')
         state = {'t': None}
 
+        # 类实例默认使用模块绑定的画布 cid，使 t = turtle.Turtle() 也能画到画布上
+        _BaseTurtle = Turtle
+
+        class TurtleWithCanvas(_BaseTurtle):
+            def __init__(self, c=None):
+                _BaseTurtle.__init__(self, cid if c is None else c)
+
         def _get():
             if state['t'] is None:
-                state['t'] = Turtle(cid)
+                state['t'] = TurtleWithCanvas(cid)
             return state['t']
 
         def _module_getattr(name):
@@ -555,9 +563,9 @@ def _install(js):
             return getattr(t, name)
 
         mod.__getattr__ = _module_getattr
-        mod.Turtle = Turtle
-        mod.Pen = Turtle
-        mod.RawTurtle = Turtle
+        mod.Turtle = TurtleWithCanvas
+        mod.Pen = TurtleWithCanvas
+        mod.RawTurtle = TurtleWithCanvas
         mod.Screen = Screen
         mod.getscreen = lambda *a, **k: Screen()
         names = ['Turtle', 'Pen', 'RawTurtle', 'Screen', 'getscrenn', 'forward', 'fd',
