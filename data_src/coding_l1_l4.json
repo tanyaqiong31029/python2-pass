@@ -1,0 +1,527 @@
+{
+  "kind": "coding",
+  "items": [
+    {
+      "id": "code-l1-001",
+      "level": 1,
+      "title": "两数交换与平均值",
+      "desc": "输入两个整数 a、b（各占一行）。程序将两个数交换（交换后 a 中存放原来 b 的值，b 中存放原来 a 的值）：第一行输出交换后的两个整数（用空格分隔），第二行输出这两个数的平均值（保留 2 位小数）。",
+      "starter": "# 读入两个整数，交换后输出，再输出平均值\n",
+      "tests": [
+        {
+          "stdin": "3\n5\n",
+          "expected": "5 3\n4.00"
+        },
+        {
+          "stdin": "10\n-2\n",
+          "expected": "-2 10\n4.00"
+        },
+        {
+          "stdin": "7\n8\n",
+          "expected": "8 7\n7.50"
+        }
+      ],
+      "ref": "a = int(input())\nb = int(input())\na, b = b, a\nprint(a, b)\nprint('{:.2f}'.format((a + b) / 2))",
+      "hint": "用 `a, b = b, a` 一行完成交换；平均值可能带小数，用 `'{:.2f}'.format(x)` 保留两位。",
+      "exp": "考查 int() 类型转换、多元赋值交换、print 输出与 format 保留小数位——L1 输入输出基本功。",
+      "tags": [
+        "输入输出",
+        "变量",
+        "格式化"
+      ]
+    },
+    {
+      "id": "code-l1-002",
+      "level": 1,
+      "title": "华氏温度转摄氏温度",
+      "desc": "输入一个华氏温度值 f（可能是小数），按公式 c = 5×(f−32)÷9 换算成摄氏温度，输出换算结果并保留 1 位小数。",
+      "starter": "# 读入华氏温度，换算后保留 1 位小数输出\n",
+      "tests": [
+        {
+          "stdin": "100\n",
+          "expected": "37.8"
+        },
+        {
+          "stdin": "32\n",
+          "expected": "0.0"
+        },
+        {
+          "stdin": "212\n",
+          "expected": "100.0"
+        }
+      ],
+      "ref": "f = float(input())\nc = 5 * (f - 32) / 9\nprint('{:.1f}'.format(c))",
+      "hint": "用 `float(input())` 读入可能带小数的温度；`'{:.1f}'.format(c)` 保留 1 位小数。",
+      "exp": "考查 float() 类型转换、算术表达式书写与 format 格式化——温度换算是真题常客。",
+      "tags": [
+        "类型转换",
+        "运算符",
+        "格式化"
+      ]
+    },
+    {
+      "id": "code-l1-003",
+      "level": 1,
+      "title": "三角形面积（海伦公式）",
+      "desc": "输入三角形的三条边长 a、b、c（各占一行，可以是小数）。先判断能否构成三角形（任意两边之和大于第三边）：能构成则用海伦公式计算面积，输出格式为\"面积=x.xx\"（x.xx 表示保留 2 位小数的面积值）；不能构成则输出\"不能构成三角形\"。",
+      "starter": "import math\n\n# 读入三边，判断能否构成三角形并计算面积\n",
+      "tests": [
+        {
+          "stdin": "3\n4\n5\n",
+          "expected": "面积=6.00"
+        },
+        {
+          "stdin": "7\n8\n9\n",
+          "expected": "面积=26.83"
+        },
+        {
+          "stdin": "1\n2\n3\n",
+          "expected": "不能构成三角形"
+        }
+      ],
+      "ref": "import math\na = float(input())\nb = float(input())\nc = float(input())\nif a + b > c and a + c > b and b + c > a:\n    p = (a + b + c) / 2\n    area = math.sqrt(p * (p - a) * (p - b) * (p - c))\n    print('面积={:.2f}'.format(area))\nelse:\n    print('不能构成三角形')",
+      "hint": "海伦公式：p=(a+b+c)/2，面积=√(p(p−a)(p−b)(p−c))，开平方用 `math.sqrt()`。",
+      "exp": "考查多分支 if-else、逻辑运算符 and、math 模块使用与格式化输出。",
+      "tags": [
+        "math",
+        "if 分支",
+        "格式化"
+      ]
+    },
+    {
+      "id": "code-l1-004",
+      "level": 1,
+      "title": "姓名年龄表格输出",
+      "desc": "第一行输入整数 n（1≤n≤10），随后 n 行每行输入一个学生的\"姓名 年龄\"（姓名中不含空格，年龄为整数，姓名与年龄之间用一个空格分隔）。按输入顺序输出 n 行，每行格式为：姓名左对齐占 6 个字符宽，年龄右对齐占 4 个字符宽，两个格式域之间不加任何其他字符（用 format 或 f-string 的对齐功能实现）。",
+      "starter": "# 读 n 个\"姓名 年龄\"，按指定宽度格式化输出\n",
+      "tests": [
+        {
+          "stdin": "3\n张三 18\nLucy 20\n李四 19\n",
+          "expected": "张三      18\nLucy    20\n李四      19"
+        },
+        {
+          "stdin": "1\n王小明 100\n",
+          "expected": "王小明    100"
+        },
+        {
+          "stdin": "2\nTom 9\nJerry 12\n",
+          "expected": "Tom      9\nJerry   12"
+        }
+      ],
+      "ref": "n = int(input())\nfor i in range(n):\n    name, age = input().split()\n    print('{:<6}{:>4}'.format(name, age))",
+      "hint": "`'{:<6}'.format(name)` 左对齐占 6 位，`'{:>4}'.format(age)` 右对齐占 4 位；`input().split()` 按空白拆开姓名和年龄。",
+      "exp": "考查字符串 split 拆分与 format 的 `<`、`>` 对齐宽度控制——格式化输出的典型考题。",
+      "tags": [
+        "字符串",
+        "格式化",
+        "循环"
+      ]
+    },
+    {
+      "id": "code-l2-001",
+      "level": 2,
+      "title": "素数判断与区间统计",
+      "desc": "输入两个整数 m、n（各占一行，满足 2≤m≤n≤1000）。输出 m 到 n 之间（含端点）的全部素数，每行一个；最后输出一行\"共N个\"（N 为该区间内素数个数）。若区间内没有素数，则只输出\"共0个\"。",
+      "starter": "# 输出 [m, n] 内的全部素数并统计个数\n",
+      "tests": [
+        {
+          "stdin": "2\n10\n",
+          "expected": "2\n3\n5\n7\n共4个"
+        },
+        {
+          "stdin": "10\n20\n",
+          "expected": "11\n13\n17\n19\n共4个"
+        },
+        {
+          "stdin": "14\n16\n",
+          "expected": "共0个"
+        }
+      ],
+      "ref": "m = int(input())\nn = int(input())\ncount = 0\nfor x in range(m, n + 1):\n    if x < 2:\n        continue\n    is_prime = True\n    for i in range(2, int(x ** 0.5) + 1):\n        if x % i == 0:\n            is_prime = False\n            break\n    if is_prime:\n        print(x)\n        count += 1\nprint('共{}个'.format(count))",
+      "hint": "判断 x 是否素数：用 2 到 √x 之间的整数试除，能整除就不是素数；注意 2 是最小的素数，1 不是素数。",
+      "exp": "考查嵌套循环、break 提前退出、标志变量与计数——素数是二级考试出现率最高的算法之一。",
+      "tags": [
+        "循环",
+        "素数",
+        "计数"
+      ]
+    },
+    {
+      "id": "code-l2-002",
+      "level": 2,
+      "title": "九九乘法表（前 n 行）",
+      "desc": "输入一个 1~9 的整数 n，输出九九乘法表的前 n 行。第 i 行（1≤i≤n）由 i 个乘式组成，第 j 个乘式为\"jxi=积\"（j 从 1 到 i），乘式之间用一个空格分隔，行末不输出多余空格。",
+      "starter": "# 输出九九乘法表的前 n 行\n",
+      "tests": [
+        {
+          "stdin": "1\n",
+          "expected": "1x1=1"
+        },
+        {
+          "stdin": "5\n",
+          "expected": "1x1=1\n1x2=2 2x2=4\n1x3=3 2x3=6 3x3=9\n1x4=4 2x4=8 3x4=12 4x4=16\n1x5=5 2x5=10 3x5=15 4x5=20 5x5=25"
+        },
+        {
+          "stdin": "9\n",
+          "expected": "1x1=1\n1x2=2 2x2=4\n1x3=3 2x3=6 3x3=9\n1x4=4 2x4=8 3x4=12 4x4=16\n1x5=5 2x5=10 3x5=15 4x5=20 5x5=25\n1x6=6 2x6=12 3x6=18 4x6=24 5x6=30 6x6=36\n1x7=7 2x7=14 3x7=21 4x7=28 5x7=35 6x7=42 7x7=49\n1x8=8 2x8=16 3x8=24 4x8=32 5x8=40 6x8=48 7x8=56 8x8=64\n1x9=9 2x9=18 3x9=27 4x9=36 5x9=45 6x9=54 7x9=63 8x9=72 9x9=81"
+        }
+      ],
+      "ref": "n = int(input())\nfor i in range(1, n + 1):\n    row = []\n    for j in range(1, i + 1):\n        row.append('{}x{}={}'.format(j, i, i * j))\n    print(' '.join(row))",
+      "hint": "外层 i 控制行数，内层 j 从 1 到 i；把每行的乘式先拼进列表再用 `' '.join()` 连接，可避免行尾多出空格。",
+      "exp": "考查嵌套循环、range 的两个参数、字符串格式化与 join——乘法表是循环章节的必考图形题。",
+      "tags": [
+        "嵌套循环",
+        "字符串",
+        "乘法表"
+      ]
+    },
+    {
+      "id": "code-l2-003",
+      "level": 2,
+      "title": "水仙花数判断",
+      "desc": "水仙花数是指一个三位数，它等于其百位、十位、个位数字的立方和（如 153=1³+5³+3³）。输入一个 100~999 之间的整数 n：第一行输出 n 的各位数字立方和；第二行输出判断结果——若 n 是水仙花数输出\"是水仙花数\"，否则输出\"不是水仙花数\"。",
+      "starter": "# 分离 n 的百位、十位、个位，求立方和并判断\n",
+      "tests": [
+        {
+          "stdin": "153\n",
+          "expected": "153\n是水仙花数"
+        },
+        {
+          "stdin": "100\n",
+          "expected": "1\n不是水仙花数"
+        },
+        {
+          "stdin": "407\n",
+          "expected": "407\n是水仙花数"
+        }
+      ],
+      "ref": "n = int(input())\na = n // 100\nb = n // 10 % 10\nc = n % 10\ns = a ** 3 + b ** 3 + c ** 3\nprint(s)\nif s == n:\n    print('是水仙花数')\nelse:\n    print('不是水仙花数')",
+      "hint": "用整除 `//` 和取余 `%` 分离各位数字：百位 `n//100`，十位 `n//10%10`，个位 `n%10`；`**` 求立方。",
+      "exp": "考查整除与取余运算、幂运算、if-else 判断——水仙花数是经典小算法高频考点。",
+      "tags": [
+        "运算符",
+        "if 分支",
+        "水仙花数"
+      ]
+    },
+    {
+      "id": "code-l2-004",
+      "level": 2,
+      "title": "猜数字游戏",
+      "desc": "程序开头已给定三行代码（不要改动）：`import random`、`random.seed(10)`、`target = random.randint(1, 100)`，由固定种子生成一个 1~100 的目标数。之后每行输入一个 1~100 的整数进行猜测：猜的数比目标数大输出\"大了\"，比目标数小输出\"小了\"，恰好等于目标数输出\"猜对了\"并结束程序（测试数据保证一定能猜中）。",
+      "starter": "import random\nrandom.seed(10)\ntarget = random.randint(1, 100)\n# 请补全猜数字过程：反复读入猜测，直到猜中\n",
+      "tests": [
+        {
+          "stdin": "74\n",
+          "expected": "猜对了"
+        },
+        {
+          "stdin": "50\n90\n74\n",
+          "expected": "小了\n大了\n猜对了"
+        },
+        {
+          "stdin": "1\n100\n74\n",
+          "expected": "小了\n大了\n猜对了"
+        }
+      ],
+      "ref": "import random\nrandom.seed(10)\ntarget = random.randint(1, 100)\nwhile True:\n    g = int(input())\n    if g > target:\n        print('大了')\n    elif g < target:\n        print('小了')\n    else:\n        print('猜对了')\n        break",
+      "hint": "用 `while True` 配合 `break` 反复读入；先判断大于、小于，剩下相等的情况输出\"猜对了\"后跳出。",
+      "exp": "考查 random.seed 固定随机数、while True 无限循环、if-elif-else 多分支与 break 的配合使用。",
+      "tags": [
+        "random",
+        "while 循环",
+        "分支"
+      ]
+    },
+    {
+      "id": "code-l2-005",
+      "level": 2,
+      "title": "星号菱形打印",
+      "desc": "输入一个奇数 n（1≤n≤9），输出由星号 `*` 组成的菱形：共 n 行，正中间一行有 n 个连续的星号，向上每行星号依次减少 2 个、向下每行星号依次减少 2 个；每行星号前用空格补齐使菱形左右居中，行末不输出多余空格。",
+      "starter": "# 读入奇数 n，打印 n 行星号菱形\n",
+      "tests": [
+        {
+          "stdin": "1\n",
+          "expected": "*"
+        },
+        {
+          "stdin": "3\n",
+          "expected": "*\n***\n *"
+        },
+        {
+          "stdin": "5\n",
+          "expected": "*\n ***\n*****\n ***\n  *"
+        }
+      ],
+      "ref": "n = int(input())\nm = (n + 1) // 2\nfor i in range(1, n + 1):\n    stars = n - 2 * abs(i - m)\n    print(' ' * ((n - stars) // 2) + '*' * stars)",
+      "hint": "中间行行号 m=(n+1)//2；第 i 行星号数为 n−2×|i−m|，前导空格数为 (n−星数)//2；用字符串乘法 `' '*k` 和 `'*'*k` 拼行。",
+      "exp": "考查找规律、字符串乘法与循环打印图形——图形题的关键是算准每行空格数与星号数。",
+      "tags": [
+        "循环",
+        "字符串",
+        "图形打印"
+      ]
+    },
+    {
+      "id": "code-l3-001",
+      "level": 3,
+      "title": "回文判断",
+      "desc": "输入一个不含空格的字符串 s（长度 1~100）：第一行输出 s 的反串（倒序字符串）；第二行判断 s 是否为回文串（正读反读完全相同，区分大小写）——是则输出\"是回文\"，否则输出\"不是回文\"。",
+      "starter": "# 用切片求反串并判断是否回文\n",
+      "tests": [
+        {
+          "stdin": "level\n",
+          "expected": "level\n是回文"
+        },
+        {
+          "stdin": "abc\n",
+          "expected": "cba\n不是回文"
+        },
+        {
+          "stdin": "上海自来水来自海上\n",
+          "expected": "上海自来水来自海上\n是回文"
+        }
+      ],
+      "ref": "s = input()\nt = s[::-1]\nprint(t)\nif s == t:\n    print('是回文')\nelse:\n    print('不是回文')",
+      "hint": "切片 `s[::-1]` 步长为 -1，直接得到反串；回文即 `s == s[::-1]`。",
+      "exp": "考查字符串切片步长 -1 与比较运算——回文判断是字符串部分的高频考题，中文回文同样适用。",
+      "tags": [
+        "字符串",
+        "切片",
+        "回文"
+      ]
+    },
+    {
+      "id": "code-l3-002",
+      "level": 3,
+      "title": "列表奇偶分离",
+      "desc": "输入一行以空格分隔的整数（至少 1 个，可能含负数和 0）。把其中的奇数按输入顺序存入列表 odds、偶数按输入顺序存入列表 evens：第一行输出 odds，第二行输出 evens（均按 Python 列表格式输出，空列表输出 []）。",
+      "starter": "# 读入一行整数，分离奇偶到两个列表\n",
+      "tests": [
+        {
+          "stdin": "1 2 3 4 5 6\n",
+          "expected": "[1, 3, 5]\n[2, 4, 6]"
+        },
+        {
+          "stdin": "-3 -2 0 7\n",
+          "expected": "[-3, 7]\n[-2, 0]"
+        },
+        {
+          "stdin": "8\n",
+          "expected": "[]\n[8]"
+        }
+      ],
+      "ref": "nums = list(map(int, input().split()))\nodds = []\nevens = []\nfor x in nums:\n    if x % 2 != 0:\n        odds.append(x)\n    else:\n        evens.append(x)\nprint(odds)\nprint(evens)",
+      "hint": "`input().split()` 拆分后用 `map(int, ...)` 转整数；判奇偶用 `x % 2 != 0`（Python 中 -3 % 2 == 1，负数同样适用）；空列表 print 出来是 `[]`。",
+      "exp": "考查 split、map 类型转换、列表 append 与 if-else 分类——组合数据类型的基本功。",
+      "tags": [
+        "列表",
+        "循环",
+        "split"
+      ]
+    },
+    {
+      "id": "code-l3-003",
+      "level": 3,
+      "title": "字符频次统计",
+      "desc": "输入一行不含空格的字符串 s（长度 1~100），统计每个字符出现的次数：每行输出\"字符:次数\"（字符与次数之间用英文冒号分隔），按字符在 s 中首次出现的顺序输出。",
+      "starter": "# 用字典统计每个字符出现的次数\n",
+      "tests": [
+        {
+          "stdin": "hello\n",
+          "expected": "h:1\ne:1\nl:2\no:1"
+        },
+        {
+          "stdin": "aabbcc\n",
+          "expected": "a:2\nb:2\nc:2"
+        },
+        {
+          "stdin": "abcabcab\n",
+          "expected": "a:3\nb:3\nc:2"
+        }
+      ],
+      "ref": "s = input()\nd = {}\nfor ch in s:\n    d[ch] = d.get(ch, 0) + 1\nfor ch in d:\n    print('{}:{}'.format(ch, d[ch]))",
+      "hint": "`d.get(ch, 0) + 1` 是字典计数惯用写法；字典保留插入顺序，按插入顺序遍历正好是字符首次出现的顺序。",
+      "exp": "考查字典 get 计数与遍历输出——字符/词频统计类题目的基础套路，为 L5 词频统计打底。",
+      "tags": [
+        "字典",
+        "计数",
+        "字符串"
+      ]
+    },
+    {
+      "id": "code-l3-004",
+      "level": 3,
+      "title": "成绩分段统计",
+      "desc": "输入一行以空格分隔的成绩（0~100 的整数，至少 1 个）。按 优秀(90~100)、良好(80~89)、中等(70~79)、及格(60~69)、不及格(0~59) 五段统计人数，输出 5 行，依次为：\"优秀N人\"、\"良好N人\"、\"中等N人\"、\"及格N人\"、\"不及格N人\"（N 为该段人数）。",
+      "starter": "# 读入成绩列表，分段统计到字典并输出\n",
+      "tests": [
+        {
+          "stdin": "95 82 73 61 45 100 80\n",
+          "expected": "优秀2人\n良好2人\n中等1人\n及格1人\n不及格1人"
+        },
+        {
+          "stdin": "0 59\n",
+          "expected": "优秀0人\n良好0人\n中等0人\n及格0人\n不及格2人"
+        },
+        {
+          "stdin": "90 89 79 69 60 80\n",
+          "expected": "优秀1人\n良好2人\n中等1人\n及格2人\n不及格0人"
+        }
+      ],
+      "ref": "scores = list(map(int, input().split()))\nd = {'优秀': 0, '良好': 0, '中等': 0, '及格': 0, '不及格': 0}\nfor s in scores:\n    if s >= 90:\n        d['优秀'] += 1\n    elif s >= 80:\n        d['良好'] += 1\n    elif s >= 70:\n        d['中等'] += 1\n    elif s >= 60:\n        d['及格'] += 1\n    else:\n        d['不及格'] += 1\nfor k in d:\n    print('{}{}人'.format(k, d[k]))",
+      "hint": "if-elif 按从高到低的顺序判断，注意边界 90、80、70、60 归属哪一段；用字典保存各段人数，遍历字典按插入顺序输出。",
+      "exp": "考查列表遍历、if-elif 多分支边界划分与字典统计——成绩分段是列表+字典组合的典型真题。",
+      "tags": [
+        "列表",
+        "字典",
+        "if-elif"
+      ]
+    },
+    {
+      "id": "code-l3-005",
+      "level": 3,
+      "title": "去重并排序",
+      "desc": "输入一行以空格分隔的整数（可能重复，可能为负数，至少 1 个）。用集合去掉重复元素后按从小到大排序：第一行输出去重后的元素个数，第二行输出排序后的列表（按 Python 列表格式输出）。",
+      "starter": "# 用集合去重，再排序输出\n",
+      "tests": [
+        {
+          "stdin": "3 1 2 3 5 1\n",
+          "expected": "4\n[1, 2, 3, 5]"
+        },
+        {
+          "stdin": "5 5 5 5\n",
+          "expected": "1\n[5]"
+        },
+        {
+          "stdin": "-1 0 -1 3\n",
+          "expected": "3\n[-1, 0, 3]"
+        }
+      ],
+      "ref": "nums = list(map(int, input().split()))\ns = set(nums)\nlst = sorted(s)\nprint(len(lst))\nprint(lst)",
+      "hint": "`set(nums)` 去重，`sorted(s)` 返回升序列表；集合是无序的，不能直接 print 集合，要先 sorted 成列表。",
+      "exp": "考查集合去重与 sorted 排序的组合使用——\"set+sorted\"是去重排序题的标准解法。",
+      "tags": [
+        "集合",
+        "排序",
+        "列表"
+      ]
+    },
+    {
+      "id": "code-l4-001",
+      "level": 4,
+      "title": "函数求最大公约数",
+      "desc": "编写函数 `gcd(a, b)`，用辗转相除法（while 循环）返回 a、b 的最大公约数。主程序输入两个正整数 m、n（各占一行），调用 gcd 求出最大公约数 g：第一行输出\"最大公约数:g\"，第二行输出\"最小公倍数:l\"（其中 l=m×n÷g，用整除计算）。",
+      "starter": "def gcd(a, b):\n    # 用辗转相除法求最大公约数\n    pass\n\nm = int(input())\nn = int(input())\n# 请调用 gcd 并按要求输出\n",
+      "tests": [
+        {
+          "stdin": "12\n18\n",
+          "expected": "最大公约数:6\n最小公倍数:36"
+        },
+        {
+          "stdin": "7\n13\n",
+          "expected": "最大公约数:1\n最小公倍数:91"
+        },
+        {
+          "stdin": "100\n25\n",
+          "expected": "最大公约数:25\n最小公倍数:100"
+        }
+      ],
+      "ref": "def gcd(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a\n\nm = int(input())\nn = int(input())\ng = gcd(m, n)\nprint('最大公约数:{}'.format(g))\nprint('最小公倍数:{}'.format(m * n // g))",
+      "hint": "辗转相除：循环中 `a, b = b, a % b`，当 b 为 0 时 a 就是最大公约数；最小公倍数 = m*n//g。",
+      "exp": "考查函数定义与调用、while 循环与整除运算——辗转相除法是函数章节的经典算法题。",
+      "tags": [
+        "函数",
+        "while 循环",
+        "辗转相除"
+      ]
+    },
+    {
+      "id": "code-l4-002",
+      "level": 4,
+      "title": "可变参数求和",
+      "desc": "编写函数 `my_sum(*args)`，返回所有位置参数之和；不传参数时返回 0。主程序读入一行以空格分隔的整数，用 `*` 解包方式把每个整数作为独立参数传给 my_sum，输出求和结果（一行，只有一个整数）。",
+      "starter": "def my_sum(*args):\n    pass\n\nnums = list(map(int, input().split()))\n# 请用 *nums 解包调用 my_sum 并输出结果\n",
+      "tests": [
+        {
+          "stdin": "1 2 3 4 5\n",
+          "expected": "15"
+        },
+        {
+          "stdin": "10\n",
+          "expected": "10"
+        },
+        {
+          "stdin": "-1 -2 3\n",
+          "expected": "0"
+        }
+      ],
+      "ref": "def my_sum(*args):\n    total = 0\n    for x in args:\n        total += x\n    return total\n\nnums = list(map(int, input().split()))\nprint(my_sum(*nums))",
+      "hint": "函数体内 args 是一个元组，遍历累加即可；调用时 `my_sum(*nums)` 把列表解包成一个个独立参数。",
+      "exp": "考查可变参数 `*args` 的定义、元组遍历与调用时 `*` 解包——可变参数的直接考法。",
+      "tags": [
+        "函数",
+        "可变参数",
+        "解包"
+      ]
+    },
+    {
+      "id": "code-l4-003",
+      "level": 4,
+      "title": "map 与 filter 加工单词表",
+      "desc": "输入一行英文单词（以空格分隔，至少 1 个）。先用 `filter` 筛选出长度不小于 4 的单词，再用 `map` 把筛选出的单词全部转为大写：第一行输出处理后组成的列表（按 Python 列表格式输出），第二行输出列表中单词的个数。",
+      "starter": "# 用 filter 筛选长度>=4 的单词，再用 map 转大写\n",
+      "tests": [
+        {
+          "stdin": "i love python code\n",
+          "expected": "['LOVE', 'PYTHON', 'CODE']\n3"
+        },
+        {
+          "stdin": "a bc\n",
+          "expected": "[]\n0"
+        },
+        {
+          "stdin": "Abc Defg Hi\n",
+          "expected": "['DEFG']\n1"
+        }
+      ],
+      "ref": "words = input().split()\npicked = list(map(str.upper, filter(lambda w: len(w) >= 4, words)))\nprint(picked)\nprint(len(picked))",
+      "hint": "`filter(lambda w: len(w) >= 4, words)` 得到筛选结果，外接 `map(str.upper, ...)` 转大写，最后 `list()` 收拢。",
+      "exp": "考查 filter+lambda 筛选、map 映射与 list 转换的链式使用——函数式加工列表的标准考法。",
+      "tags": [
+        "map",
+        "filter",
+        "lambda"
+      ]
+    },
+    {
+      "id": "code-l4-004",
+      "level": 4,
+      "title": "递归求阶乘与斐波那契",
+      "desc": "编写两个递归函数：`fact(n)` 返回 n 的阶乘（约定 fact(0)=fact(1)=1）；`fib(n)` 返回斐波那契数列第 n 项（fib(1)=fib(2)=1，从第 3 项起每项等于前两项之和）。输入一个正整数 n（1≤n≤10）：第一行输出 n!，第二行输出斐波那契数列第 n 项。",
+      "starter": "def fact(n):\n    pass\n\ndef fib(n):\n    pass\n\nn = int(input())\nprint(fact(n))\nprint(fib(n))\n",
+      "tests": [
+        {
+          "stdin": "5\n",
+          "expected": "120\n5"
+        },
+        {
+          "stdin": "1\n",
+          "expected": "1\n1"
+        },
+        {
+          "stdin": "10\n",
+          "expected": "3628800\n55"
+        }
+      ],
+      "ref": "def fact(n):\n    if n <= 1:\n        return 1\n    return n * fact(n - 1)\n\ndef fib(n):\n    if n <= 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\n\nn = int(input())\nprint(fact(n))\nprint(fib(n))",
+      "hint": "递归要有终止条件：fact 在 n≤1 时返回 1，fib 在 n≤2 时返回 1；一般情况调用自身缩小问题规模。",
+      "exp": "考查递归函数的终止条件与自我调用——阶乘与斐波那契是递归理解题的两大经典。",
+      "tags": [
+        "递归",
+        "函数",
+        "阶乘"
+      ]
+    }
+  ]
+}
