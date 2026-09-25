@@ -54,6 +54,19 @@ def run_user(
         return _trace
 
     env = {"__name__": "__main__", "input": _input, "raw_input": _input}
+
+    # turtle 桩：与浏览器 runner.js 注入的 turtle_shim 状态数学一致，
+    # 本地/CI 校验不依赖 tkinter，判题依据的 print 状态值两端相同
+    turtle_mod = None
+    try:
+        from turtle_stub import make_module
+
+        turtle_mod = make_module()
+        env["turtle"] = turtle_mod
+        sys.modules["turtle"] = turtle_mod
+    except Exception:
+        turtle_mod = None
+
     saved_stdin, saved_stdout = sys.stdin, sys.stdout
     sys.stdin = io.StringIO(stdin_text)
     sys.stdout = out
@@ -79,6 +92,11 @@ def run_user(
     finally:
         builtins.input = old_input
         sys.stdin, sys.stdout = saved_stdin, saved_stdout
+        if turtle_mod is not None:
+            try:
+                del sys.modules["turtle"]
+            except Exception:
+                pass
 
     return {
         "ok": err == "",
