@@ -25,7 +25,11 @@ def run_user(
     """运行用户代码，返回 dict(ok, stdout, prompts, error, tb)。
 
     与浏览器 HARNESS_PY 保持一致：prompt 进 prompts，不进 stdout。
+    matplotlib 题自动放宽预算（与浏览器 runner.js 行为一致）。
     """
+    if "matplotlib" in code:
+        timeout_s = max(timeout_s, 60.0)
+        max_events = max(max_events, 100_000_000)
     inputs = stdin_text.split("\n") if stdin_text != "" else []
     if inputs and inputs[-1] == "":
         inputs.pop()
