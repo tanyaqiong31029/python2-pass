@@ -52,6 +52,8 @@ const App = {
     try {
       if (parts[0] === 'home') return this.viewHome(app);
       if (parts[0] === 'plan') return this.viewPlan(app);
+      if (parts[0] === 'path') return this.viewPath(app);
+      if (parts[0] === 'diagnostic') return this.viewDiagnostic(app);
       if (parts[0] === 'bank') return this.viewBank(app);
       if (parts[0] === 'level' && parts[1]) return this.viewLevel(app, +parts[1], parts[2] || 'lesson');
       if (parts[0] === 'mock') return this.viewMock(app);
@@ -129,6 +131,13 @@ const App = {
       );
     }
 
+    const ns = computeNextStep();
+    const nextCard = h('div', { class: 'card', style: 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:#bfe3cd;background:linear-gradient(180deg,#f2fbf5,#fff)' },
+      h('div', null,
+        h('b', { style: 'font-size:16px' }, '▶ 下一步：' + ns.title),
+        h('div', { class: 'muted small' }, ns.desc)),
+      h('a', { class: 'btn btn-green', href: ns.href }, ns.cta));
+
     const tgtCard = h('div', { class: 'card' },
       h('h2', null, '🎯 目标等第'),
       h('div', { class: 'muted small', style: 'margin-bottom:8px' },
@@ -179,7 +188,7 @@ const App = {
       )
     );
 
-    app.append(hero, tgtCard, progCard,
+    app.append(hero, nextCard, tgtCard, progCard,
       h('h2', { style: 'margin:18px 0 10px' }, '关卡地图'), map,
       milestone, quick);
   },
@@ -208,6 +217,173 @@ const App = {
     }
     app.append(h('div', { class: 'notice' }, h('b', null, '提示：'),
       ' 二三级同卷同场、按分数划档：总分率 ≥60% 二级合格参考，≥75% 且三级题得分率 ≥60% 三级合格参考，≥90% 且三级题 ≥80% 三级优秀参考。目标定三级——同样的考试，分数够高自动拿三级证书。'));
+  },
+
+  /* ============================================================
+   * 学习路径（难度递进 + 状态驱动）
+   * ============================================================ */
+  viewPath(app) {
+    app.innerHTML = '';
+    const ns = computeNextStep();
+    const diag = State.data.diagnosis;
+    app.append(
+      h('h1', { class: 'page-title' }, '🧭 学习路径'),
+      h('p', { class: 'page-sub' }, '按难度递进设计：诊断定起点 → 语法筑基 → 数据结构 → 函数与文件 → 库与工具 → 三级增量 → 综合冲刺。每一站都由你的实际进度驱动。'),
+      h('div', { class: 'card', style: 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-color:#bfe3cd;background:linear-gradient(180deg,#f2fbf5,#fff)' },
+        h('div', null, h('b', { style: 'font-size:16px' }, '▶ 下一步：' + ns.title), h('div', { class: 'muted small' }, ns.desc)),
+        h('a', { class: 'btn btn-green', href: ns.href }, ns.cta)
+      )
+    );
+
+    const phase = (no, name, goal, levels, extra) => {
+      const B = window.BANK;
+      const lvCards = levels.map(no2 => {
+        const st = State.levelStat(no2);
+        return h('a', { class: 'levelcard' + (st.cleared ? ' done' : ''), href: `#level/${no2}/lesson`, style: 'min-width:210px' },
+          h('h3', null, `第 ${no2} 关 · ${LEVEL_META.find(m2 => m2.no === no2).title}`),
+          h('div', { class: 'lv-stats' },
+            h('span', null, '速览 ', h('b', null, st.read ? '✓' : '○')),
+            h('span', null, `选择 ${st.mcqDone}/${st.mcqTotal}`),
+            h('span', null, `代码 ${st.codeDone}/${st.codeTotal}`)));
+      });
+      return h('div', { class: 'card' },
+        h('h2', null, `阶段 ${no} · ${name}`, extra || null),
+        h('div', { class: 'muted small', style: 'margin-bottom:8px' }, goal),
+        h('div', { style: 'display:flex;gap:12px;flex-wrap:wrap' }, lvCards));
+    };
+
+    const mockRuns = State.data.mockRuns;
+    const lastMock = mockRuns[mockRuns.length - 1];
+    app.append(
+      phase(0, '入学诊断', '14 道跨关卡快题，测出起点与薄弱关（不计入进度）', [],
+        h('span', { class: 'badge' + (diag ? ' badge-master' : '') }, diag ? '已完成 · 建议从第 ' + diag.startLevel + ' 关开始' : '未开始')),
+      phase(1, '语法筑基 ★', '变量、类型、输入输出、分支与循环——一切的地基', [1, 2]),
+      phase(2, '数据结构 ★★', '字符串/列表/元组/字典/集合，等级考试的重头戏', [3]),
+      phase(3, '函数与文件 ★★', '函数参数与作用域、文件读写与数据分析（编程大题主战场）', [4, 5]),
+      phase(4, '库与工具 ★★', 'random/math/time、turtle 绘图、第三方库生态', [6]),
+      phase(5, '三级增量 ★★★ 🎓', '正则、SQLite 数据库、面向对象、数据可视化——三级与二级的分水岭', [7]),
+      h('div', { class: 'card' },
+        h('h2', null, '阶段 6 · 综合冲刺 🎓'),
+        h('div', { class: 'muted small', style: 'margin-bottom:8px' }, '模拟考轮回 + 错题清零。三级题得分率 ≥80% 即达到三级优秀参考线。'),
+        h('div', { style: 'display:flex;gap:10px;flex-wrap:wrap;align-items:center' },
+          h('a', { class: 'btn', href: '#mock' }, '模拟考'),
+          h('a', { class: 'btn btn-ghost', href: '#wrong' }, '错题本'),
+          lastMock ? h('span', { class: 'muted small' },
+            '最近一场：' + ({ standard: '标准卷', tier3: '三级冲刺卷', official: '官方A卷' }[lastMock.variant || 'standard'])
+            + ` ${lastMock.score} 分 · ${lastMock.grade}`) : null)
+      ),
+      diag ? h('div', { style: 'margin-top:6px' },
+        h('button', { class: 'btn btn-ghost btn-sm', onclick: () => { State.data.diagnosis = null; State.save(); App.render(); } }, '重做入学诊断')) : null
+    );
+  },
+
+  /* ============================================================
+   * 入学诊断（14 题定起点，不计入进度与错题本）
+   * ============================================================ */
+  viewDiagnostic(app) {
+    app.innerHTML = '';
+    const diag = State.data.diagnosis;
+    if (this._diagAnswers && this._diagDone) {
+      return this.renderDiagResult(app);
+    }
+    if (!this._diagAnswers) {
+      // 确定性抽题：每关 2 题（先易后中）
+      const B = window.BANK;
+      const picks = [];
+      for (let lv = 1; lv <= 7; lv++) {
+        const pool = B.mcq.filter(q => q.level === lv).sort((a, b) => (a.difficulty || 2) - (b.difficulty || 2));
+        if (pool[0]) picks.push(pool[0]);
+        const mid = pool.find(q => (q.difficulty || 2) >= 2 && !picks.includes(q));
+        if (mid) picks.push(mid); else if (pool[1]) picks.push(pool[1]);
+      }
+      this._diagAnswers = { qs: picks, ans: {} };
+    }
+    const D = this._diagAnswers;
+    app.append(
+      h('h1', { class: 'page-title' }, '🧭 入学诊断'),
+      h('p', { class: 'page-sub' }, `共 ${D.qs.length} 题（每关 2 题），不计入进度与错题本。凭第一感觉作答，答完给出起点建议与各关掌握度。`),
+      D.qs.forEach((q, i) => {
+        const letters = ['A', 'B', 'C', 'D'];
+        const opts = h('div', { class: 'opts' });
+        q.opts.forEach((o, j) => {
+          opts.append(h('div', { class: 'opt' + (D.ans[q.id] === j ? ' selected' : ''), onclick: () => {
+            D.ans[q.id] = j;
+            opts.querySelectorAll('.opt').forEach((e, jj) => e.classList.toggle('selected', jj === j));
+          } }, h('span', { class: 'opt-key' }, letters[j] + '.'), h('span', null, o)));
+        });
+        app.append(h('div', { class: 'qcard' },
+          h('div', { class: 'qhead' }, h('span', { class: 'qno' }, `${i + 1}. `), h('span', { class: 'qtag' }, `第 ${q.level} 关 · ${q.topic || ''}`)),
+          h('div', { class: 'qtext', html: miniMdInline(q.q) }), opts));
+      }),
+      h('div', { style: 'text-align:center;margin:20px 0' },
+        h('button', { class: 'btn btn-green', style: 'font-size:16px;padding:12px 40px', onclick: () => {
+          const unanswered = D.qs.filter(q => D.ans[q.id] === undefined).length;
+          if (unanswered && !confirm(`还有 ${unanswered} 题未作答，未答题按错误计。提交诊断？`)) return;
+          App.gradeDiagnostic();
+        } }, '提交诊断，看我的起点'),
+        ' ',
+        h('button', { class: 'btn btn-ghost', onclick: () => { App._diagAnswers = null; App._diagDone = false; App.render(); } }, '放弃')
+      )
+    );
+  },
+
+  gradeDiagnostic() {
+    const D = this._diagAnswers;
+    const perLevel = {};
+    D.qs.forEach(q => {
+      const lv = perLevel[q.level] = perLevel[q.level] || { right: 0, total: 0 };
+      lv.total++;
+      if (D.ans[q.id] === q.ans) lv.right++;
+    });
+    let startLevel = 7;
+    for (let lv = 1; lv <= 7; lv++) {
+      const st = perLevel[lv];
+      if (!st || st.right / st.total < 0.5) { startLevel = lv; break; }
+      if (st.right / st.total < 1) startLevel = Math.min(startLevel, lv);
+    }
+    State.data.diagnosis = { ts: Date.now(), perLevel, startLevel };
+    State.save();
+    this._diagDone = true;
+    this.render();
+  },
+
+  renderDiagResult(app) {
+    const D = this._diagAnswers;
+    const diag = State.data.diagnosis;
+    const per = diag.perLevel;
+    app.innerHTML = '';
+    const desc = diag.startLevel === 7
+      ? '基础非常扎实！直接主攻第 7 关三级增量（正则/SQLite/OOP/可视化），配合三级冲刺卷与官方 A 卷。'
+      : `建议从第 ${diag.startLevel} 关开始：前面的关卡你已基本掌握，第 ${diag.startLevel} 关及之后需要系统过一遍。`;
+    app.append(
+      h('h1', { class: 'page-title' }, '🧭 诊断结果'),
+      h('div', { class: 'card score-hero' },
+        h('div', { class: 'big' }, '第 ' + diag.startLevel + ' 关'),
+        h('div', { class: 'muted' }, '推荐起点'),
+        h('p', { style: 'max-width:52ch;margin:10px auto 0' }, desc),
+        h('div', { style: 'margin-top:14px' },
+          h('a', { class: 'btn btn-green', href: '#level/' + diag.startLevel + '/lesson' }, '按推荐开始学习'),
+          ' ',
+          h('a', { class: 'btn btn-ghost', href: '#path' }, '查看完整学习路径'))),
+      h('div', { class: 'card' },
+        h('h2', null, '各关掌握度'),
+        h('table', { class: 'testtable' },
+          h('tr', null, h('th', null, '关卡'), h('th', null, '答对'), h('th', null, '掌握度'), h('th', null, '判断')),
+          LEVEL_META.map(m => {
+            const st = per[m.no] || { right: 0, total: 0 };
+            const pct = st.total ? Math.round(st.right / st.total * 100) : 0;
+            const verdict = st.total === 0 ? '—' : (pct === 100 ? '✓ 已掌握' : (pct >= 50 ? '△ 半熟' : '✗ 薄弱'));
+            return h('tr', null,
+              h('td', null, `第 ${m.no} 关 · ${m.title}`),
+              h('td', null, `${st.right}/${st.total}`),
+              h('td', null, pct + '%'),
+              h('td', null, h('span', { class: pct === 100 ? 'pass-cell' : (pct >= 50 ? '' : 'fail-cell') }, verdict)));
+          })),
+        h('p', { class: 'muted small' }, '诊断只反映选择题手感，代码能力以各关代码题实测为准。'),
+        h('div', { style: 'margin-top:8px' },
+          h('button', { class: 'btn btn-ghost btn-sm', onclick: () => { App._diagAnswers = null; App._diagDone = false; App.render(); } }, '重新诊断'))
+      )
+    );
   },
 
   /* ============================================================
@@ -310,15 +486,26 @@ const App = {
 
   /* ---------- 单选题渲染 ---------- */
   renderMcqs(box, level) {
-    const qs = window.BANK.mcq.filter(q => q.level === level);
+    const qs = window.BANK.mcq.filter(q => q.level === level)
+      .sort((a, b) => (a.difficulty || 2) - (b.difficulty || 2) || a.id.localeCompare(b.id));
     if (!qs.length) { box.append(h('div', { class: 'card' }, '本关暂无选择题')); return; }
-    let done = 0;
-    qs.forEach((q, idx) => {
+    let done = 0, idx = 0, lastDiff = 0;
+    const stageName = { 1: '★ 基础', 2: '★★ 进阶', 3: '★★★ 挑战' };
+    qs.forEach((q) => {
+      idx++;
+      const diff = q.difficulty || 2;
+      if (diff !== lastDiff) {
+        lastDiff = diff;
+        box.append(h('h3', { style: 'margin:18px 0 8px;color:var(--blue-dark)' },
+          stageName[diff] || '★★ 进阶',
+          h('span', { class: 'muted small', style: 'font-weight:400;margin-left:8px' },
+            diff === 1 ? '先把地基打牢' : diff === 2 ? '考试主力题型' : '拉开差距的题')));
+      }
       const st = State.mcqStat(q.id);
-      box.append(this.mcqCard(q, idx + 1, st));
-      if (st) done++;
+      box.append(this.mcqCard(q, idx, st));
+      if (st && st.correct) done++;
     });
-    box.append(h('p', { class: 'muted small' }, `已作答 ${done}/${qs.length} · 重进本页可重做未通过题`));
+    box.append(h('p', { class: 'muted small' }, `已答对 ${done}/${qs.length} · 答错的题答对后自动从错题本移出`));
   },
 
   mcqCard(q, no, st) {
@@ -326,6 +513,9 @@ const App = {
     const card = h('div', { class: 'qcard' });
     card.append(h('div', { class: 'qhead' },
       h('span', { class: 'qno' }, `${no}. `),
+      h('span', null,
+        isTier3(q) ? h('span', { class: 'badge badge-master', title: '三级重点题' }, '🎓 三级') : null,
+        q.difficulty ? h('span', { class: 'muted small' }, '★'.repeat(q.difficulty)) : null),
       h('span', { class: 'qtag' }, q.topic || '')
     ));
     card.append(h('div', { class: 'qtext', html: miniMdInline(q.q) }));
@@ -384,17 +574,34 @@ const App = {
     box.append(h('div', { class: 'notice' },
       h('b', null, '判题说明：'),
       ' 代码在浏览器内真实运行（首次判题会加载引擎，约 10~20MB，需联网）。程序请求输入时，测试输入会自动喂给 input()；',
-      '比对输出时空行与行尾空格会被忽略。若引擎加载失败，可展开参考答案对照自评。'));
-    qs.forEach((q, idx) => box.append(this.codeCard(kind, q, idx + 1)));
+      '比对输出时空行与行尾空格会被忽略。若引擎加载失败，可展开参考答案对照自评。🎓 = 三级重点题。'));
+    const sorted = qs.slice().sort((a, b) => (a.difficulty || 2) - (b.difficulty || 2) || a.id.localeCompare(b.id));
+    let lastDiff = 0;
+    const stageName = { 1: '★ 基础', 2: '★★ 进阶', 3: '★★★ 挑战' };
+    sorted.forEach((q, idx) => {
+      const diff = q.difficulty || 2;
+      if (diff !== lastDiff) {
+        lastDiff = diff;
+        box.append(h('h3', { style: 'margin:18px 0 8px;color:var(--blue-dark)' },
+          stageName[diff] || '★★ 进阶',
+          h('span', { class: 'muted small', style: 'font-weight:400;margin-left:8px' },
+            diff === 1 ? '照着套路写' : diff === 2 ? '考试主力' : '冲三级优秀')));
+      }
+      box.append(this.codeCard(kind, q, idx + 1));
+    });
   },
 
   codeCard(kind, q, no) {
     const kindName = { blank: '程序填空', fix: '调试改错', coding: '编程题' }[kind];
     const st = State.codeStat(kind, q.id);
     const card = h('div', { class: 'qcard' });
+    const badges = [];
+    if (isTier3(q)) badges.push(h('span', { class: 'badge badge-master', title: '三级重点题' }, '🎓 三级'));
+    const diff = q.difficulty;
+    if (diff) badges.push(h('span', { class: 'muted small' }, '★'.repeat(diff)));
     card.append(h('div', { class: 'qhead' },
       h('span', { class: 'qno' }, `${no}. ${q.title || ''}`),
-      h('span', { class: 'qtag' }, kindName + (st && st.passed ? ' · 已通过 ✓' : ''))
+      h('span', null, ...badges, ' ', h('span', { class: 'qtag' }, kindName + (st && st.passed ? ' · 已通过 ✓' : '')))
     ));
     if (q.desc) card.append(h('div', { class: 'qtext', html: miniMdInline(q.desc) }));
 
@@ -688,6 +895,38 @@ function estimateGrade(score, full, t3Score, t3Full) {
 
 function targetLabel(t) {
   return { t2p: '二级合格', t2e: '二级优秀', t3p: '三级合格', t3e: '三级优秀' }[t] || '三级合格';
+}
+
+/* 状态驱动的"下一步"：诊断 → 速览 → 单选 → 代码（难度递进）→ 下一关 → 模拟考 */
+function computeNextStep() {
+  if (!State.data.diagnosis) {
+    return { title: '入学诊断', desc: '14 道快题测出你的起点关卡（约 10 分钟，不计入进度）', href: '#diagnostic', cta: '开始诊断' };
+  }
+  const B = window.BANK;
+  const floor = (State.data.diagnosis && State.data.diagnosis.startLevel) || 1;
+  for (const m of LEVEL_META) {
+    if (m.no < floor) continue; // 诊断判定已掌握的关卡直接跳过
+    const st = State.levelStat(m.no);
+    if (!st.read) {
+      return { title: `第 ${m.no} 关 · ${m.title}`, desc: '本关第一站：读知识点速览，标记已读', href: `#level/${m.no}/lesson`, cta: '去读速览' };
+    }
+    if (!st.mcqOk) {
+      return { title: `第 ${m.no} 关 · ${m.title}`, desc: `刷单选题（已对 ${st.mcqRight}/${st.mcqTotal}，目标正确率 80%）`, href: `#level/${m.no}/mcq`, cta: '去刷题' };
+    }
+    const items = [];
+    for (const q of B.blanks) if (q.level === m.no) items.push(['blank', q]);
+    for (const q of B.fixes) if (q.level === m.no) items.push(['fix', q]);
+    for (const q of B.coding) if (q.level === m.no) items.push(['coding', q]);
+    items.sort((a, b) => (a[1].difficulty || 2) - (b[1].difficulty || 2));
+    for (const [kind, q] of items) {
+      const stc = State.codeStat(kind, q.id);
+      if (!stc || !stc.passed) {
+        const kindCn = { blank: '程序填空', fix: '调试改错', coding: '编程题' }[kind];
+        return { title: `第 ${m.no} 关 · ${q.title || kindCn}`, desc: `下一道代码题（${kindCn}，按难度递进）`, href: `#level/${m.no}/${kind}`, cta: '去写代码' };
+      }
+    }
+  }
+  return { title: '全真模拟考', desc: '七个关卡全部通关！用模拟考检验三级成色（推荐三级冲刺卷/官方 A 卷）', href: '#mock', cta: '去模拟考' };
 }
 
 /* ---------- 内联 markdown（题目文本用：仅 `code` 与 **b**） ---------- */

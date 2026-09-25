@@ -15,7 +15,8 @@ const State = {
       lessonRead: {}, // level -> true
       mockRuns: [],   // {ts, score, grade, detail}
       settings: { examDate: null, target: 't3p' }, // 考试日期覆盖 + 目标等第
-      drafts: {}     // 代码草稿 kind:qid -> code
+      drafts: {},     // 代码草稿 kind:qid -> code
+      diagnosis: null // 入学诊断结果 {ts, perLevel, startLevel}
     };
   },
 
