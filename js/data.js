@@ -2370,6 +2370,516 @@ window.BANK = {
    "ans": 3,
    "exp": "pie 绘制饼图，适合表示各部分占整体的比例；plot 折线图适合表现变化趋势，bar 柱状图适合比较数量大小，scatter 散点图适合呈现分布与相关性。",
    "difficulty": 1
+  },
+  {
+   "id": "mcq-l4-023",
+   "level": 4,
+   "topic": "递归调用次数",
+   "q": "有如下程序：\ndef fib(n):\n    if n == 1 or n == 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\nprint(fib(5))\n程序运行结束后，函数 fib 共被调用的次数是____。",
+   "opts": [
+    "5",
+    "7",
+    "9",
+    "15"
+   ],
+   "ans": 2,
+   "exp": "直接数调用：fib(5) 调 1 次，引发 fib(4) 调 2 次、fib(3) 调 3 次、fib(2) 调 3 次、fib(1) 调 2 次，合计 9 次；5 是返回值而不是调用次数，15 是 fib(6) 规模的干扰项。这类双递归调用次数按 1+2+3+3 快速累加即可。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l4-024",
+   "level": 4,
+   "topic": "递归与循环等价",
+   "q": "有如下递归函数（n 为正整数）：\ndef f(n):\n    if n == 1:\n        return 1\n    return n + f(n - 1)\n它的功能是计算 1+2+…+n。下列程序段中，与 f(n) 功能等价的是____。",
+   "opts": [
+    "s = 0\nfor i in range(1, n + 1):\n    s += i",
+    "s = 0\nfor i in range(1, n):\n    s += i",
+    "s = 0\ni = 1\nwhile i < n:\n    s += i\n    i += 1",
+    "s = 0\nfor i in range(n):\n    s += i"
+   ],
+   "ans": 0,
+   "exp": "range(1, n + 1) 恰好取到 1~n，累加得 1+2+…+n；其余三项都只累加到 n-1（B、C 漏了 n，D 取的是 0~n-1），以 n=4 验证：正确版得 10，三个错误版都得 6。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-025",
+   "level": 4,
+   "topic": "递归深度限制",
+   "q": "有如下程序：\ndef f(n):\n    return f(n + 1)\nprint(f(1))\n运行结果是____。",
+   "opts": [
+    "1",
+    "程序报错：超过最大递归深度，抛出 RecursionError",
+    "程序陷入死循环，永远运行不停止",
+    "0"
+   ],
+   "ans": 1,
+   "exp": "f 没有终止条件，每层调用都开辟新的栈帧，达到系统允许的最大递归深度后抛出 RecursionError；Python 会主动限制递归深度，所以既不是输出 1，也不是永远不停的死循环。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-026",
+   "level": 4,
+   "topic": "sorted(key=)多级排序",
+   "q": "有如下程序：\ndata = [('李明', 90), ('张伟', 85), ('王芳', 90)]\nprint(sorted(data, key=lambda t: (-t[1], t[0])))\n输出结果是____。",
+   "opts": [
+    "[('张伟', 85), ('李明', 90), ('王芳', 90)]",
+    "[('王芳', 90), ('李明', 90), ('张伟', 85)]",
+    "程序报错",
+    "[('李明', 90), ('王芳', 90), ('张伟', 85)]"
+   ],
+   "ans": 3,
+   "exp": "key 返回 (-分数, 姓名) 元组，先按分数降序（加负号），分数相同时再按姓名升序，因此 90 分的李明、王芳按姓名先后排在前面；A 是只按分数升序的结果，B 把同分的姓名顺序弄反了。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l4-027",
+   "level": 4,
+   "topic": "map+filter链式",
+   "q": "有如下程序：\nnums = [1, 2, 3, 4, 5, 6]\nr = map(lambda x: x * x, filter(lambda x: x % 2 == 0, nums))\nprint(list(r))\n输出结果是____。",
+   "opts": [
+    "[4, 16, 36]",
+    "[1, 4, 9, 16, 25, 36]",
+    "[2, 4, 6]",
+    "[1, 9, 25]"
+   ],
+   "ans": 0,
+   "exp": "链式调用时数据先经过 filter：筛出偶数 2、4、6，再进入 map 平方得 4、16、36；B 是全部元素平方，C 只做了筛选没平方，D 是对奇数平方。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l4-028",
+   "level": 4,
+   "topic": "闭包",
+   "q": "有如下程序：\ndef make_adder(n):\n    def add(x):\n        return x + n\n    return add\n\nf = make_adder(10)\nprint(f(5))\n输出结果是____。",
+   "opts": [
+    "5",
+    "10",
+    "15",
+    "程序报错：n 在 add 中未定义"
+   ],
+   "ans": 2,
+   "exp": "内层函数 add 引用了外层函数的局部变量 n，构成闭包：make_adder(10) 返回后 n=10 仍被记住，f(5) 即 5+10=15；闭包会保存外层变量，不会报 NameError。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-019",
+   "level": 7,
+   "topic": "正则分组提取",
+   "q": "有如下程序：\nimport re\ns = '张三:90,李四:85'\nprint(re.findall(r'(\\w+):(\\d+)', s))\n输出结果是____。",
+   "opts": [
+    "['张三:90', '李四:85']",
+    "[('张三', '90'), ('李四', '85')]",
+    "[('90', '张三'), ('85', '李四')]",
+    "[('张三', '90')]"
+   ],
+   "ans": 1,
+   "exp": "findall 的模式中带分组时，返回的是由各分组匹配内容组成的元组的列表，元组内顺序与分组在模式中的先后一致：\\w+ 在前匹配姓名、\\d+ 在后匹配分数；不带分组时才返回整个匹配子串的列表。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-020",
+   "level": 7,
+   "topic": "正则命名分组",
+   "q": "有如下程序：\nimport re\nm = re.search(r'(?P<y>\\d{4})-(?P<m>\\d{2})', '日期:2024-06')\nprint(m.group('y'), m.group('m'))\n输出结果是____。",
+   "opts": [
+    "y m",
+    "2024-06 2024",
+    "程序报错：search 不支持命名分组",
+    "2024 06"
+   ],
+   "ans": 3,
+   "exp": "(?P<名字>…) 给分组命名，匹配成功后可用 m.group('名字') 按名字取对应分组的内容：y 组是 2024、m 组是 06；要取整个匹配串 2024-06 应使用不带参数的 m.group()。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-021",
+   "level": 7,
+   "topic": "re.split",
+   "q": "有如下程序：\nimport re\nprint(re.split(r'[,;]', 'a,b;c,d'))\n输出结果是____。",
+   "opts": [
+    "['a', 'b', 'c', 'd']",
+    "['a,b;c,d']",
+    "['a', 'b;c', 'd']",
+    "['a,b', 'c,d']"
+   ],
+   "ans": 0,
+   "exp": "re.split 按模式匹配到的每个位置切分字符串，字符组 [,;] 表示逗号或分号都是分隔符，得到 4 段；普通 str.split 一次只能按单一分隔符切，这正是正则 split 的优势。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-022",
+   "level": 7,
+   "topic": "re.sub反向引用",
+   "q": "有如下程序：\nimport re\nprint(re.sub(r'(\\d{4})-(\\d{2})', r'\\2/\\1', '2024-06'))\n输出结果是____。",
+   "opts": [
+    "2024-06",
+    "\\2/\\1",
+    "06/2024",
+    "2024/06"
+   ],
+   "ans": 2,
+   "exp": "替换串中的 \\1、\\2 依次引用模式里第 1、2 个分组匹配到的内容：\\1 是 2024、\\2 是 06，故替换结果为 06/2024；若写成 \\1/\\2 才得到 2024/06，引用写反是常见错误。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-023",
+   "level": 7,
+   "topic": "正则手机号",
+   "q": "要匹配中国大陆手机号：以 1 开头，第二位是 3~9 之间的数字，后面还有 9 位数字（共 11 位）。下列正则表达式正确的是____。",
+   "opts": [
+    "r'1[0-2]\\d{9}'",
+    "r'1[3-9]\\d{9}'",
+    "r'1[3-9]\\d{8}'",
+    "r'\\d{9}'"
+   ],
+   "ans": 1,
+   "exp": "字符组 [3-9] 限定第二位，后接 9 个 \\d，加上开头的 1 共 11 位；A 的第二位范围错为 0~2，C 总共只有 10 位，D 既不要求以 1 开头位数也不够。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-024",
+   "level": 7,
+   "topic": "非贪婪实战",
+   "q": "有如下程序：\nimport re\ns = '<h1>标题一</h1><h1>标题二</h1>'\nprint(re.findall(r'<h1>(.*?)</h1>', s))\n输出结果是____。",
+   "opts": [
+    "['标题一', '标题二']",
+    "['标题一</h1><h1>标题二']",
+    "['标题一']",
+    "['<h1>标题一</h1>', '<h1>标题二</h1>']"
+   ],
+   "ans": 0,
+   "exp": ".*? 是非贪婪匹配，遇到最近的 </h1> 就结束本次匹配，因此分别取出两处标签内容；若用贪婪的 .* 会一直匹配到字符串中最后一个 </h1>，得到 ['标题一</h1><h1>标题二']。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l7-025",
+   "level": 7,
+   "topic": "sqlite3内存数据库",
+   "q": "下列关于 `sqlite3.connect(':memory:')` 的说法，正确的是____。",
+   "opts": [
+    "在当前目录下创建名为 memory 的数据库文件",
+    "该写法错误，connect 必须传入一个真实存在的文件名",
+    "创建内存数据库，数据会自动永久保存到磁盘文件中",
+    "创建内存数据库，数据只保存在内存中，程序结束后不会存入任何文件"
+   ],
+   "ans": 3,
+   "exp": "':memory:' 表示在内存中建立临时数据库，读写快但不落盘，程序结束数据即消失；要持久保存必须 connect 一个真实的文件名，connect 并不要求该文件已存在。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-026",
+   "level": 7,
+   "topic": "sqlite3占位符",
+   "q": "有如下程序：\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\ncur.execute('CREATE TABLE t(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO t VALUES (?, ?)', ('李明', 90))\ncur.execute('INSERT INTO t VALUES (?, ?)', ('张伟', 85))\nconn.commit()\ncur.execute('SELECT name FROM t WHERE score > ?', (86,))\nprint(cur.fetchall())\nconn.close()\n输出结果是____。",
+   "opts": [
+    "[('张伟',)]",
+    "[('李明',)]",
+    "[('李明', 90)]",
+    "[]"
+   ],
+   "ans": 1,
+   "exp": "? 占位符由参数元组提供值，(86,) 是只含一个元素的元组；查询分数大于 86 的记录只有李明 90 满足，且 SELECT 只取 name 列，故结果为 [('李明',)]；参数必须写成元组 (86,)，写成 (86) 会报错。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-027",
+   "level": 7,
+   "topic": "sqlite3返回值形态",
+   "q": "SQLite 数据库表 t 有两列：name(TEXT)、score(INTEGER)，共 2 条记录。执行 `cur.execute('SELECT * FROM t')` 后，`cur.fetchall()` 的返回值是____。",
+   "opts": [
+    "列表，每个元素是一个元组，如 [('李明', 90), ('张伟', 85)]",
+    "字典，键为列名、值为该列的所有数据",
+    "一个元组，按顺序装着所有记录的全部字段值",
+    "字符串，所有记录拼接成一个长字符串"
+   ],
+   "ans": 0,
+   "exp": "fetchall 返回由记录组成的列表，每条记录是一个元组，元组元素与 SELECT 的列一一对应；fetchone 返回的则是单个这样的元组，没有记录时返回 None。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-028",
+   "level": 7,
+   "topic": "sqlite3事务",
+   "q": "下列关于 sqlite3 中 commit 与 rollback 的说法，正确的是____。",
+   "opts": [
+    "执行 INSERT 后不调用 conn.commit()，数据也会自动永久保存到数据库文件",
+    "conn.rollback() 可以撤销已经 commit 并保存到文件中的更改",
+    "conn.rollback() 可以撤销自上一次 commit 之后尚未提交的更改",
+    "SELECT 查询的结果也必须先 commit 才能读取"
+   ],
+   "ans": 2,
+   "exp": "增删改操作只有 commit 后才真正写入数据库文件，rollback 撤销的是自上次 commit 以来尚未提交的更改；已提交的更改无法用 rollback 撤销，查询操作不需要 commit。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-029",
+   "level": 7,
+   "topic": "sqlite3防注入",
+   "q": "变量 name 中存放着用户输入的用户名，要查询该用户的记录并防止 SQL 注入，下列写法正确的是____。",
+   "opts": [
+    "cur.execute(\"SELECT * FROM users WHERE name = '\" + name + \"'\")",
+    "cur.execute(f'SELECT * FROM users WHERE name = {name}')",
+    "cur.execute(\"SELECT * FROM users WHERE name = '%s'\" % name)",
+    "cur.execute('SELECT * FROM users WHERE name = ?', (name,))"
+   ],
+   "ans": 3,
+   "exp": "? 占位符加参数元组是参数化查询，用户输入只会被当作数据而不会拼进 SQL 语句，可防止注入；其余三种都把输入直接拼接进 SQL，攻击者可构造形如 ' OR '1'='1 的输入篡改语句。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-030",
+   "level": 7,
+   "topic": "sqlite3游标消费",
+   "q": "数据库 test.db 的表 t 中共有 3 条记录，id 依次为 1、2、3。有如下程序：\nimport sqlite3\nconn = sqlite3.connect('test.db')\ncur = conn.cursor()\ncur.execute('SELECT id FROM t')\nr1 = cur.fetchone()\nr2 = cur.fetchall()\nprint(r1, len(r2))\nconn.close()\n输出结果是____。",
+   "opts": [
+    "(1,) 2",
+    "(1,) 3",
+    "1 2",
+    "[(1,), (2,), (3,)] 0"
+   ],
+   "ans": 0,
+   "exp": "游标读取结果像指针逐条下移：fetchone 取走第 1 条得 (1,)，fetchall 只能取到剩余的第 2、3 条共 2 条；已被取走的部分不会重复返回，所以 len(r2) 是 2 而不是 3。",
+   "difficulty": 3
+  },
+  {
+   "id": "mcq-l7-031",
+   "level": 7,
+   "topic": "类属性与实例属性",
+   "q": "有如下程序：\nclass A:\n    count = 0\n    def __init__(self):\n        A.count += 1\n\na = A()\nb = A()\nc = A()\nprint(A.count)\n输出结果是____。",
+   "opts": [
+    "0",
+    "1",
+    "3",
+    "程序报错"
+   ],
+   "ans": 2,
+   "exp": "count 定义在类中、方法之外，是类属性，被所有实例共享；每创建一个对象 __init__ 就执行一次，A.count 加 1，共实例化 3 次后输出 3；若写成 self.count = 0 则是各实例独立的实例属性。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-032",
+   "level": 7,
+   "topic": "self绑定",
+   "q": "有如下程序：\nclass P:\n    def get(self):\n        return self.v\n\np = P()\np.v = 5\nprint(p.get())\n下列关于该程序中 self 的说法，正确的是____。",
+   "opts": [
+    "调用 p.get() 时必须写成 p.get(p)，手动把对象传给 self",
+    "p.get() 等价于 P.get(p)，Python 自动把对象 p 传给第一个参数 self",
+    "self 是 Python 的关键字，方法中第一个参数必须叫 self，改名会报错",
+    "self 代表类本身，一个类的所有方法共享同一个 self"
+   ],
+   "ans": 1,
+   "exp": "通过对象调用方法时，Python 自动把该对象绑定到方法的第一个参数，p.get() 就是 P.get(p)，输出 5；self 只是约定俗成的名字并非关键字；self 代表当前对象而不是类。",
+   "difficulty": 2
+  },
+  {
+   "id": "mcq-l7-033",
+   "level": 7,
+   "topic": "多继承与MRO",
+   "q": "下列关于 Python 多继承与方法查找顺序（MRO）的说法，错误的是____。",
+   "opts": [
+    "Python 允许一个类同时继承多个父类，如 class C(A, B)",
+    "MRO 顺序是随机确定的，每次程序运行都可能不同",
+    "当多个父类中有同名方法时，Python 按 MRO 顺序查找，默认从左到右",
+    "可以通过 `类名.__mro__` 查看某个类的方法查找顺序"
+   ],
+   "ans": 1,
+   "exp": "多继承的 MRO 由 C3 算法确定，是一个固定不变的顺序，可用 类名.__mro__ 查看，并非随机产生；同名方法按该顺序从左到右查找，先找到谁就用谁，B 说法错误。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-034",
+   "level": 7,
+   "topic": "matplotlib plot参数",
+   "q": "有如下程序：\nimport matplotlib.pyplot as plt\nplt.plot([1, 2, 3], [4, 5, 6])\nplt.show()\n下列说法正确的是____。",
+   "opts": [
+    "第一个列表是 y 坐标，第二个列表是 x 坐标",
+    "这两个列表会被绘制成两组柱状图",
+    "第一个列表作为各点的 x 坐标，第二个列表作为 y 坐标，绘制出一条折线",
+    "plot 只能接收一个列表参数，传两个列表会报错"
+   ],
+   "ans": 2,
+   "exp": "plt.plot(x, y) 的第一个参数是 x 坐标列表、第二个是 y 坐标列表，把点 (1,4)、(2,5)、(3,6) 连成折线；只传一个列表时它才被当作 y 值，x 默认取 0、1、2…。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-035",
+   "level": 7,
+   "topic": "matplotlib子图",
+   "q": "语句 `plt.subplot(2, 2, 1)` 的作用是____。",
+   "opts": [
+    "把当前图划分为 2 个子图，编号分别为 2 和 1",
+    "设置整个画布的大小为 2×2 英寸",
+    "绘制一个包含 22 个子图的图形",
+    "把画布划分为 2 行 2 列共 4 个子图区域，并选定第 1 个（左上角）作为当前绘图区"
+   ],
+   "ans": 3,
+   "exp": "subplot 的三个参数依次是行数、列数、当前子图编号，编号从 1 开始按行优先排列，(2,2,1) 即选中 2×2 网格的左上角区域；绘图后仍用 plt.legend() 显示图例、plt.show() 显示窗口。",
+   "difficulty": 1
+  },
+  {
+   "id": "mcq-l7-036",
+   "level": 7,
+   "topic": "json.dumps参数",
+   "q": "有如下程序：\nimport json\nd = {'name': '李明', 'score': 90}\ns = json.dumps(d, ensure_ascii=False, indent=4)\n下列说法正确的是____。",
+   "opts": [
+    "输出中 '李明' 会显示为 \\u674e\\u660e 这样的转义形式",
+    "变量 s 的类型是 dict",
+    "indent 参数无效，结果仍是单行紧凑字符串",
+    "ensure_ascii=False 使中文按原字符输出而不转义成 \\uXXXX，indent=4 让结果按 4 个空格缩进分层换行"
+   ],
+   "ans": 3,
+   "exp": "默认 ensure_ascii=True 会把非 ASCII 字符转成 \\uXXXX 转义，ensure_ascii=False 保持中文原样；indent 指定缩进的空格数并引入换行，本例输出为多行带 4 空格缩进的 JSON 文本；dumps 的返回值是 str 类型的 JSON 字符串，不是 dict。",
+   "difficulty": 1
+  },
+  {
+   "id": "p27-m1",
+   "level": 1,
+   "topic": "标识符与关键字",
+   "difficulty": 1,
+   "q": "下面____选项是无效的 Python 对象命名。",
+   "opts": [
+    "_private_var",
+    "global",
+    "CapitalCase",
+    "utf8_编码"
+   ],
+   "ans": 1,
+   "exp": "global 是 Python 关键字（声明全局变量用），不能作为变量名。下划线开头、大写驼峰、中文数字组合都合法。"
+  },
+  {
+   "id": "p27-m2",
+   "level": 3,
+   "topic": "字符串切片",
+   "difficulty": 2,
+   "q": "name = \"Python语言程序设计\"，结果为“thon语言程序”的代码是_______。",
+   "opts": [
+    "print(name[2: -2])",
+    "print(name[2: -3])",
+    "print(name[3: -2])",
+    "print(name[3: -3])"
+   ],
+   "ans": 0,
+   "exp": "'thon语言程序' 从索引 2（t）到倒数第 2 个字符（含）结束，即 name[2:-2]。注意中文与英文都按一个字符计。"
+  },
+  {
+   "id": "p27-m3",
+   "level": 3,
+   "topic": "列表解析式",
+   "difficulty": 1,
+   "q": "与 [x * 2 for x in range(5) if x % 2 == 0] 结果相同的列表是_________。",
+   "opts": [
+    "[0, 2, 4, 6, 8]",
+    "[0, 4]",
+    "[0, 4, 8]",
+    "[0, 2, 4]"
+   ],
+   "ans": 2,
+   "exp": "range(5) 中偶数为 0、2、4，翻倍后 [0, 4, 8]。"
+  },
+  {
+   "id": "p27-m4",
+   "level": 3,
+   "topic": "元组",
+   "difficulty": 1,
+   "q": "关于 Python 元组的基本特性，以下说法正确的是________。",
+   "opts": [
+    "元组创建后可以使用append()方法添加新元素",
+    "元组可以包含不同类型的元素",
+    "元组中的元素可以通过索引重新赋值",
+    "使用花括号{}定义空元组"
+   ],
+   "ans": 1,
+   "exp": "元组不可变：没有 append、不能重新赋值；空元组是 () 而不是 {}（{} 是空字典）；但元组内可以放任意不同类型的元素。"
+  },
+  {
+   "id": "p27-m5",
+   "level": 3,
+   "topic": "字典遍历",
+   "difficulty": 2,
+   "q": "执行程序代码：\nfruit_dict = {\"apple\": 5, \"banana\": 3, \"orange\": 8}\nfor k, v in fruit_dict.items():\n    print(f\"{v}个{k}\", end=\", \")\n运行结果为_______。",
+   "opts": [
+    "5个apple, 3个banana, 8个orange,",
+    "apple:5, banana:3, orange:8,",
+    "('apple', 5), ('banana', 3), ('orange', 8),",
+    "报错：ValueError: too many values to unpack"
+   ],
+   "ans": 0,
+   "exp": "items() 把每个键值对解包为 k、v；f\"{v}个{k}\" 输出 5个apple 等，end=\", \" 使输出同行逗号分隔。"
+  },
+  {
+   "id": "p27-m6",
+   "level": 2,
+   "topic": "if-else 分支",
+   "difficulty": 1,
+   "q": "在 Python 的条件分支结构中，关于 else 语句的描述正确的是_______。",
+   "opts": [
+    "必须与if或elif配对使用",
+    "可以独立于if语句单独使用",
+    "一个分支结构中允许存在多个else块",
+    "else语句行也可以有分支条件"
+   ],
+   "ans": 0,
+   "exp": "else 必须与 if/elif 配对，且一个 if 结构最多一个 else；else 后不能带条件（带条件的是 elif）。"
+  },
+  {
+   "id": "p27-m7",
+   "level": 2,
+   "topic": "range 与循环次数",
+   "difficulty": 1,
+   "q": "执行以下代码，循环体中的 print 语句会运行_______次。\nfor i in range(3, 10, 2):\n    print(i)",
+   "opts": [
+    "3",
+    "5",
+    "6",
+    "4"
+   ],
+   "ans": 3,
+   "exp": "range(3, 10, 2) 产生 3、5、7、9，共 4 个值（含头不含尾）。"
+  },
+  {
+   "id": "p27-m8",
+   "level": 4,
+   "topic": "lambda 与默认参数",
+   "difficulty": 2,
+   "q": "运行 print(f(3)) 打印结果为 9 的前一句代码为_______。",
+   "opts": [
+    "f = lambda x, y=2: x ** y",
+    "f = lambda x: x *2",
+    "f = lambda x, y: x ** y",
+    "f = lambda x**2: x"
+   ],
+   "ans": 0,
+   "exp": "A 中 y 有默认值 2，f(3) 即 3**2=9；B 得 6；C 缺第二个参数会报错；D 的 lambda 参数语法非法。"
+  },
+  {
+   "id": "p27-m9",
+   "level": 5,
+   "topic": "文件打开模式",
+   "difficulty": 1,
+   "q": "以下_______模式打开文件时，会清空原文件内容。\nf = open('data.txt', _______)\nf.write('new content')\nf.close()",
+   "opts": [
+    "'r'",
+    "'a'",
+    "'x'",
+    "'w'"
+   ],
+   "ans": 3,
+   "exp": "'w' 模式打开即清空原文件再写入；'a' 追加保留原内容；'r' 只读；'x' 新建文件、已存在则报错。"
+  },
+  {
+   "id": "p27-m10",
+   "level": 1,
+   "topic": "程序设计方法与计算思维",
+   "difficulty": 2,
+   "q": "在设计一个学生成绩管理程序时，以下_______分解方式最合理。",
+   "opts": [
+    "将整个程序分解为输入、处理、输出三个模块，其中处理模块又包括计算平均分、最高分、排序等功能",
+    "将程序分解为数学运算模块、字符串处理模块、文件存储模块",
+    "按照学生姓名、学号、成绩等数据分别建立独立模块",
+    "尽可能设计一个函数完成所有功能"
+   ],
+   "ans": 0,
+   "exp": "自顶向下、按功能（输入-处理-输出）分解，处理模块再细分，是结构化程序设计的标准思想。"
   }
  ],
  "blanks": [
@@ -3294,6 +3804,134 @@ window.BANK = {
    "ref": "def judge(passwd):\n    plen = 0\n    if len(passwd) >= 8:\n        plen = 1\n    pnum, pupper, plower = False, False, False\n    for ch in passwd:\n        if ch in '0123456789':\n            pnum = True\n        if 'A' <= ch <= 'Z':\n            pupper = True\n        if 'a' <= ch <= 'z':\n            plower = True\n    result = plen + pnum + pupper + plower\n    return result\n\nwhile True:\n    pw = input()\n    if pw == '':\n        break\n    s = judge(pw)\n    if s <= 2:\n        print('弱密码')\n    elif s == 3:\n        print('中等密码')\n    else:\n        print('强密码')",
    "hint": "布尔值参与加法运算时 True 等于 1、False 等于 0",
    "exp": "考查 len() 求长度、break 退出无限循环、布尔值累加计数与 if-elif 多分支。"
+  },
+  {
+   "id": "p27-b1",
+   "level": 3,
+   "title": "风洞试验：空气阻力二维列表",
+   "desc": "飞机高速飞行所受空气阻力 F = 0.5·C·ρ·S·v²（C 取 0.1，ρ 取 1.2）。给定 4 种截面积 S 与 5 种飞行速度 v，计算对应空气阻力（取整数）的二维列表：每行对应同一截面积、不同速度的阻力值。",
+   "code": "S = [120, 130, 140, 150]\nv = [70, 160, 230, 280, 300]\nF = ___(1)___\nfor i in range(len(S)):\n    F.___(2)___([0] * len(v))\nC, p = 0.1, 1.2\nfor i in range(len(S)):\n    for j in range(___(3)___):\n        ___(4)___ = int(0.5 * C * p * S[i] * (v[j] ** 2))\nfor L in F:\n    print(L)",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "[]",
+      "list()"
+     ],
+     "hint": "先创建空列表"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "append"
+     ],
+     "hint": "列表添加一行的方法"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "len(v)"
+     ],
+     "hint": "内层循环次数由速度个数决定"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "F[i][j]"
+     ],
+     "hint": "给第 i 行第 j 列赋值"
+    }
+   ],
+   "stdin": "",
+   "expected": "[35280, 184319, 380879, 564480, 647999]\n[38220, 199680, 412620, 611520, 702000]\n[41160, 215040, 444360, 658560, 756000]\n[44100, 230400, 476100, 705600, 810000]",
+   "ref": "S = [120, 130, 140, 150]\nv = [70, 160, 230, 280, 300]\nF = []\nfor i in range(len(S)):\n    F.append([0] * len(v))\nC, p = 0.1, 1.2\nfor i in range(len(S)):\n    for j in range(len(v)):\n        F[i][j] = int(0.5 * C * p * S[i] * (v[j] ** 2))\nfor L in F:\n    print(L)",
+   "hint": "二维列表 = 列表的列表；先建外层，再逐行 append 内层",
+   "exp": "考查二维列表的创建与按行列下标赋值、嵌套循环遍历。"
+  },
+  {
+   "id": "p27-b2",
+   "level": 4,
+   "title": "强化学习：动作组合频率统计",
+   "desc": "使用列表记录智能体的状态动作组合，统计各组合出现次数，输出最高频的 3 个组合。",
+   "code": "act_record = [(\"a3\", \"f1\"), (\"a1\", \"f2\"), (\"a2\", \"f3\"),\n            (\"a1\", \"f2\"), (\"a3\", \"f1\"), (\"a2\", \"f3\"),\n            (\"a2\", \"f3\"), (\"a1\", \"f1\")]\n\ndef count_act(___(1)___):\n    counts = ___(2)___\n    for af in act:\n        counts[___(3)___] = counts.get(af, 0) + 1\n    counts_list = list(counts.items())\n    counts_list.sort(key=lambda x: x[1], reverse=True)\n    return counts_list\n\nfrq_list = ___(4)___\nfor af, count in frq_list[:3]:\n    print(f\"{af}状态动作组合出现{count}次\")",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "act"
+     ],
+     "hint": "函数的形式参数名，函数体内遍历的是它"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "{}",
+      "dict()"
+     ],
+     "hint": "空字典用于计数"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "af"
+     ],
+     "hint": "以组合本身为键累加"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "count_act(act_record)"
+     ],
+     "hint": "调用函数并传入记录列表"
+    }
+   ],
+   "stdin": "",
+   "expected": "('a2', 'f3')状态动作组合出现3次\n('a3', 'f1')状态动作组合出现2次\n('a1', 'f2')状态动作组合出现2次",
+   "ref": "act_record = [(\"a3\", \"f1\"), (\"a1\", \"f2\"), (\"a2\", \"f3\"),\n            (\"a1\", \"f2\"), (\"a3\", \"f1\"), (\"a2\", \"f3\"),\n            (\"a2\", \"f3\"), (\"a1\", \"f1\")]\n\ndef count_act(act):\n    counts = {}\n    for af in act:\n        counts[af] = counts.get(af, 0) + 1\n    counts_list = list(counts.items())\n    counts_list.sort(key=lambda x: x[1], reverse=True)\n    return counts_list\n\nfrq_list = count_act(act_record)\nfor af, count in frq_list[:3]:\n    print(f\"{af}状态动作组合出现{count}次\")",
+   "hint": "字典 get 计数模板 + sorted(key=lambda, reverse=True) 降序",
+   "exp": "考查字典分类计数、items()、按值排序与元组解包遍历。"
+  },
+  {
+   "id": "p27-b3",
+   "level": 7,
+   "title": "机器人路径：递归计数",
+   "desc": "机器人在 m×n 网格左上角，每次只能向右或向下移动。递归公式：f(i, j) = f(i+1, j) + f(i, j+1)；到达边界（最后一行或最后一列）时只剩 1 条路径。输入行列数，输出路径总数。",
+   "code": "def count_paths(i, j):\n    if i == m - 1 ___(1)___ j == n - 1:\n        return ___(2)___\n    else:\n        return count_paths(i + 1, j) + ___(3)___\n\nm, n = eval(input('请输入网格数，行列以英文逗号隔开：'))\nprint('测试网格为{}行{}列'.format(m, n))\nprint(f'从起点(0,0)到终点({m-1},{___(4)___})共有{count_paths(0, 0)}条路径')",
+   "blanks": [
+    {
+     "n": 1,
+     "answers": [
+      "or"
+     ],
+     "hint": "到最后一行或最后一列都只剩一条直路"
+    },
+    {
+     "n": 2,
+     "answers": [
+      "1"
+     ],
+     "hint": "边界条件下路径数为 1"
+    },
+    {
+     "n": 3,
+     "answers": [
+      "count_paths(i, j + 1)"
+     ],
+     "hint": "向下走一步的递归调用"
+    },
+    {
+     "n": 4,
+     "answers": [
+      "n - 1"
+     ],
+     "hint": "终点列下标"
+    }
+   ],
+   "stdin": "3,4\n",
+   "expected": "测试网格为3行4列\n从起点(0,0)到终点(2,3)共有10条路径",
+   "ref": "def count_paths(i, j):\n    if i == m - 1 or j == n - 1:\n        return 1\n    else:\n        return count_paths(i + 1, j) + count_paths(i, j + 1)\n\nm, n = eval(input('请输入网格数，行列以英文逗号隔开：'))\nprint('测试网格为{}行{}列'.format(m, n))\nprint(f'从起点(0,0)到终点({m-1},{n-1})共有{count_paths(0, 0)}条路径')",
+   "hint": "递归两要素：终止条件 + 递推调用；3行4列时答案即组合数 C(5,2)=10",
+   "exp": "三级重点：递归的定义、终止条件与执行过程（网格路径计数）。"
   }
  ],
  "fixes": [
@@ -3708,6 +4346,81 @@ window.BANK = {
    ],
    "ref": "line = input()\nn = int(line)\nif n <= 9:\n    for m in range(1, n + 1):\n        for i in range(1, m + 1):\n            print(i, end='')\n        print()\nelse:\n    print('输入的行数不能超过9！')",
    "exp": "考查 if 选择结构、range 范围、嵌套循环与 print 的 end 参数。"
+  },
+  {
+   "id": "p27-f1",
+   "level": 2,
+   "title": "调试题1：自动驾驶奖励函数",
+   "desc": "根据车辆偏离航向角度（浮点数，可多次输入，输入 q 退出）给出奖励信号：|角度|≤5° 奖励 2.0；5°<|角度|≤15° 奖励 1.0-0.1×(|角度|-5)；其他为 -1.0。每次输出格式如“角度:2.3°；奖励:2.00”（保留2位小数）。程序有 3 处错误，不增删语句修改（本站以运行结果判分，不要求 #### 标记）。",
+   "buggy": "angle = input()\nwhile angle != 'q':\n    a = float(angle)\n    if abs(a) > 5:\n        reward = 2.0\n    elif abs(a) < 15:\n        reward = 1.0 - 0.1 * (abs(a) - 5)\n    else:\n        reward = -1.0\n    print('角度:{}°；奖励:{}'.format(a, reward))\n    angle = input()",
+   "stdin": "2.3\n-10.7\n18.5\nq\n",
+   "expected": "角度:2.3°；奖励:2.00\n角度:-10.7°；奖励:0.43\n角度:18.5°；奖励:-1.00",
+   "errors": [
+    {
+     "line": 4,
+     "hint": "5°以内（含）奖励 2.0 —— 条件方向写反了"
+    },
+    {
+     "line": 6,
+     "hint": "5°到15°间（含15°）—— 边界值被排除了"
+    },
+    {
+     "line": 10,
+     "hint": "奖励要精确到 2 位小数 —— 格式化缺了精度"
+    }
+   ],
+   "ref": "angle = input()\nwhile angle != 'q':\n    a = float(angle)\n    if abs(a) <= 5:\n        reward = 2.0\n    elif abs(a) <= 15:\n        reward = 1.0 - 0.1 * (abs(a) - 5)\n    else:\n        reward = -1.0\n    print('角度:{}°；奖励:{:.2f}'.format(a, reward))\n    angle = input()",
+   "exp": "考查 if-elif 多分支的边界条件与 format 保留小数。"
+  },
+  {
+   "id": "p27-f2",
+   "level": 3,
+   "title": "调试题2：视觉反应字符方阵",
+   "desc": "输入 3~9 之间的整数 n，生成 n×n 字符方阵：由数字 n 组成、混杂一个其他随机数字；输入 2 时输出“请重新输入”；输入 x 或 X 退出。为使判题可复现，本站版本已固定随机种子（random.seed(7)，不得改动）。",
+   "buggy": "import random\nrandom.seed(7)\nn = input()\nwhile n != 'x' or n != 'X':\n    num = int(n)\n    if num < 3 and num > 9:\n        print('请重新输入')\n    else:\n        pos = random.randint(0, num * num - 1)\n        other = random.randint(0, 9)\n        if other == num:\n            other = (num + 1) % 10\n        for k in range(num * num):\n            if k == pos:\n                ch = str(other)\n            else:\n                ch = str(num)\n            print(ch, end='')\n            if k % num == 0:\n                print()\n    n = input()",
+   "stdin": "2\n3\n4\nX\n",
+   "expected": "请重新输入\n333\n332\n333\n4444\n4444\n4444\n0444",
+   "errors": [
+    {
+     "line": 4,
+     "hint": "x 或 X 都要退出 —— and/or 逻辑写反成了永真死循环"
+    },
+    {
+     "line": 5,
+     "hint": "3~9 之外（含 2）都要重新输入 —— 范围连接词错了"
+    },
+    {
+     "line": 17,
+     "hint": "每输出满 n 个字符换一行 —— 取余位置错了"
+    }
+   ],
+   "ref": "import random\nrandom.seed(7)\nn = input()\nwhile n != 'x' and n != 'X':\n    num = int(n)\n    if num < 3 or num > 9:\n        print('请重新输入')\n    else:\n        pos = random.randint(0, num * num - 1)\n        other = random.randint(0, 9)\n        if other == num:\n            other = (num + 1) % 10\n        for k in range(num * num):\n            if k == pos:\n                ch = str(other)\n            else:\n                ch = str(num)\n            print(ch, end='')\n            if k % num == num - 1:\n                print()\n    n = input()",
+   "exp": "考查 while 循环退出条件、多分支范围判断、嵌套循环按行输出与随机数固定种子。"
+  },
+  {
+   "id": "p27-f3",
+   "level": 3,
+   "title": "调试题3：八卦与二进制",
+   "desc": "八卦蕴含二进制思想：乾111、坎010、艮100、震001、巽110、离101、坤000、兑011。输入卦名字符串，输出“卦名 --> 对应二进制串”（按输入顺序拼接）。如输入 艮巽坎坤 输出 艮巽坎坤 --> 100110010000。程序有 3 处错误。",
+   "buggy": "bagua = {'乾': '111', '坎': '001', '艮': '100', '震': '001',\n         '巽': '110', '离': '101', '坤': '000', '兑': '011'}\ns = input('请输入卦名字符串:')\nout = ''\nfor ch in bagua:\n    out = bagua[ch] + out\nprint(s, '-->', out)",
+   "stdin": "艮巽坎坤\n",
+   "expected": "艮巽坎坤 --> 100110010000",
+   "errors": [
+    {
+     "line": 4,
+     "hint": "字典里 坎 的二进制抄错了，对照八卦表检查"
+    },
+    {
+     "line": 5,
+     "hint": "应遍历输入的字符串，而不是遍历字典"
+    },
+    {
+     "line": 6,
+     "hint": "二进制串要按输入顺序拼接 —— 前后接反了"
+    }
+   ],
+   "ref": "bagua = {'乾': '111', '坎': '010', '艮': '100', '震': '001',\n         '巽': '110', '离': '101', '坤': '000', '兑': '011'}\ns = input('请输入卦名字符串:')\nout = ''\nfor ch in s:\n    out = out + bagua[ch]\nprint(s, '-->', out)",
+   "exp": "考查字典建表与按键取值、字符串按序拼接、遍历对象的选择。"
   }
  ],
  "coding": [
@@ -4718,6 +5431,148 @@ window.BANK = {
     "字符串",
     "循环"
    ]
+  },
+  {
+   "id": "p27-c1",
+   "level": 5,
+   "title": "编程1：数据分析——农作物种植地区筛选（17分）",
+   "desc": "平均气温.txt（UTF-8 编码，列分隔符“//”，有标题行）给出若干城市逐月平均气温。某种农作物要求月平均气温 20℃ 以上（含）至少 6 个月。读取文件，逐个判断每个城市是否满足生长要求：每行输出“城市名 满足条件”或“城市名 不满足条件”。",
+   "files": [
+    {
+     "name": "平均气温.txt",
+     "content": "城市//1月//2月//3月//4月//5月//6月//7月//8月//9月//10月//11月//12月\n北京//-4//-2//5//14//20//25//26//25//20//13//4//-3\n福州//12//11//13//18//22//26//29//28//26//22//18//14\n广州//15//15//18//20//25//28//30//30//28//25//20//15\n哈尔滨//-19//-15//-5//6//14//20//23//21//14//5//-7//-16\n上海//5//6//10//20//21//25//29//28//24//19//13//7\n海口//17//18//21//25//28//29//30//29//27//25//21//18\n昆明//9//11//14//17//19//20//20//19//18//15//11//8\n兰州//-5//-1//6//13//18//22//24//22//16//9//1//-4\n"
+    }
+   ],
+   "starter": "# 读取 平均气温.txt，跳过标题行，逐行统计 ≥20℃ 的月数\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "北京 不满足条件\n福州 满足条件\n广州 满足条件\n哈尔滨 不满足条件\n上海 满足条件\n海口 满足条件\n昆明 不满足条件\n兰州 不满足条件"
+    }
+   ],
+   "ref": "f = open('平均气温.txt', 'r', encoding='utf-8')\nnext(f)\nfor line in f:\n    parts = line.strip().split('//')\n    city = parts[0]\n    months = 0\n    for t in parts[1:]:\n        if float(t) >= 20:\n            months += 1\n    if months >= 6:\n        print(city, '满足条件')\n    else:\n        print(city, '不满足条件')\nf.close()",
+   "hint": "next(f) 跳标题行；split('//') 切分；统计 >=20 的月数再与 6 比较",
+   "exp": "综合考查文件读取、分隔符切分、类型转换、计数与分支——官方模拟卷数据分析题原型。",
+   "tags": [
+    "文件",
+    "数据分析"
+   ],
+   "score": 17
+  },
+  {
+   "id": "p27-c2",
+   "level": 4,
+   "title": "编程2：第三方包与多项式运算（18分）",
+   "desc": "正式考试要求先安装考场提供的 LossRatio 第三方包（whl）并截图；本站以内置模块 LossRatio.py 等价模拟（files 中已提供，用法相同：import LossRatio 后调用 LossRatio.type_A(n)/type_B(n)）。编程：循环输入整数 n（0≤n≤9，输入其它数退出），计算多项式 s = Σ(i=0..n) −(x_i³−2x_i−5)/(3x_i²−2)，其中 x_i = i（i 为偶数）、x_i = 2i（i 为奇数）；取 LossRatio.type_A(n) 与 type_B(n) 的较小者与 s 相加，输出“n={}时运算结果为{:.3f}”。",
+   "files": [
+    {
+     "name": "LossRatio.py",
+     "content": "\"\"\"LossRatio —— 模型损失率计算（本站内置等价实现）。\n正式考试中该包由考场提供 whl 安装：import LossRatio 后\n调用 LossRatio.type_A(num) / LossRatio.type_B(num)，num 为 0~9 整数。\n\"\"\"\n\n\ndef type_A(num):\n    \"\"\"A 模型损失率。\"\"\"\n    return ((num * 37) % 100) / 100.0\n\n\ndef type_B(num):\n    \"\"\"B 模型损失率。\"\"\"\n    return ((num * 53) % 97) / 100.0\n"
+    }
+   ],
+   "starter": "import LossRatio\n\ndef poly(n):\n    # 计算 s = Σ -(x^3-2x-5)/(3x^2-2)，x_i：偶数取 i，奇数取 2i\n    pass\n\n",
+   "tests": [
+    {
+     "stdin": "2\n5\n8\n-1\n",
+     "expected": "n=2时运算结果为-2.210\nn=5时运算结果为-7.848\nn=8时运算结果为-17.286"
+    },
+    {
+     "stdin": "0\nq\n",
+     "expected": "n=0时运算结果为-2.500"
+    }
+   ],
+   "ref": "import LossRatio\n\ndef poly(n):\n    s = 0\n    for i in range(n + 1):\n        if i % 2 == 0:\n            x = i\n        else:\n            x = 2 * i\n        s += -(x ** 3 - 2 * x - 5) / (3 * x ** 2 - 2)\n    return s\n\nn = input()\nwhile n.isdigit() and int(n) <= 9:\n    n = int(n)\n    s = poly(n)\n    a = LossRatio.type_A(n)\n    b = LossRatio.type_B(n)\n    m = a if a < b else b\n    print('n={}时运算结果为{:.3f}'.format(n, m + s))\n    n = input()",
+   "hint": "分段函数用 if i%2==0；s 累加浮点；较小者用条件表达式；格式化 {:.3f}",
+   "exp": "考查第三方包导入使用、分段函数、循环累加与格式化输出；n=0 时 s=-2.5、min(LR)=0.625 → -1.875。",
+   "tags": [
+    "第三方库",
+    "函数",
+    "循环"
+   ],
+   "score": 18
+  },
+  {
+   "id": "p27-c3",
+   "level": 6,
+   "title": "编程3：图形绘制——y=4cos(x)−cos(6x)（15分）",
+   "desc": "创建 400×400 画布：以绿色实线绘制坐标轴；在 −π~π 范围内以步长 0.02 变化，绘制函数数据点向 y 轴的红色水平线（横、纵坐标均放大 30 倍），y = 4cos(x) − cos(6x)。正式考试可用 tkinter、matplotlib 或 turtle 任选；本站用内置 turtle 画布实现（已支持 goto/pendown/pencolor），判题要求：程序运行成功且画出画布，最后 print('drawn')。",
+   "starter": "import turtle, math\n\nt = turtle.Turtle()\nt.speed(0)\n# 1. 绿色坐标轴（横轴 -190~190，纵轴 190~-190）\n# 2. 红色水平线：x 取 0.02 步长，t.goto(0, y) 再 t.goto(30*x, y)\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "drawn",
+     "expectCanvas": true
+    }
+   ],
+   "ref": "import turtle, math\n\nt = turtle.Turtle()\nt.speed(0)\nt.pencolor('green')\nt.penup()\nt.goto(-190, 0)\nt.pendown()\nt.goto(190, 0)\nt.penup()\nt.goto(0, 190)\nt.pendown()\nt.goto(0, -190)\nt.pencolor('red')\ni = -314\nwhile i <= 314:\n    x = i * 0.02\n    y = 30 * (4 * math.cos(x) - math.cos(6 * x))\n    t.penup()\n    t.goto(0, y)\n    t.pendown()\n    t.goto(30 * x, y)\n    i += 2\nprint('drawn')",
+   "hint": "坐标轴两条绿线；每个数据点画一条从 y 轴 (0, 30y) 到 (30x, 30y) 的红色水平线；penup 移动、pendown 画线",
+   "exp": "考查 turtle 画笔状态、goto 定位与数学函数可视化的结合（本站画布会真实渲染）。",
+   "tags": [
+    "turtle",
+    "图形绘制"
+   ],
+   "score": 15,
+   "expectCanvas": true
+  },
+  {
+   "id": "p27-c4",
+   "level": 7,
+   "title": "编程4：数据库应用——教室管理（12分）",
+   "desc": "classroom.db（SQLite，本站已提供）中有表 manage：number（教室号，TEXT 主键，如 '205'）、floor（楼层 TEXT，如 '2楼'）、capacity（容量 INTEGER）、in_use（在用状态 INTEGER，1 在用 0 空闲）。编程：循环输入三位教室号（输入 0 退出）：若存在，输出“{号}教室为在用状态”或“{号}教室为空闲状态”；若不存在，输出“{号}教室不存在，要新增吗？（Y/N）”，再输入一行，为 y/Y 则插入该教室（楼层取教室号首字符+'楼'，容量默认 30，空闲）并输出“新增成功！”。",
+   "files": [
+    {
+     "name": "classroom.db",
+     "content": "U1FMaXRlIGZvcm1hdCAzABAAAQEAQCAgAAAAAgAAAAMAAAAAAAAAAAAAAAEAAAAEAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAC6N+A0P+AACD1UAD1UPywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHQBBxcZGQGBQ3RhYmxlbWFuYWdlbWFuYWdlAkNSRUFURSBUQUJMRSBtYW5hZ2UgKG51bWJlciBURVhUIFBSSU1BUlkgS0VZLCBmbG9vciBURVhULCBjYXBhY2l0eSBJTlRFR0VSLCBpbl91c2UgSU5URUdFUikrAgYXPxkBAGluZGV4c3FsaXRlX2F1dG9pbmRleF9tYW5hZ2VfMW1hbmFnZQMAAAAIAAAAAA0AAAAID4gAD/EP4g/TD8QPtQ+mD5cPiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANCAUTFQEJNTA4NealvDINBwUTFQEINDA1NOalvCMNBgUTFQEJMzAzM+alvC0NBQUTFQEJMzAyM+alvDwNBAUTFQEIMjA1MualvB4NAwUTFQEJMjAzMualvC0NAgUTFQEIMTA4MealvCgNAQUTFQEJMTA1MealvDIKAAAACA/BAA/5D/EP6Q/hD9kP0Q/JD8EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwMTATUwOAgHAxMBNDA1BwcDEwEzMDMGBwMTATMwMgUHAxMBMjA1BAcDEwEyMDMDBwMTATEwOAIGAxMJMTA1",
+     "b64": true
+    }
+   ],
+   "starter": "import sqlite3\n\nconn = sqlite3.connect('classroom.db')\ncur = conn.cursor()\nn = input()\nwhile n != '0':\n    pass\n    n = input()\nconn.close()\n",
+   "tests": [
+    {
+     "stdin": "303\n208\ny\n208\n0\n",
+     "expected": "303教室为在用状态\n208教室不存在，要新增吗？（Y/N）\n新增成功！\n208教室为空闲状态"
+    },
+    {
+     "stdin": "105\n205\n405\n0\n",
+     "expected": "105教室为在用状态\n205教室为空闲状态\n405教室为空闲状态"
+    }
+   ],
+   "ref": "import sqlite3\n\nconn = sqlite3.connect('classroom.db')\ncur = conn.cursor()\nn = input()\nwhile n != '0':\n    cur.execute('SELECT * FROM manage WHERE number=?', (n,))\n    row = cur.fetchone()\n    if row is not None:\n        if row[3] == 1:\n            print(n + '教室为在用状态')\n        else:\n            print(n + '教室为空闲状态')\n    else:\n        print(n + '教室不存在，要新增吗？（Y/N）')\n        ans = input()\n        if ans.strip().lower() == 'y':\n            cur.execute('INSERT INTO manage VALUES (?, ?, ?, ?)', (n, n[0] + '楼', 30, 0))\n            conn.commit()\n            print('新增成功！')\n    n = input()\nconn.close()",
+   "hint": "? 占位符传参防注入；fetchone() 判 None；INSERT 后记得 commit()；楼层 = 号码[0]+'楼'",
+   "exp": "三级重点：sqlite3 连接、游标、execute 占位符、fetchone、INSERT 与 commit 的完整流程（官方模拟卷数据库题原型）。",
+   "tags": [
+    "SQLite",
+    "数据库"
+   ],
+   "score": 12
+  },
+  {
+   "id": "p27-c5",
+   "level": 7,
+   "title": "编程5：文本分析——正则提取产品与网址（13分）",
+   "desc": "huaqiang.html（UTF-8）为某元器件网站首页静态文件，相关行形如：<li title=\" 产品 \">若干空白<a href=\" 网址 \" target=...>。用正则筛选其中产品与网址：网址需添加 https: 协议头（页面里是 // 开头），产品名去掉首尾空格。将结果写入 huaqiang.csv（GBK 编码，首行 产品,网址），并在屏幕逐行输出“产品 网址”。",
+   "files": [
+    {
+     "name": "huaqiang.html",
+     "content": "<!DOCTYPE html>\n<html>\n<head><meta charset=\"utf-8\"><title>华强元器件商城</title></head>\n<body>\n<h1>华强元器件商城 - 电阻类目</h1>\n<ul class=\"cate\">\n<li title=\" 通孔电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010101\" target=\"_blank\">通孔电阻</a></li>\n<li title=\" 贴片电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010102\" target=\"_blank\">贴片电阻</a></li>\n<li title=\" 网络阵列电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010103\" target=\"_blank\">网络阵列电阻</a></li>\n<li title=\" 电阻套件 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010104\" target=\"_blank\">电阻套件</a></li>\n<li title=\" 其它固定电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010199\" target=\"_blank\">其它固定电阻</a></li>\n<li title=\" NTC热敏电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010201\" target=\"_blank\">NTC热敏电阻</a></li>\n<li title=\" 压敏电阻 \">    <a href=\"//search.ickey.cn/cate-search?cate_id=010202\" target=\"_blank\">压敏电阻</a></li>\n</ul>\n</body>\n</html>\n"
+    }
+   ],
+   "starter": "import re\n\nhtml = open('huaqiang.html', encoding='utf-8').read()\n# 正则提取 title=\" ... \" 与其后 <a href=\" ... \"\n",
+   "tests": [
+    {
+     "stdin": "",
+     "expected": "通孔电阻 https://search.ickey.cn/cate-search?cate_id=010101\n贴片电阻 https://search.ickey.cn/cate-search?cate_id=010102\n网络阵列电阻 https://search.ickey.cn/cate-search?cate_id=010103\n电阻套件 https://search.ickey.cn/cate-search?cate_id=010104\n其它固定电阻 https://search.ickey.cn/cate-search?cate_id=010199\nNTC热敏电阻 https://search.ickey.cn/cate-search?cate_id=010201\n压敏电阻 https://search.ickey.cn/cate-search?cate_id=010202"
+    }
+   ],
+   "ref": "import re\n\nhtml = open('huaqiang.html', encoding='utf-8').read()\npairs = re.findall(r'title=\" ?([^\" ]+?) ?\">\\s*<a href=\"([^\"]+)\"', html)\nf = open('huaqiang.csv', 'w', encoding='gbk')\nf.write('产品,网址\\n')\nfor name, url in pairs:\n    if url.startswith('//'):\n        url = 'https:' + url\n    f.write(name + ',' + url + '\\n')\n    print(name, url)\nf.close()",
+   "hint": "re.findall 分组返回 (产品, 网址) 元组列表；正则中 [^\" ]+ 匹配不含空格引号的内容；\\s* 吃掉标签间空白",
+   "exp": "三级重点：正则分组提取实战 + 文件写入与 GBK 编码（官方模拟卷文本分析题原型）。",
+   "tags": [
+    "正则",
+    "文件",
+    "数据分析"
+   ],
+   "score": 13
   }
  ],
  "lessons": {

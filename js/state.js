@@ -14,7 +14,8 @@ const State = {
       coding: {},     // qid -> {passed:bool, tries:int, ts}
       lessonRead: {}, // level -> true
       mockRuns: [],   // {ts, score, grade, detail}
-      settings: { examDate: null } // 覆盖 CONFIG.examDate
+      settings: { examDate: null, target: 't3p' }, // 考试日期覆盖 + 目标等第
+      drafts: {}     // 代码草稿 kind:qid -> code
     };
   },
 
@@ -31,6 +32,20 @@ const State = {
   setExamDate(d) {
     this._examDate = d;
     this.data.settings.examDate = d;
+    this.save();
+  },
+
+  target() { return this.data.settings.target || 't3p'; },
+  setTarget(t) {
+    this.data.settings.target = t;
+    this.save();
+  },
+
+  draft(key) { return (this.data.drafts || {})[key] || null; },
+  saveDraft(key, code) {
+    if (!this.data.drafts) this.data.drafts = {};
+    if (code && code.trim()) this.data.drafts[key] = code;
+    else delete this.data.drafts[key];
     this.save();
   },
 

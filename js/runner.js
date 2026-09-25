@@ -79,6 +79,14 @@ const Engine = {
       mountId = opts.mount.id;
     }
     try {
+      // 重型库（matplotlib）自动放宽判题预算
+      let timeoutS = opts.timeoutS || 8;
+      let maxEvents = opts.maxEvents || 2000000;
+      if (/\bimport\s+matplotlib|from\s+matplotlib\b/.test(code)) {
+        timeoutS = Math.max(timeoutS, 60);
+        maxEvents = Math.max(maxEvents, 100000000);
+      }
+      opts = Object.assign({}, opts, { timeoutS, maxEvents });
       // 需要的第三方包懒加载
       const pkgs = opts.packages || detectPackages(code);
       for (const p of pkgs) {
@@ -96,17 +104,23 @@ os.chdir('/home/pyodide/data')
         for (const f of opts.files) {
           py.globals.set('_fname', f.name);
           py.globals.set('_fcontent', f.content);
+          py.globals.set('_fb64', !!f.b64);
           py.runPython(`
 _d = _fname.split('/')
 _p = '/home/pyodide/data'
 for seg in _d[:-1]:
     _p = _p + '/' + seg
     os.makedirs(_p, exist_ok=True)
-with open('/home/pyodide/data/' + _fname, 'w', encoding='utf-8') as _f:
-    _f.write(_fcontent)
+if _fb64:
+    import base64 as _base64
+    with open('/home/pyodide/data/' + _fname, 'wb') as _f:
+        _f.write(_base64.b64decode(_fcontent))
+else:
+    with open('/home/pyodide/data/' + _fname, 'w', encoding='utf-8') as _f:
+        _f.write(_fcontent)
 `);
         }
-        py.globals.set('_fname', null); py.globals.set('_fcontent', null);
+        py.globals.set('_fname', null); py.globals.set('_fcontent', null); py.globals.set('_fb64', null);
       }
       py.globals.set('_code', code);
       py.globals.set('_stdin', opts.stdin || '');
@@ -192,6 +206,15 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
 
     env = {'__name__': '__main__', 'input': _input, 'raw_input': _input}
 
+    # 重型库预导入：在看门狗追踪开始前完成，避免 import 本身触发超时
+    try:
+        if 'matplotlib' in code:
+            import matplotlib
+            matplotlib.use('Agg')
+            import numpy  # noqa
+    except Exception:
+        pass
+
     # turtle 支持：注册 canvas 版 turtle 模块，使 import turtle / from turtle import * 均可用
     _turtle_mod = None
     try:
@@ -205,6 +228,11 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
 
     saved_stdin = sys.stdin
     saved_stdout = sys.stdout
+    saved_path = sys.path[:]
+    import os as _os
+    _cwd = _os.getcwd()
+    if _cwd not in saved_path:
+        sys.path.insert(0, _cwd)  # 数据目录中的模块可 import
     sys.stdin = io.StringIO(stdin_text)
     sys.stdout = out
     old_input = builtins.input
@@ -230,6 +258,7 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
         builtins.input = old_input
         sys.stdin = saved_stdin
         sys.stdout = saved_stdout
+        sys.path[:] = saved_path
         if _turtle_mod is not None:
             try:
                 del sys.modules['turtle']
@@ -311,7 +340,7 @@ def _install(js):
     class Turtle:
         def __init__(self, cid=None):
             self.wrap = _Canvas(cid)
-            self.x, self.y, self.heading = 0.0, 0.0, 0.0
+            self.x, self.y, self._hd = 0.0, 0.0, 0.0
             self.pen_down = True
             self.color_v = '#000000'
             self.fillcolor_v = '#000000'
@@ -325,7 +354,7 @@ def _install(js):
             self.x, self.y = nx, ny
 
         def forward(self, d):
-            r = math.radians(self.heading)
+            r = math.radians(self._hd)
             self._seg(self.x + d * math.cos(r), self.y + d * math.sin(r))
         fd = forward
 
@@ -334,11 +363,11 @@ def _install(js):
         bk = back = backward
 
         def right(self, a):
-            self.heading -= float(a)
+            self._hd -= float(a)
         rt = right
 
         def left(self, a):
-            self.heading += float(a)
+            self._hd += float(a)
         lt = left
 
         def goto(self, x, y=None):
@@ -354,7 +383,7 @@ def _install(js):
             self._seg(self.x, float(y))
 
         def setheading(self, a):
-            self.heading = float(a)
+            self._hd = float(a)
         seth = setheading
 
         def home(self):
@@ -367,9 +396,9 @@ def _install(js):
             steps = steps or max(8, int(abs(extent) / 5))
             if abs(r) < 1e-9:
                 return
-            cx = self.x + r * math.cos(math.radians(self.heading + 90))
-            cy = self.y + r * math.sin(math.radians(self.heading + 90))
-            a0 = math.radians(self.heading - 90)
+            cx = self.x + r * math.cos(math.radians(self._hd + 90))
+            cy = self.y + r * math.sin(math.radians(self._hd + 90))
+            a0 = math.radians(self._hd - 90)
             for i in range(1, steps + 1):
                 a = a0 + math.radians(extent) * i / steps
                 nx = cx + abs(r) * math.cos(a)
@@ -378,7 +407,7 @@ def _install(js):
                     self._seg(nx, ny)
                 else:
                     self._seg(2 * self.x - nx, 2 * self.y - ny)
-            self.heading += extent
+            self._hd += extent
 
         def dot(self, size=1, color=None):
             self.wrap.dot(self.x, self.y, color or self.color_v, max(2, float(size) / 2))
@@ -420,6 +449,9 @@ def _install(js):
 
         def write(self, s, *a, **k):
             self.wrap.text(self.x, self.y, str(s), self.color_v)
+
+        def heading(self):
+            return self._hd
 
         def speed(self, s):
             self.speed_v = s
@@ -466,7 +498,7 @@ def _install(js):
             pass
 
         def reset(self):
-            self.x, self.y, self.heading = 0.0, 0.0, 0.0
+            self.x, self.y, self._hd = 0.0, 0.0, 0.0
             self.pen_down = True
 
         def clear(self):

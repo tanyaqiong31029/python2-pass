@@ -28,8 +28,8 @@ window.CONFIG = {
 
   /* Pyodide 判题引擎 CDN（依次尝试，两个版本号均已在 2026-09 验证可用） */
   pyodideCDNs: [
-    'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
     'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/',
-    'https://registry.npmmirror.com/-/binary/pyodide/v0.26.4/full/'
+    'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
+    'https://registry.npmmirror.com/-/binary/pyodide/v314.0.7/full/'
   ]
 };

@@ -8,6 +8,7 @@
 """
 
 import io
+import os
 import sys
 import time
 import builtins
@@ -55,6 +56,16 @@ def run_user(
 
     env = {"__name__": "__main__", "input": _input, "raw_input": _input}
 
+    # 重型库预导入：与浏览器 harness 一致，避免 import 本身触发看门狗
+    try:
+        if "matplotlib" in code:
+            import matplotlib
+
+            matplotlib.use("Agg")
+            import numpy  # noqa
+    except Exception:
+        pass
+
     # turtle 桩：与浏览器 runner.js 注入的 turtle_shim 状态数学一致，
     # 本地/CI 校验不依赖 tkinter，判题依据的 print 状态值两端相同
     turtle_mod = None
@@ -68,6 +79,9 @@ def run_user(
         turtle_mod = None
 
     saved_stdin, saved_stdout = sys.stdin, sys.stdout
+    saved_path = sys.path[:]
+    if "" not in saved_path and os.getcwd() not in saved_path:
+        sys.path.insert(0, os.getcwd())  # 使数据目录中的模块可 import（如 LossRatio.py）
     sys.stdin = io.StringIO(stdin_text)
     sys.stdout = out
     old_input = builtins.input
@@ -92,6 +106,7 @@ def run_user(
     finally:
         builtins.input = old_input
         sys.stdin, sys.stdout = saved_stdin, saved_stdout
+        sys.path[:] = saved_path
         if turtle_mod is not None:
             try:
                 del sys.modules["turtle"]

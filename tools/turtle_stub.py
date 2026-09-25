@@ -10,7 +10,7 @@ import types
 
 class Turtle:
     def __init__(self):
-        self.x, self.y, self.heading = 0.0, 0.0, 0.0
+        self.x, self.y, self._hd = 0.0, 0.0, 0.0
         self.pen_down = True
         self.color_v = '#000000'
         self.fillcolor_v = '#000000'
@@ -22,7 +22,7 @@ class Turtle:
         self.x, self.y = nx, ny
 
     def forward(self, d):
-        r = math.radians(self.heading)
+        r = math.radians(self._hd)
         self._seg(self.x + d * math.cos(r), self.y + d * math.sin(r))
     fd = forward
 
@@ -31,11 +31,11 @@ class Turtle:
     bk = back = backward
 
     def right(self, a):
-        self.heading -= float(a)
+        self._hd -= float(a)
     rt = right
 
     def left(self, a):
-        self.heading += float(a)
+        self._hd += float(a)
     lt = left
 
     def goto(self, x, y=None):
@@ -51,7 +51,7 @@ class Turtle:
         self._seg(self.x, float(y))
 
     def setheading(self, a):
-        self.heading = float(a)
+        self._hd = float(a)
     seth = setheading
 
     def home(self):
@@ -64,9 +64,9 @@ class Turtle:
         steps = steps or max(8, int(abs(extent) / 5))
         if abs(r) < 1e-9:
             return
-        cx = self.x + r * math.cos(math.radians(self.heading + 90))
-        cy = self.y + r * math.sin(math.radians(self.heading + 90))
-        a0 = math.radians(self.heading - 90)
+        cx = self.x + r * math.cos(math.radians(self._hd + 90))
+        cy = self.y + r * math.sin(math.radians(self._hd + 90))
+        a0 = math.radians(self._hd - 90)
         for i in range(1, steps + 1):
             a = a0 + math.radians(extent) * i / steps
             nx = cx + abs(r) * math.cos(a)
@@ -75,7 +75,7 @@ class Turtle:
                 self._seg(nx, ny)
             else:
                 self._seg(2 * self.x - nx, 2 * self.y - ny)
-        self.heading += extent
+        self._hd += extent
 
     def dot(self, size=1, color=None):
         pass
@@ -115,6 +115,9 @@ class Turtle:
 
     def write(self, s, *a, **k):
         pass
+
+    def heading(self):
+        return self._hd
 
     def speed(self, s):
         self.speed_v = s
@@ -161,7 +164,7 @@ class Turtle:
         pass
 
     def reset(self):
-        self.x, self.y, self.heading = 0.0, 0.0, 0.0
+        self.x, self.y, self._hd = 0.0, 0.0, 0.0
         self.pen_down = True
 
     def clear(self):

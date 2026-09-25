@@ -1,0 +1,365 @@
+{
+  "kind": "mcq",
+  "items": [
+    {
+      "id": "mcq-l4-023",
+      "level": 4,
+      "topic": "递归调用次数",
+      "q": "有如下程序：\ndef fib(n):\n    if n == 1 or n == 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\nprint(fib(5))\n程序运行结束后，函数 fib 共被调用的次数是____。",
+      "opts": [
+        "5",
+        "7",
+        "9",
+        "15"
+      ],
+      "ans": 2,
+      "exp": "直接数调用：fib(5) 调 1 次，引发 fib(4) 调 2 次、fib(3) 调 3 次、fib(2) 调 3 次、fib(1) 调 2 次，合计 9 次；5 是返回值而不是调用次数，15 是 fib(6) 规模的干扰项。这类双递归调用次数按 1+2+3+3 快速累加即可。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l4-024",
+      "level": 4,
+      "topic": "递归与循环等价",
+      "q": "有如下递归函数（n 为正整数）：\ndef f(n):\n    if n == 1:\n        return 1\n    return n + f(n - 1)\n它的功能是计算 1+2+…+n。下列程序段中，与 f(n) 功能等价的是____。",
+      "opts": [
+        "s = 0\nfor i in range(1, n + 1):\n    s += i",
+        "s = 0\nfor i in range(1, n):\n    s += i",
+        "s = 0\ni = 1\nwhile i < n:\n    s += i\n    i += 1",
+        "s = 0\nfor i in range(n):\n    s += i"
+      ],
+      "ans": 0,
+      "exp": "range(1, n + 1) 恰好取到 1~n，累加得 1+2+…+n；其余三项都只累加到 n-1（B、C 漏了 n，D 取的是 0~n-1），以 n=4 验证：正确版得 10，三个错误版都得 6。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l4-025",
+      "level": 4,
+      "topic": "递归深度限制",
+      "q": "有如下程序：\ndef f(n):\n    return f(n + 1)\nprint(f(1))\n运行结果是____。",
+      "opts": [
+        "1",
+        "程序报错：超过最大递归深度，抛出 RecursionError",
+        "程序陷入死循环，永远运行不停止",
+        "0"
+      ],
+      "ans": 1,
+      "exp": "f 没有终止条件，每层调用都开辟新的栈帧，达到系统允许的最大递归深度后抛出 RecursionError；Python 会主动限制递归深度，所以既不是输出 1，也不是永远不停的死循环。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l4-026",
+      "level": 4,
+      "topic": "sorted(key=)多级排序",
+      "q": "有如下程序：\ndata = [('李明', 90), ('张伟', 85), ('王芳', 90)]\nprint(sorted(data, key=lambda t: (-t[1], t[0])))\n输出结果是____。",
+      "opts": [
+        "[('张伟', 85), ('李明', 90), ('王芳', 90)]",
+        "[('王芳', 90), ('李明', 90), ('张伟', 85)]",
+        "程序报错",
+        "[('李明', 90), ('王芳', 90), ('张伟', 85)]"
+      ],
+      "ans": 3,
+      "exp": "key 返回 (-分数, 姓名) 元组，先按分数降序（加负号），分数相同时再按姓名升序，因此 90 分的李明、王芳按姓名先后排在前面；A 是只按分数升序的结果，B 把同分的姓名顺序弄反了。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l4-027",
+      "level": 4,
+      "topic": "map+filter链式",
+      "q": "有如下程序：\nnums = [1, 2, 3, 4, 5, 6]\nr = map(lambda x: x * x, filter(lambda x: x % 2 == 0, nums))\nprint(list(r))\n输出结果是____。",
+      "opts": [
+        "[4, 16, 36]",
+        "[1, 4, 9, 16, 25, 36]",
+        "[2, 4, 6]",
+        "[1, 9, 25]"
+      ],
+      "ans": 0,
+      "exp": "链式调用时数据先经过 filter：筛出偶数 2、4、6，再进入 map 平方得 4、16、36；B 是全部元素平方，C 只做了筛选没平方，D 是对奇数平方。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l4-028",
+      "level": 4,
+      "topic": "闭包",
+      "q": "有如下程序：\ndef make_adder(n):\n    def add(x):\n        return x + n\n    return add\n\nf = make_adder(10)\nprint(f(5))\n输出结果是____。",
+      "opts": [
+        "5",
+        "10",
+        "15",
+        "程序报错：n 在 add 中未定义"
+      ],
+      "ans": 2,
+      "exp": "内层函数 add 引用了外层函数的局部变量 n，构成闭包：make_adder(10) 返回后 n=10 仍被记住，f(5) 即 5+10=15；闭包会保存外层变量，不会报 NameError。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-019",
+      "level": 7,
+      "topic": "正则分组提取",
+      "q": "有如下程序：\nimport re\ns = '张三:90,李四:85'\nprint(re.findall(r'(\\w+):(\\d+)', s))\n输出结果是____。",
+      "opts": [
+        "['张三:90', '李四:85']",
+        "[('张三', '90'), ('李四', '85')]",
+        "[('90', '张三'), ('85', '李四')]",
+        "[('张三', '90')]"
+      ],
+      "ans": 1,
+      "exp": "findall 的模式中带分组时，返回的是由各分组匹配内容组成的元组的列表，元组内顺序与分组在模式中的先后一致：\\w+ 在前匹配姓名、\\d+ 在后匹配分数；不带分组时才返回整个匹配子串的列表。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-020",
+      "level": 7,
+      "topic": "正则命名分组",
+      "q": "有如下程序：\nimport re\nm = re.search(r'(?P<y>\\d{4})-(?P<m>\\d{2})', '日期:2024-06')\nprint(m.group('y'), m.group('m'))\n输出结果是____。",
+      "opts": [
+        "y m",
+        "2024-06 2024",
+        "程序报错：search 不支持命名分组",
+        "2024 06"
+      ],
+      "ans": 3,
+      "exp": "(?P<名字>…) 给分组命名，匹配成功后可用 m.group('名字') 按名字取对应分组的内容：y 组是 2024、m 组是 06；要取整个匹配串 2024-06 应使用不带参数的 m.group()。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-021",
+      "level": 7,
+      "topic": "re.split",
+      "q": "有如下程序：\nimport re\nprint(re.split(r'[,;]', 'a,b;c,d'))\n输出结果是____。",
+      "opts": [
+        "['a', 'b', 'c', 'd']",
+        "['a,b;c,d']",
+        "['a', 'b;c', 'd']",
+        "['a,b', 'c,d']"
+      ],
+      "ans": 0,
+      "exp": "re.split 按模式匹配到的每个位置切分字符串，字符组 [,;] 表示逗号或分号都是分隔符，得到 4 段；普通 str.split 一次只能按单一分隔符切，这正是正则 split 的优势。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-022",
+      "level": 7,
+      "topic": "re.sub反向引用",
+      "q": "有如下程序：\nimport re\nprint(re.sub(r'(\\d{4})-(\\d{2})', r'\\2/\\1', '2024-06'))\n输出结果是____。",
+      "opts": [
+        "2024-06",
+        "\\2/\\1",
+        "06/2024",
+        "2024/06"
+      ],
+      "ans": 2,
+      "exp": "替换串中的 \\1、\\2 依次引用模式里第 1、2 个分组匹配到的内容：\\1 是 2024、\\2 是 06，故替换结果为 06/2024；若写成 \\1/\\2 才得到 2024/06，引用写反是常见错误。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-023",
+      "level": 7,
+      "topic": "正则手机号",
+      "q": "要匹配中国大陆手机号：以 1 开头，第二位是 3~9 之间的数字，后面还有 9 位数字（共 11 位）。下列正则表达式正确的是____。",
+      "opts": [
+        "r'1[0-2]\\d{9}'",
+        "r'1[3-9]\\d{9}'",
+        "r'1[3-9]\\d{8}'",
+        "r'\\d{9}'"
+      ],
+      "ans": 1,
+      "exp": "字符组 [3-9] 限定第二位，后接 9 个 \\d，加上开头的 1 共 11 位；A 的第二位范围错为 0~2，C 总共只有 10 位，D 既不要求以 1 开头位数也不够。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-024",
+      "level": 7,
+      "topic": "非贪婪实战",
+      "q": "有如下程序：\nimport re\ns = '<h1>标题一</h1><h1>标题二</h1>'\nprint(re.findall(r'<h1>(.*?)</h1>', s))\n输出结果是____。",
+      "opts": [
+        "['标题一', '标题二']",
+        "['标题一</h1><h1>标题二']",
+        "['标题一']",
+        "['<h1>标题一</h1>', '<h1>标题二</h1>']"
+      ],
+      "ans": 0,
+      "exp": ".*? 是非贪婪匹配，遇到最近的 </h1> 就结束本次匹配，因此分别取出两处标签内容；若用贪婪的 .* 会一直匹配到字符串中最后一个 </h1>，得到 ['标题一</h1><h1>标题二']。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l7-025",
+      "level": 7,
+      "topic": "sqlite3内存数据库",
+      "q": "下列关于 `sqlite3.connect(':memory:')` 的说法，正确的是____。",
+      "opts": [
+        "在当前目录下创建名为 memory 的数据库文件",
+        "该写法错误，connect 必须传入一个真实存在的文件名",
+        "创建内存数据库，数据会自动永久保存到磁盘文件中",
+        "创建内存数据库，数据只保存在内存中，程序结束后不会存入任何文件"
+      ],
+      "ans": 3,
+      "exp": "':memory:' 表示在内存中建立临时数据库，读写快但不落盘，程序结束数据即消失；要持久保存必须 connect 一个真实的文件名，connect 并不要求该文件已存在。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-026",
+      "level": 7,
+      "topic": "sqlite3占位符",
+      "q": "有如下程序：\nimport sqlite3\nconn = sqlite3.connect(':memory:')\ncur = conn.cursor()\ncur.execute('CREATE TABLE t(name TEXT, score INTEGER)')\ncur.execute('INSERT INTO t VALUES (?, ?)', ('李明', 90))\ncur.execute('INSERT INTO t VALUES (?, ?)', ('张伟', 85))\nconn.commit()\ncur.execute('SELECT name FROM t WHERE score > ?', (86,))\nprint(cur.fetchall())\nconn.close()\n输出结果是____。",
+      "opts": [
+        "[('张伟',)]",
+        "[('李明',)]",
+        "[('李明', 90)]",
+        "[]"
+      ],
+      "ans": 1,
+      "exp": "? 占位符由参数元组提供值，(86,) 是只含一个元素的元组；查询分数大于 86 的记录只有李明 90 满足，且 SELECT 只取 name 列，故结果为 [('李明',)]；参数必须写成元组 (86,)，写成 (86) 会报错。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-027",
+      "level": 7,
+      "topic": "sqlite3返回值形态",
+      "q": "SQLite 数据库表 t 有两列：name(TEXT)、score(INTEGER)，共 2 条记录。执行 `cur.execute('SELECT * FROM t')` 后，`cur.fetchall()` 的返回值是____。",
+      "opts": [
+        "列表，每个元素是一个元组，如 [('李明', 90), ('张伟', 85)]",
+        "字典，键为列名、值为该列的所有数据",
+        "一个元组，按顺序装着所有记录的全部字段值",
+        "字符串，所有记录拼接成一个长字符串"
+      ],
+      "ans": 0,
+      "exp": "fetchall 返回由记录组成的列表，每条记录是一个元组，元组元素与 SELECT 的列一一对应；fetchone 返回的则是单个这样的元组，没有记录时返回 None。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-028",
+      "level": 7,
+      "topic": "sqlite3事务",
+      "q": "下列关于 sqlite3 中 commit 与 rollback 的说法，正确的是____。",
+      "opts": [
+        "执行 INSERT 后不调用 conn.commit()，数据也会自动永久保存到数据库文件",
+        "conn.rollback() 可以撤销已经 commit 并保存到文件中的更改",
+        "conn.rollback() 可以撤销自上一次 commit 之后尚未提交的更改",
+        "SELECT 查询的结果也必须先 commit 才能读取"
+      ],
+      "ans": 2,
+      "exp": "增删改操作只有 commit 后才真正写入数据库文件，rollback 撤销的是自上次 commit 以来尚未提交的更改；已提交的更改无法用 rollback 撤销，查询操作不需要 commit。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-029",
+      "level": 7,
+      "topic": "sqlite3防注入",
+      "q": "变量 name 中存放着用户输入的用户名，要查询该用户的记录并防止 SQL 注入，下列写法正确的是____。",
+      "opts": [
+        "cur.execute(\"SELECT * FROM users WHERE name = '\" + name + \"'\")",
+        "cur.execute(f'SELECT * FROM users WHERE name = {name}')",
+        "cur.execute(\"SELECT * FROM users WHERE name = '%s'\" % name)",
+        "cur.execute('SELECT * FROM users WHERE name = ?', (name,))"
+      ],
+      "ans": 3,
+      "exp": "? 占位符加参数元组是参数化查询，用户输入只会被当作数据而不会拼进 SQL 语句，可防止注入；其余三种都把输入直接拼接进 SQL，攻击者可构造形如 ' OR '1'='1 的输入篡改语句。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-030",
+      "level": 7,
+      "topic": "sqlite3游标消费",
+      "q": "数据库 test.db 的表 t 中共有 3 条记录，id 依次为 1、2、3。有如下程序：\nimport sqlite3\nconn = sqlite3.connect('test.db')\ncur = conn.cursor()\ncur.execute('SELECT id FROM t')\nr1 = cur.fetchone()\nr2 = cur.fetchall()\nprint(r1, len(r2))\nconn.close()\n输出结果是____。",
+      "opts": [
+        "(1,) 2",
+        "(1,) 3",
+        "1 2",
+        "[(1,), (2,), (3,)] 0"
+      ],
+      "ans": 0,
+      "exp": "游标读取结果像指针逐条下移：fetchone 取走第 1 条得 (1,)，fetchall 只能取到剩余的第 2、3 条共 2 条；已被取走的部分不会重复返回，所以 len(r2) 是 2 而不是 3。",
+      "difficulty": 3
+    },
+    {
+      "id": "mcq-l7-031",
+      "level": 7,
+      "topic": "类属性与实例属性",
+      "q": "有如下程序：\nclass A:\n    count = 0\n    def __init__(self):\n        A.count += 1\n\na = A()\nb = A()\nc = A()\nprint(A.count)\n输出结果是____。",
+      "opts": [
+        "0",
+        "1",
+        "3",
+        "程序报错"
+      ],
+      "ans": 2,
+      "exp": "count 定义在类中、方法之外，是类属性，被所有实例共享；每创建一个对象 __init__ 就执行一次，A.count 加 1，共实例化 3 次后输出 3；若写成 self.count = 0 则是各实例独立的实例属性。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-032",
+      "level": 7,
+      "topic": "self绑定",
+      "q": "有如下程序：\nclass P:\n    def get(self):\n        return self.v\n\np = P()\np.v = 5\nprint(p.get())\n下列关于该程序中 self 的说法，正确的是____。",
+      "opts": [
+        "调用 p.get() 时必须写成 p.get(p)，手动把对象传给 self",
+        "p.get() 等价于 P.get(p)，Python 自动把对象 p 传给第一个参数 self",
+        "self 是 Python 的关键字，方法中第一个参数必须叫 self，改名会报错",
+        "self 代表类本身，一个类的所有方法共享同一个 self"
+      ],
+      "ans": 1,
+      "exp": "通过对象调用方法时，Python 自动把该对象绑定到方法的第一个参数，p.get() 就是 P.get(p)，输出 5；self 只是约定俗成的名字并非关键字；self 代表当前对象而不是类。",
+      "difficulty": 2
+    },
+    {
+      "id": "mcq-l7-033",
+      "level": 7,
+      "topic": "多继承与MRO",
+      "q": "下列关于 Python 多继承与方法查找顺序（MRO）的说法，错误的是____。",
+      "opts": [
+        "Python 允许一个类同时继承多个父类，如 class C(A, B)",
+        "MRO 顺序是随机确定的，每次程序运行都可能不同",
+        "当多个父类中有同名方法时，Python 按 MRO 顺序查找，默认从左到右",
+        "可以通过 `类名.__mro__` 查看某个类的方法查找顺序"
+      ],
+      "ans": 1,
+      "exp": "多继承的 MRO 由 C3 算法确定，是一个固定不变的顺序，可用 类名.__mro__ 查看，并非随机产生；同名方法按该顺序从左到右查找，先找到谁就用谁，B 说法错误。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-034",
+      "level": 7,
+      "topic": "matplotlib plot参数",
+      "q": "有如下程序：\nimport matplotlib.pyplot as plt\nplt.plot([1, 2, 3], [4, 5, 6])\nplt.show()\n下列说法正确的是____。",
+      "opts": [
+        "第一个列表是 y 坐标，第二个列表是 x 坐标",
+        "这两个列表会被绘制成两组柱状图",
+        "第一个列表作为各点的 x 坐标，第二个列表作为 y 坐标，绘制出一条折线",
+        "plot 只能接收一个列表参数，传两个列表会报错"
+      ],
+      "ans": 2,
+      "exp": "plt.plot(x, y) 的第一个参数是 x 坐标列表、第二个是 y 坐标列表，把点 (1,4)、(2,5)、(3,6) 连成折线；只传一个列表时它才被当作 y 值，x 默认取 0、1、2…。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-035",
+      "level": 7,
+      "topic": "matplotlib子图",
+      "q": "语句 `plt.subplot(2, 2, 1)` 的作用是____。",
+      "opts": [
+        "把当前图划分为 2 个子图，编号分别为 2 和 1",
+        "设置整个画布的大小为 2×2 英寸",
+        "绘制一个包含 22 个子图的图形",
+        "把画布划分为 2 行 2 列共 4 个子图区域，并选定第 1 个（左上角）作为当前绘图区"
+      ],
+      "ans": 3,
+      "exp": "subplot 的三个参数依次是行数、列数、当前子图编号，编号从 1 开始按行优先排列，(2,2,1) 即选中 2×2 网格的左上角区域；绘图后仍用 plt.legend() 显示图例、plt.show() 显示窗口。",
+      "difficulty": 1
+    },
+    {
+      "id": "mcq-l7-036",
+      "level": 7,
+      "topic": "json.dumps参数",
+      "q": "有如下程序：\nimport json\nd = {'name': '李明', 'score': 90}\ns = json.dumps(d, ensure_ascii=False, indent=4)\n下列说法正确的是____。",
+      "opts": [
+        "输出中 '李明' 会显示为 \\u674e\\u660e 这样的转义形式",
+        "变量 s 的类型是 dict",
+        "indent 参数无效，结果仍是单行紧凑字符串",
+        "ensure_ascii=False 使中文按原字符输出而不转义成 \\uXXXX，indent=4 让结果按 4 个空格缩进分层换行"
+      ],
+      "ans": 3,
+      "exp": "默认 ensure_ascii=True 会把非 ASCII 字符转成 \\uXXXX 转义，ensure_ascii=False 保持中文原样；indent 指定缩进的空格数并引入换行，本例输出为多行带 4 空格缩进的 JSON 文本；dumps 的返回值是 str 类型的 JSON 字符串，不是 dict。",
+      "difficulty": 1
+    }
+  ]
+}

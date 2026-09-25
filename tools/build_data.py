@@ -50,11 +50,17 @@ def run_dir(q):
         return
     old = os.getcwd()
     with tempfile.TemporaryDirectory() as td:
+        import base64
+
         for f in files:
             fp = os.path.join(td, f["name"])
-            os.makedirs(os.path.dirname(fp), exist_ok=True)
-            with open(fp, "w", encoding="utf-8") as fh:
-                fh.write(f["content"])
+            os.makedirs(os.path.dirname(fp) or td, exist_ok=True)
+            if f.get("b64"):
+                with open(fp, "wb") as fh:
+                    fh.write(base64.b64decode(f["content"]))
+            else:
+                with open(fp, "w", encoding="utf-8") as fh:
+                    fh.write(f["content"])
         os.chdir(td)
         try:
             yield
@@ -198,13 +204,19 @@ def run_coding(q):
     n = 0
     for i, t in enumerate(q.get("tests", [])):
         r = _run(q["ref"], t.get("stdin", ""), q)
-        if not r["ok"] or norm(r["stdout"]) != norm(t["expected"]):
+        want = t.get("expected", "")
+        if t.get("expectCanvas") and not want:
+            # 画布题：本地无法验证 canvas，仅验证可运行且 stdout 符合预期
+            ok = r["ok"]
+        else:
+            ok = r["ok"] and norm(r["stdout"]) == norm(want)
+        if not ok:
             n += err(
                 f"{q['id']}: test#{i + 1} 参考代码输出不符"
                 + (
                     f"（错误: {r['error']}）"
                     if not r["ok"]
-                    else f"（实际: {norm(r['stdout'])[:80]!r} 期望: {norm(t['expected'])[:80]!r}）"
+                    else f"（实际: {norm(r['stdout'])[:80]!r} 期望: {norm(want)[:80]!r}）"
                 )
             )
     return n
@@ -245,6 +257,7 @@ def main():
     mcq, blanks, fixes, codings = [], [], [], []
     lessons = {}
     resources = []
+    official_meta = None
     nerr = 0
     seen_ids = set()
 
@@ -283,6 +296,24 @@ def main():
                 nerr += err(f"{fname}: lesson 需要 level(1-7) 与 md")
             else:
                 lessons[int(lv)] = data["md"]
+        elif kind == "official":
+            meta = data.get("meta", {})
+            for q in data.get("mcq", []):
+                nerr += validate_mcq(q, fname)
+                mcq.append(q)
+            for q in data.get("blank", []):
+                nerr += validate_blank(q, fname)
+                nerr += check_files(q, fname, 0)
+                blanks.append(q)
+            for q in data.get("fix", []):
+                nerr += validate_fix(q, fname)
+                nerr += check_files(q, fname, 0)
+                fixes.append(q)
+            for q in data.get("coding", []):
+                nerr += validate_coding(q, fname)
+                nerr += check_files(q, fname, 0)
+                codings.append(q)
+            official_meta = meta
         elif kind == "resources":
             for r in data.get("items", []):
                 if not r.get("title") or not r.get("url") or not r.get("desc"):
