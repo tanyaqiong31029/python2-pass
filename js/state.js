@@ -1,0 +1,136 @@
+/* ============================================================
+ * 学习进度状态（localStorage 持久化）
+ * ============================================================ */
+
+const State = {
+  data: null,
+
+  defaults() {
+    return {
+      version: 1,
+      mcq: {},        // qid -> {choice:int, correct:bool, ts}
+      blank: {},      // qid -> {passed:bool, tries:int, ts}
+      fix: {},        // qid -> {passed:bool, tries:int, ts}
+      coding: {},     // qid -> {passed:bool, tries:int, ts}
+      lessonRead: {}, // level -> true
+      mockRuns: [],   // {ts, score, grade, detail}
+      settings: { examDate: null } // 覆盖 CONFIG.examDate
+    };
+  },
+
+  init() {
+    this.data = Object.assign(this.defaults(), Store.load());
+    const exam = this.data.settings.examDate || window.CONFIG.examDate;
+    this._examDate = exam;
+    return this.data;
+  },
+
+  save() { Store.save(this.data); },
+
+  examDate() { return this._examDate; },
+  setExamDate(d) {
+    this._examDate = d;
+    this.data.settings.examDate = d;
+    this.save();
+  },
+
+  /* ---- 选择题 ---- */
+  answerMcq(qid, choice, correct) {
+    const prev = this.data.mcq[qid];
+    this.data.mcq[qid] = { choice, correct, ts: Date.now(), wrongBefore: (prev && prev.wrongBefore) || !correct };
+    this.save();
+  },
+  mcqStat(qid) { return this.data.mcq[qid] || null; },
+
+  /* ---- 代码类题目 ---- */
+  recordCode(kind, qid, passed) {
+    const rec = this.data[kind][qid] || { tries: 0, passed: false };
+    rec.tries += 1;
+    rec.passed = rec.passed || passed;
+    rec.ts = Date.now();
+    this.data[kind][qid] = rec;
+    this.save();
+  },
+  codeStat(kind, qid) { return this.data[kind][qid] || null; },
+
+  markLessonRead(level) {
+    this.data.lessonRead[level] = true;
+    this.save();
+  },
+  lessonReadStat(level) { return !!this.data.lessonRead[level]; },
+
+  addMockRun(run) {
+    this.data.mockRuns.push(run);
+    this.save();
+  },
+
+  /* ---- 统计 ---- */
+  bankStat(kind, qid) {
+    if (kind === 'mcq') return this.mcqStat(qid);
+    return this.codeStat(kind, qid);
+  },
+
+  /** 某关卡状态：{read, mcqDone, mcqAcc, codeDone, codeTotal, cleared} */
+  levelStat(level) {
+    const B = window.BANK;
+    const mcqs = B.mcq.filter(q => q.level === level);
+    const codeItems = [
+      ...B.blanks.filter(q => q.level === level).map(q => ['blank', q]),
+      ...B.fixes.filter(q => q.level === level).map(q => ['fix', q]),
+      ...B.coding.filter(q => q.level === level).map(q => ['coding', q])
+    ];
+    let mcqDone = 0, mcqRight = 0;
+    for (const q of mcqs) {
+      const st = this.mcqStat(q.id);
+      if (st) { mcqDone++; if (st.correct) mcqRight++; }
+    }
+    const codeDone = codeItems.filter(([k, q]) => {
+      const st = this.codeStat(k, q.id);
+      return st && st.passed;
+    }).length;
+    const cfg = window.CONFIG.levelClear;
+    const mcqOk = mcqs.length > 0 && mcqDone >= Math.min(cfg.mcqMinCount, mcqs.length) &&
+      (mcqDone === 0 || mcqRight / mcqDone >= cfg.mcqMinAcc);
+    const codeOk = codeItems.every(([k, q]) => {
+      const st = this.codeStat(k, q.id);
+      return st && st.passed;
+    });
+    const read = this.lessonReadStat(level);
+    return {
+      read, mcqTotal: mcqs.length, mcqDone, mcqRight,
+      mcqAcc: mcqDone ? mcqRight / mcqDone : 0,
+      codeTotal: codeItems.length, codeDone,
+      mcqOk, codeOk,
+      cleared: read && mcqOk && codeOk && codeItems.length > 0
+    };
+  },
+
+  /** 全站总进度（0~1）：以全部题目的完成情况计算 */
+  totalProgress() {
+    const B = window.BANK;
+    const total = B.mcq.length + B.blanks.length + B.fixes.length + B.coding.length;
+    let done = 0;
+    for (const q of B.mcq) if (this.mcqStat(q.id) && this.mcqStat(q.id).correct) done++;
+    for (const q of B.blanks) { const s = this.codeStat('blank', q.id); if (s && s.passed) done++; }
+    for (const q of B.fixes) { const s = this.codeStat('fix', q.id); if (s && s.passed) done++; }
+    for (const q of B.coding) { const s = this.codeStat('coding', q.id); if (s && s.passed) done++; }
+    return total ? done / total : 0;
+  },
+
+  /** 错题列表 */
+  wrongItems() {
+    const B = window.BANK;
+    const out = [];
+    for (const q of B.mcq) {
+      const st = this.mcqStat(q.id);
+      if (st && !st.correct) out.push({ kind: 'mcq', q });
+    }
+    for (const [kind, arr] of [['blank', B.blanks], ['fix', B.fixes], ['coding', B.coding]]) {
+      for (const q of arr) {
+        const st = this.codeStat(kind, q.id);
+        if (st && st.tries > 0 && !st.passed) out.push({ kind, q });
+      }
+    }
+    return out;
+  }
+};

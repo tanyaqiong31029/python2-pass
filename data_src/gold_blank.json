@@ -1,0 +1,33 @@
+{
+  "kind": "blank",
+  "items": [
+    {
+      "id": "blk-l2-001",
+      "level": 2,
+      "title": "密码强度判断",
+      "desc": "输入一串字符作为密码（输入空串结束循环），判断其强度：长度不少于 8 位记 1 分，含数字记 1 分，含大写字母记 1 分，含小写字母记 1 分；合计 1-2 分为弱，3 分为中，4 分为强。",
+      "code": "def judge(passwd):\n    plen = 0\n    if ___(1)___ >= 8:\n        plen = 1\n    pnum, pupper, plower = False, False, False\n    for ch in passwd:\n        if ch in '0123456789':\n            pnum = True\n        if 'A' <= ch <= 'Z':\n            pupper = True\n        if 'a' <= ch <= 'z':\n            plower = True\n    result = plen + pnum + pupper + plower\n    return result\n\nwhile True:\n    pw = input()\n    if pw == '':\n        ___(2)___\n    s = judge(pw)\n    if s <= 2:\n        print('弱密码')\n    elif s == 3:\n        print('中等密码')\n    else:\n        print('强密码')",
+      "blanks": [
+        {
+          "n": 1,
+          "answers": [
+            "len(passwd)"
+          ],
+          "hint": "求密码字符串的长度"
+        },
+        {
+          "n": 2,
+          "answers": [
+            "break"
+          ],
+          "hint": "空串时退出无限循环"
+        }
+      ],
+      "stdin": "Abc12345\nweakpw\n\n",
+      "expected": "强密码\n弱密码",
+      "ref": "def judge(passwd):\n    plen = 0\n    if len(passwd) >= 8:\n        plen = 1\n    pnum, pupper, plower = False, False, False\n    for ch in passwd:\n        if ch in '0123456789':\n            pnum = True\n        if 'A' <= ch <= 'Z':\n            pupper = True\n        if 'a' <= ch <= 'z':\n            plower = True\n    result = plen + pnum + pupper + plower\n    return result\n\nwhile True:\n    pw = input()\n    if pw == '':\n        break\n    s = judge(pw)\n    if s <= 2:\n        print('弱密码')\n    elif s == 3:\n        print('中等密码')\n    else:\n        print('强密码')",
+      "hint": "布尔值参与加法运算时 True 等于 1、False 等于 0",
+      "exp": "考查 len() 求长度、break 退出无限循环、布尔值累加计数与 if-elif 多分支。"
+    }
+  ]
+}

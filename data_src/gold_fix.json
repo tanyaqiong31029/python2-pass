@@ -1,0 +1,21 @@
+{
+  "kind": "fix",
+  "items": [
+    {
+      "id": "fix-l2-001",
+      "level": 2,
+      "title": "打印数字三角形",
+      "desc": "输入一个 1-9 之间的正整数 n，打印 n 行数字三角形：第 m 行输出 1 到 m 的数字连在一起。若 n 不在 1-9 范围内则输出提示语。程序中有 3 处错误，请修改（不增删语句）。",
+      "buggy": "line = input()\nn = int(line)\nif n > 9:\n    for m in range(1, n + 1):\n        for i in range(1, m + 1):\n            print(i, end='')\n        print()\nelse:\n    print('输入的行数不能超过9！')",
+      "stdin": "4\n",
+      "expected": "1\n12\n123\n1234",
+      "errors": [
+        {"line": 3, "hint": "题目要求 1-9 之间打印三角形，范围判断条件写反了"},
+        {"line": 7, "hint": "每个数字打印后要换行，print() 的位置与内层循环的关系要想清楚"},
+        {"line": 8, "hint": "else 分支对应的提示语在输入合法时也会被检查"}
+      ],
+      "ref": "line = input()\nn = int(line)\nif n <= 9:\n    for m in range(1, n + 1):\n        for i in range(1, m + 1):\n            print(i, end='')\n        print()\nelse:\n    print('输入的行数不能超过9！')",
+      "exp": "考查 if 选择结构、range 范围、嵌套循环与 print 的 end 参数。"
+    }
+  ]
+}
