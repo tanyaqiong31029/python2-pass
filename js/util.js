@@ -134,29 +134,10 @@ function fmtMMSS(sec) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-/* ---------- 输出比较（判题核心） ---------- */
-function normalizeOutput(s) {
-  return String(s).replace(/\r\n?/g, '\n').split('\n')
-    .map(l => l.replace(/[ \t]+$/g, ''))
-    .join('\n').replace(/\n+$/g, '');
-}
-
-const PROMPT_RE = /^(请输入|输入|请给出|请键入|enter)[^\n]*[:：]\s*$/i;
-function stripPrompts(s) {
-  return normalizeOutput(s).split('\n').filter(l => !PROMPT_RE.test(l.trim())).join('\n');
-}
-
-/** 比较实际输出与期望输出：先严格比较，再去掉输入提示行后宽容比较。
- *  返回 {ok, strict, msg} */
-function compareOutput(actual, expected) {
-  const a = normalizeOutput(actual);
-  const e = normalizeOutput(expected);
-  if (a === e) return { ok: true, strict: true, msg: '输出完全一致' };
-  if (stripPrompts(a) === stripPrompts(e)) {
-    return { ok: true, strict: false, msg: '通过（忽略输入提示文字的差异）' };
-  }
-  return { ok: false, strict: false, msg: '输出不一致' };
-}
+/* ---------- 输出比较（实现移至 js/core.js，浏览器与 Node 测试共用） ---------- */
+const normalizeOutput = PY2CORE.normalizeOutput;
+const stripPrompts = PY2CORE.stripPrompts;
+const compareOutput = PY2CORE.compareOutput;
 
 /* ---------- 简单 Markdown → HTML（课程内容用，仅支持有限标签） ---------- */
 function miniMd(src) {

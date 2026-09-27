@@ -79,6 +79,8 @@ python3 tools/build_data.py
 - 已知限制：jieba/wordcloud/tkinter 无法在浏览器运行，相关考点以选择题/读代码理解呈现
 - 兼容 localStorage 的现代浏览器；进度数据仅存本地
 
-## License
+## License 与材料授权
 
-MIT（题库与站点自创内容）；外链资源归原作者所有。
+- 站点代码与自创题库/课程：[MIT](LICENSE)
+- `docs/official/` 内的官方模拟卷（27A.pdf/27A.zip）：上海市教育考试院公开发布的备考材料，按原始出处保留并注明来源，详见 [docs/official/README.md](docs/official/README.md)；`data_src/official27A.json` 中的参考答案与判题用数据文件为本站为实现在线判题所编写
+- 外链资源归原作者所有

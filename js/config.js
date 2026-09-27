@@ -26,10 +26,14 @@ window.CONFIG = {
   /* 通关条件：每关选择题需尝试且正确率达标 */
   levelClear: { mcqMinCount: 8, mcqMinAcc: 0.8 },
 
-  /* Pyodide 判题引擎 CDN（依次尝试，两个版本号均已在 2026-09 验证可用） */
+  /* Pyodide 判题引擎 CDN（全部锁同一版本，避免不同环境判题结果不一致） */
   pyodideCDNs: [
     'https://cdn.jsdelivr.net/pyodide/v314.0.7/full/',
-    'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
     'https://registry.npmmirror.com/-/binary/pyodide/v314.0.7/full/'
-  ]
+  ],
+
+  /* 动态安装的第三方包版本锁定（micropip） */
+  packagePins: {
+    openpyxl: '3.1.5'
+  }
 };

@@ -1,0 +1,73 @@
+// 纯逻辑核心单测（node --test 风格，无依赖）：node tools/tests.mjs
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+// 工作区 package.json 为 "type": "module"，用 vm 沙箱加载 UMD 核心以绕开模块系统差异
+const coreSrc = readFileSync(new URL('../js/core.js', import.meta.url), 'utf8');
+const sandbox = {};
+vm.createContext(sandbox);
+vm.runInContext(coreSrc, sandbox);
+const C = sandbox.PY2CORE;
+assert.ok(C && typeof C.compareOutput === 'function', 'core.js 未正确暴露 PY2CORE');
+
+test('normalizeOutput：行尾空格与尾部空行', () => {
+  assert.equal(C.normalizeOutput('a  \r\nb\n\n'), 'a\nb');
+  assert.equal(C.normalizeOutput(''), '');
+});
+
+test('compareOutput：严格 / 忽略整行提示 / 不一致', () => {
+  assert.equal(C.compareOutput('1\n12\n', '1\n12').ok, true);
+  const lenient = C.compareOutput('请输入n:\n24', '24');
+  assert.equal(lenient.ok, true);
+  assert.equal(lenient.strict, false);
+  assert.equal(C.compareOutput('a\nb', 'a\nc').ok, false);
+});
+
+test('compareOutput：非提示行不剔除', () => {
+  assert.equal(C.compareOutput('结果:24', '24').ok, false);
+});
+
+test('substituteBlanks / matchBlank', () => {
+  const code = C.substituteBlanks('if ___(1)___ >= 8:\n    ___(2)___', ['len(s)', ' break ']);
+  assert.equal(code, 'if len(s) >= 8:\n    break');
+  assert.equal(C.matchBlank({ n: 1, answers: ['len(s)'] }, 'len( s )').ok, true);
+  assert.equal(C.matchBlank({ n: 1, answers: ['break'] }, 'continue').ok, false);
+  assert.equal(C.matchBlank({ n: 2, answers: ['a, b'] }, 'a,b').ok, true);
+});
+
+test('isTier3：L7 恒为三级题；关键词命中', () => {
+  assert.equal(C.isTier3({ level: 7, topic: '', title: '' }), true);
+  assert.equal(C.isTier3({ level: 4, topic: '递归', title: '' }), true);
+  assert.equal(C.isTier3({ level: 3, topic: '字符串', title: '' }), false);
+});
+
+test('estimateGrade：等第边界（假时钟无关，纯函数）', () => {
+  assert.equal(C.estimateGrade(89, 150, 0, 0), '不合格（参考）');
+  assert.equal(C.estimateGrade(90, 150, 0, 0), '二级合格（参考）');
+  assert.equal(C.estimateGrade(113, 150, 0, 0), '二级优秀（参考）');
+  // 三级题得分率不足 → 不给三级
+  assert.equal(C.estimateGrade(120, 150, 5, 40), '二级优秀（参考）');
+  assert.equal(C.estimateGrade(120, 150, 25, 40), '三级合格（参考）');
+  assert.equal(C.estimateGrade(136, 150, 33, 40), '三级优秀（参考）');
+});
+
+test('mockExpired：假时钟下的过期判定', () => {
+  const end = 1700000000000;
+  assert.equal(C.mockExpired(true, end, end - 1), false);
+  assert.equal(C.mockExpired(true, end, end), true);
+  assert.equal(C.mockExpired(false, end, end + 9999), false);
+  assert.equal(C.mockExpired(true, undefined, Date.now()), false);
+});
+
+test('gradeMcq / judgeTest', () => {
+  assert.equal(C.gradeMcq({ ans: 2 }, 2), true);
+  assert.equal(C.gradeMcq({ ans: 2 }, 0), false);
+  assert.equal(C.judgeTest({ ok: true, stdout: 'drawn\n' }, { expected: 'drawn' }), true);
+  assert.equal(C.judgeTest({ ok: true, stdout: 'drawn\n', hasCanvas: true }, { expected: 'drawn', expectCanvas: true }), true);
+  assert.equal(C.judgeTest({ ok: true, stdout: 'drawn\n' }, { expected: 'drawn', expectCanvas: true }), false);
+  assert.equal(C.judgeTest({ ok: false, stdout: '' }, { expected: '' }), false);
+});
+
+console.log('PY2CORE tests done');

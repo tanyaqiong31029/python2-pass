@@ -1,0 +1,26 @@
+name: PR check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install validation deps
+        run: pip install "matplotlib>=3.8,<4"
+      - name: Core logic unit tests
+        run: node tools/tests.mjs
+      - name: Validate & rebuild question bank
+        run: python3 tools/build_data.py
+      - name: Check JS syntax
+        run: |
+          for f in js/*.js; do node --check "$f"; done

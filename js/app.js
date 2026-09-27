@@ -873,29 +873,12 @@ const App = {
 };
 
 /* ============================================================
- * 三级目标体系
+ * 三级目标体系（实现移至 js/core.js，浏览器与 Node 测试共用）
  * ============================================================ */
-const T3_RE = /递归|正则|数据库|SQLite|sqlite|可视化|matplotlib|面向对象|JSON|API/i;
-function isTier3(q) {
-  if (q.level === 7) return true;
-  const t = [q.topic, q.title, (q.tags || []).join(' ')].join(' ');
-  return T3_RE.test(t);
-}
-
-/* 等第预估：官方分数线不公布，此为公开透明的自估模型 */
-function estimateGrade(score, full, t3Score, t3Full) {
-  const r = full ? score / full : 0;
-  const t3 = t3Full ? t3Score / t3Full : 0;
-  if (r >= 0.9 && t3 >= 0.8) return '三级优秀（参考）';
-  if (r >= 0.75 && t3 >= 0.6) return '三级合格（参考）';
-  if (r >= 0.75) return '二级优秀（参考）';
-  if (r >= 0.6) return '二级合格（参考）';
-  return '不合格（参考）';
-}
-
-function targetLabel(t) {
-  return { t2p: '二级合格', t2e: '二级优秀', t3p: '三级合格', t3e: '三级优秀' }[t] || '三级合格';
-}
+const T3_RE = PY2CORE.T3_RE;
+const isTier3 = PY2CORE.isTier3;
+const estimateGrade = PY2CORE.estimateGrade;
+const targetLabel = PY2CORE.targetLabel;
 
 /* 状态驱动的"下一步"：诊断 → 速览 → 单选 → 代码（难度递进）→ 下一关 → 模拟考 */
 function computeNextStep() {
@@ -934,23 +917,10 @@ function miniMdInline(s) {
   return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
 }
 
-/* ---------- 填空工具 ---------- */
-function substituteBlanks(template, answers) {
-  let code = template;
-  answers.forEach((a, i) => {
-    code = code.split(`___(${i + 1})___`).join(a.trim());
-  });
-  return code;
-}
-
-function normAnswer(s) {
-  return String(s).replace(/\s+/g, ' ').trim();
-}
-function matchBlank(blank, answer) {
-  const norm = normAnswer(answer);
-  const ok = (blank.answers || []).some(a => normAnswer(a) === norm);
-  return { n: blank.n, ok };
-}
+/* ---------- 填空工具（实现移至 js/core.js） ---------- */
+const substituteBlanks = PY2CORE.substituteBlanks;
+const normAnswer = PY2CORE.normAnswer;
+const matchBlank = PY2CORE.matchBlank;
 
 /* ---------- 运行结果渲染 ---------- */
 function renderResult(outBox, r, expected, passed, perBlank, details) {
@@ -1071,6 +1041,8 @@ const Mock = {
   },
 
   start(variant) {
+    localStorage.removeItem(this.KEY); // 清掉可能的遗留草稿
+    this._submitting = false;
     this.variant = variant || 'standard';
     const seed = Math.floor(Date.now() / 1000) % 9973;
     this.qs = this.sample(this.variant, seed);
@@ -1098,24 +1070,38 @@ const Mock = {
 
   resume() {
     const d = this.load();
-    if (d && d.active && d.endAt > Date.now()) {
-      this.active = true; this.qs = d.qs; this.answers = d.answers;
-      this.endAt = d.endAt; this.seed = d.seed; this.variant = d.variant || 'standard';
+    if (!d || !d.active) return false;
+    // 恢复试卷状态（无论是否已过期，先保住答卷）
+    this.qs = d.qs; this.answers = d.answers;
+    this.endAt = d.endAt; this.seed = d.seed; this.variant = d.variant || 'standard';
+    if (d.endAt > Date.now()) {
+      this.active = true;
       this.timer = setInterval(() => this.tick(), 1000);
       return true;
     }
-    if (d) localStorage.removeItem(this.KEY);
-    return false;
+    // 已过期：自动交卷评分，避免失卷（评分完成后才清理草稿）
+    this.active = true;
+    const go = async () => {
+      await Engine.ensure();
+      this.submit(true);
+    };
+    go();
+    return true;
   },
 
   tick() {
+    if (!this.active) return;
+    const now = Date.now();
+    // DOM 更新是尽力而为；超时判定与页面解耦（离开模拟考页也要照常交卷）
     const el = document.getElementById('mock-timer-num');
-    if (!el) return;
-    const left = (this.endAt - Date.now()) / 1000;
-    el.textContent = fmtMMSS(left);
-    const bar = document.getElementById('mock-timer');
-    if (bar) bar.classList.toggle('urgent', left < 300);
-    if (left <= 0) this.submit(true);
+    if (el) {
+      el.textContent = fmtMMSS((this.endAt - now) / 1000);
+      const bar = document.getElementById('mock-timer');
+      if (bar) bar.classList.toggle('urgent', this.endAt - now < 300000);
+    }
+    if (PY2CORE.mockExpired(this.active, this.endAt, now)) {
+      this.submit(true); // 时间到自动交卷
+    }
   },
 
   abort() {
@@ -1217,10 +1203,13 @@ const Mock = {
 
   /* ---- 评分 ---- */
   async submit(auto) {
+    if (this._submitting) return; // 防止计时器与手动交卷双触发
     if (auto !== true && !confirm('确定交卷并评分吗？代码题将自动判题，请保持页面打开。')) return;
+    this._submitting = true;
     clearInterval(this.timer); this.timer = null;
     this.active = false;
-    localStorage.removeItem(this.KEY);
+    // 注意：此时不删草稿 —— 评分成功并落盘后才清理（见函数末尾），
+    // 判题中途崩溃/关页可由 resume() 恢复过期草稿重新评分
     const s = window.CONFIG.mockStructure;
     const official = this.variant === 'official';
     const app = document.getElementById('app');
@@ -1307,8 +1296,11 @@ const Mock = {
       lv.got += d.score; lv.full += d.full;
     });
     const run = { ts: Date.now(), score, grade, variant: this.variant, t3Score: Math.round(t3Score * 10) / 10, t3Full: Math.round(t3Full * 10) / 10, byLevel, detail };
-    State.addMockRun(run);
+    State.addMockRun(run);   // 成绩落盘成功
+    localStorage.removeItem(this.KEY);  // 此后才清理答卷草稿
+    this._submitting = false;
     this.lastResult = run;
+    if (App.parse()[0] !== 'mock') location.hash = '#mock'; // 交卷后回到结果页
     App.render();
   },
 

@@ -381,11 +381,11 @@ def main():
     print(f"✓ 已生成 {OUT}（{os.path.getsize(OUT) // 1024} KB）")
 
     # 版本戳：更新 index.html 中的静态资源版本号，保证部署后浏览器拉到新数据
-    stamp = "v=" + time.strftime("%Y%m%d%H%M", time.localtime())
+    stamp = time.strftime("%Y%m%d%H%M", time.localtime())
     index_path = os.path.join(ROOT, "index.html")
     with open(index_path, encoding="utf-8") as f:
         html = f.read()
-    html2 = re.sub(r"(js/(?:config|data|util|state|runner|app)\.js\?v=)\d+", r"\g<1>" + stamp[2:], html)
+    html2 = re.sub(r"(js/(?:config|core|data|util|state|runner|app)\.js\?v=)\w+", r"\g<1>" + stamp, html)
     if html2 != html:
         with open(index_path, "w", encoding="utf-8") as f:
             f.write(html2)

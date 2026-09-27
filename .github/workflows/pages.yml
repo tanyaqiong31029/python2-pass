@@ -20,7 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install validation deps
-        run: pip install matplotlib pypdf
+        run: pip install "matplotlib>=3.8,<4"
+      - name: Core logic unit tests
+        run: node tools/tests.mjs
       - name: Validate & rebuild question bank
         run: python3 tools/build_data.py
       - name: Setup Pages

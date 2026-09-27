@@ -1,183 +1,24 @@
 /* ============================================================
- * 判题引擎：Pyodide（浏览器内 Python）
- * - CDN 多源回退
- * - 输入提示(input的prompt)单独捕获，不污染输出比对
- * - 语句数/时间双看门狗，防死循环卡死页面
- * - turtle 模拟（canvas 绘图）
- * - matplotlib / jieba / openpyxl 懒加载
+ * 判题引擎：Pyodide（Web Worker 优先，主线程回退）
+ * - Worker 模式：判题不阻塞界面；主线程按 deadline 强制 terminate，
+ *   彻底解决"底层调用无法被 settrace 打断"的挂死问题
+ * - 主线程回退：file:// 等不支持 Worker 的环境下自动降级（行为一致）
+ * - 两端共用同一份 HARNESS_PY / TURTLE_SHIM_SRC
+ * - turtle：画布可用时直接绘制；不可用（Worker）时录制绘图命令，
+ *   由主线程回放到 canvas
  * ============================================================ */
 
-const Engine = {
-  status: 'idle',        // idle | loading | ready | error
-  pyodide: null,
-  _loadingPromise: null,
-
-  chip(text, cls) {
-    const el = document.getElementById('engine-chip');
-    if (!el) return;
-    el.textContent = text;
-    el.className = 'chip' + (cls ? ' ' + cls : '');
-  },
-
-  /** 确保引擎就绪。返回 true/false */
-  async ensure() {
-    if (this.status === 'ready') return true;
-    if (this._loadingPromise) return this._loadingPromise;
-    this._loadingPromise = this._load();
-    return this._loadingPromise;
-  },
-
-  async _load() {
-    this.status = 'loading';
-    this.chip('判题引擎：加载中…');
-    for (const base of window.CONFIG.pyodideCDNs) {
-      try {
-        await this._loadScript(base + 'pyodide.js');
-        const py = await window.loadPyodide({ indexURL: base });
-        this.pyodide = py;
-        py.runPython(HARNESS_PY);
-        this.status = 'ready';
-        this.chip('判题引擎：就绪 ✓', 'chip-ok');
-        return true;
-      } catch (e) {
-        console.warn('Pyodide CDN 失败，尝试下一个源', base, e);
-      }
-    }
-    this.status = 'error';
-    this.chip('判题引擎：加载失败（可用“对照自评”模式）', 'chip-err');
-    this._loadingPromise = null;
-    return false;
-  },
-
-  _loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = () => reject(new Error('脚本加载失败: ' + src));
-      document.head.appendChild(s);
-    });
-  },
-
-  /** 运行用户代码。
-   *  opts: {stdin='', files=[{name,content}], timeoutS=8, maxEvents=2_000_000,
-   *         packages=['matplotlib'|'jieba'|'openpyxl'], container=null}
-   *  返回 {ok, stdout, prompts, error, hasCanvas} */
-  async run(code, opts = {}) {
-    const unsup = unsupportedCheck(code);
-    if (unsup) {
-      return { ok: false, stdout: '', prompts: '', error: unsup, hasCanvas: false, unsupported: true };
-    }
-    const ready = await this.ensure();
-    if (!ready) return { ok: false, stdout: '', prompts: '', error: '判题引擎未加载（需联网首次加载，约 10~20MB）', hasCanvas: false };
-    const py = this.pyodide;
-    const id = 'pyout' + Math.random().toString(36).slice(2, 8);
-    // turtle 画布挂载点
-    let mountId = '';
-    if (opts.mount && opts.mount.nodeType) {
-      if (!opts.mount.id) opts.mount.id = 'mount' + id;
-      mountId = opts.mount.id;
-    }
-    try {
-      // 重型库（matplotlib）自动放宽判题预算
-      let timeoutS = opts.timeoutS || 8;
-      let maxEvents = opts.maxEvents || 2000000;
-      if (/\bimport\s+matplotlib|from\s+matplotlib\b/.test(code)) {
-        timeoutS = Math.max(timeoutS, 60);
-        maxEvents = Math.max(maxEvents, 100000000);
-      }
-      opts = Object.assign({}, opts, { timeoutS, maxEvents });
-      // 需要的第三方包懒加载
-      const pkgs = opts.packages || detectPackages(code);
-      for (const p of pkgs) {
-        if (p === 'matplotlib') await py.loadPackage('matplotlib');
-        else await py.loadPackage('micropip').then(() => py.runPythonAsync(
-          `import micropip; await micropip.install('${p}')`));
-      }
-      // 内存文件
-      if (opts.files && opts.files.length) {
-        py.runPython(`
-import os
-os.makedirs('/home/pyodide/data', exist_ok=True)
-os.chdir('/home/pyodide/data')
-`);
-        for (const f of opts.files) {
-          py.globals.set('_fname', f.name);
-          py.globals.set('_fcontent', f.content);
-          py.globals.set('_fb64', !!f.b64);
-          py.runPython(`
-_d = _fname.split('/')
-_p = '/home/pyodide/data'
-for seg in _d[:-1]:
-    _p = _p + '/' + seg
-    os.makedirs(_p, exist_ok=True)
-if _fb64:
-    import base64 as _base64
-    with open('/home/pyodide/data/' + _fname, 'wb') as _f:
-        _f.write(_base64.b64decode(_fcontent))
-else:
-    with open('/home/pyodide/data/' + _fname, 'w', encoding='utf-8') as _f:
-        _f.write(_fcontent)
-`);
-        }
-        py.globals.set('_fname', null); py.globals.set('_fcontent', null); py.globals.set('_fb64', null);
-      }
-      py.globals.set('_code', code);
-      py.globals.set('_stdin', opts.stdin || '');
-      py.globals.set('_timeout', opts.timeoutS || 8);
-      py.globals.set('_maxev', opts.maxEvents || 2000000);
-      py.globals.set('_cid', mountId);
-      const raw = py.runPython(`
-_run_user(_code, _stdin, _timeout, _maxev, _cid)
-`);
-      const obj = raw.toJs({ dict_converter: Object.fromEntries });
-      raw.destroy();
-      const hostEl = document.getElementById(mountId);
-      obj.hasCanvas = !!(hostEl && hostEl.querySelector('canvas[data-turtle]'));
-      return obj;
-    } catch (e) {
-      return { ok: false, stdout: '', prompts: '', error: String(e.message || e), hasCanvas: false };
-    }
-  }
-};
-
-/* 侦测代码需要的第三方包 */
-function detectPackages(code) {
-  const pkgs = [];
-  if (/\bimport\s+matplotlib|from\s+matplotlib\b/.test(code)) pkgs.push('matplotlib');
-  if (/\bimport\s+openpyxl|from\s+openpyxl\b/.test(code)) pkgs.push('openpyxl');
-  return pkgs;
-}
-
-/* 浏览器端无法支持的库 → 中文提示（考点仍在，判题走对照自评） */
-const UNSUPPORTED = {
-  jieba: 'jieba 分词库无法在浏览器判题环境中加载（官方只有源码包，无 wheel）。本题为“读代码理解”题：请对照参考答案，掌握“jieba.lcut 分词 → 字典计数 → sorted 排序”的套路即可。',
-  wordcloud: 'wordcloud 词云库无法在浏览器判题环境中安装（含 C 扩展）。本题为“读代码理解”题：请对照参考答案掌握套路。',
-  tkinter: 'tkinter 窗口库无法在浏览器中运行。GUI 题为读代码理解题，请对照参考答案。'
-};
-
-function unsupportedCheck(code) {
-  for (const [mod, msg] of Object.entries(UNSUPPORTED)) {
-    if (new RegExp('\\bimport\\s+' + mod + '\\b|\\bfrom\\s+' + mod + '\\b').test(code)) {
-      return '⚠ ' + msg;
-    }
-  }
-  return null;
-}
-
-/* ============================================================
- * 注入 Pyodide 的判题 harness（与 tools/harness.py 行为一致）
- * ============================================================ */
+/* ---------- 注入 Pyodide 的判题 harness（与 tools/harness.py 行为一致） ---------- */
 const HARNESS_PY = `
-import sys, io, time, builtins, traceback, json, os
+import sys, io, time, builtins, traceback, os
 
 class _Watchdog(Exception):
     pass
 
 class _Ctx:
-    __slots__ = ('inputs', 'i', 'events', 'deadline', 'max_events', 'prompts')
+    __slots__ = ('inputs', 'i', 'events', 'deadline', 'max_events', 'prompts', 'ops')
 
-def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=None):
+def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=None, ops=None):
     ctx = _Ctx()
     ctx.inputs = stdin_text.split('\\n') if stdin_text != '' else []
     if ctx.inputs and ctx.inputs[-1] == '':
@@ -187,6 +28,7 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
     ctx.max_events = max_events
     ctx.deadline = time.monotonic() + timeout_s
     ctx.prompts = []
+    ctx.ops = ops if ops is not None else []
 
     out = io.StringIO()
 
@@ -216,11 +58,11 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
     except Exception:
         pass
 
-    # turtle 支持：注册 canvas 版 turtle 模块，使 import turtle / from turtle import * 均可用
+    # turtle 支持：注册 canvas 版 turtle 模块（无 DOM 时录制绘图命令）
     _turtle_mod = None
     try:
         import turtle_shim
-        _turtle_mod = turtle_shim.make_turtle(canvas_id)
+        _turtle_mod = turtle_shim.make_turtle(canvas_id, ctx.ops)
         if _turtle_mod is not None:
             env['turtle'] = _turtle_mod
             sys.modules['turtle'] = _turtle_mod
@@ -230,8 +72,7 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
     saved_stdin = sys.stdin
     saved_stdout = sys.stdout
     saved_path = sys.path[:]
-    import os as _os
-    _cwd = _os.getcwd()
+    _cwd = os.getcwd()
     if _cwd not in saved_path:
         sys.path.insert(0, _cwd)  # 数据目录中的模块可 import
     sys.stdin = io.StringIO(stdin_text)
@@ -267,80 +108,94 @@ def _run_user(code, stdin_text, timeout_s=8.0, max_events=2000000, canvas_id=Non
                 pass
 
     return {'ok': err == '', 'stdout': out.getvalue(), 'prompts': '\\n'.join(ctx.prompts),
-            'error': err, 'tb': tb, 'echo': ''}
+            'error': err, 'tb': tb, 'canvasOps': ctx.ops}
 `;
 
 /* ============================================================
- * turtle 画布模拟（在 Pyodide 内运行，绘制到页面 canvas）
+ * turtle 画布模拟 / 命令录制（同一份源码，两种模式）
+ * - 主线程模式：cid 对应的宿主里有真实 canvas，直接绘制
+ * - Worker 模式：无 DOM，绘制调用转为 canvasOps 命令，主线程回放
  * ============================================================ */
-
 const TURTLE_SHIM_SRC = `
 import math, types
 
 def _install(js):
     class _Canvas:
-        def __init__(self, cid):
-            self.cid = cid
+        def __init__(self, cid, ops):
+            self.ops = ops if ops is not None else []
             self.cv = None
             self.ctx = None
-            if cid:
+            host = None
+            try:
                 doc = js.document
-                host = doc.getElementById(cid)
-                if host is not None:
-                    cv = doc.createElement('canvas')
-                    cv.width = 480
-                    cv.height = 360
-                    cv.setAttribute('data-turtle', '1')
-                    cv.style.background = '#fff'
-                    cv.style.border = '1px solid #d5dde7'
-                    cv.style.maxWidth = '100%'
-                    host.appendChild(cv)
-                    self.cv = cv
-                    self.ctx = cv.getContext('2d')
+                if cid and doc is not None:
+                    host = doc.getElementById(cid)
+            except Exception:
+                host = None
+            if host is not None:
+                cv = doc.createElement('canvas')
+                cv.width = 480
+                cv.height = 360
+                cv.setAttribute('data-turtle', '1')
+                cv.style.background = '#fff'
+                cv.style.border = '1px solid #d5dde7'
+                cv.style.maxWidth = '100%'
+                host.appendChild(cv)
+                self.cv = cv
+                self.ctx = cv.getContext('2d')
+
+        def _rec(self, **kw):
+            self.ops.append(kw)
 
         def line(self, x1, y1, x2, y2, color, width=2):
-            if not self.ctx:
-                return
-            c = self.ctx
-            c.strokeStyle = color
-            c.lineWidth = width
-            c.beginPath()
-            c.moveTo(240 + x1, 180 - y1)
-            c.lineTo(240 + x2, 180 - y2)
-            c.stroke()
+            if self.ctx is not None:
+                c = self.ctx
+                c.strokeStyle = color
+                c.lineWidth = width
+                c.beginPath()
+                c.moveTo(240 + x1, 180 - y1)
+                c.lineTo(240 + x2, 180 - y2)
+                c.stroke()
+            else:
+                self._rec(op='line', x1=240 + x1, y1=180 - y1, x2=240 + x2, y2=180 - y2, color=color, width=width)
 
         def dot(self, x, y, color, r=3):
-            if not self.ctx:
-                return
-            c = self.ctx
-            c.fillStyle = color
-            c.beginPath()
-            c.arc(240 + x, 180 - y, r, 0, 2 * math.pi)
-            c.fill()
+            if self.ctx is not None:
+                c = self.ctx
+                c.fillStyle = color
+                c.beginPath()
+                c.arc(240 + x, 180 - y, r, 0, 2 * math.pi)
+                c.fill()
+            else:
+                self._rec(op='dot', x=240 + x, y=180 - y, color=color, r=r)
 
         def poly(self, pts, color):
-            if not self.ctx or len(pts) < 3:
-                return
-            c = self.ctx
-            c.fillStyle = color
-            c.beginPath()
-            c.moveTo(240 + pts[0][0], 180 - pts[0][1])
-            for px, py in pts[1:]:
-                c.lineTo(240 + px, 180 - py)
-            c.closePath()
-            c.fill()
+            if self.ctx is not None:
+                if len(pts) < 3:
+                    return
+                c = self.ctx
+                c.fillStyle = color
+                c.beginPath()
+                c.moveTo(240 + pts[0][0], 180 - pts[0][1])
+                for px, py in pts[1:]:
+                    c.lineTo(240 + px, 180 - py)
+                c.closePath()
+                c.fill()
+            else:
+                self._rec(op='poly', pts=[(240 + px, 180 - py) for px, py in pts], color=color)
 
         def text(self, x, y, s, color):
-            if not self.ctx:
-                return
-            c = self.ctx
-            c.fillStyle = color
-            c.font = '14px monospace'
-            c.fillText(s, 240 + x, 180 - y)
+            if self.ctx is not None:
+                c = self.ctx
+                c.fillStyle = color
+                c.font = '14px monospace'
+                c.fillText(str(s), 240 + x, 180 - y)
+            else:
+                self._rec(op='text', x=240 + x, y=180 - y, s=str(s), color=color)
 
     class Turtle:
-        def __init__(self, cid=None):
-            self.wrap = _Canvas(cid)
+        def __init__(self, cid=None, ops=None):
+            self.wrap = _Canvas(cid, ops)
             self.x, self.y, self._hd = 0.0, 0.0, 0.0
             self.pen_down = True
             self.color_v = '#000000'
@@ -542,20 +397,20 @@ def _install(js):
                 return None
             return _noop
 
-    def make_turtle_module(cid):
+    def make_turtle_module(cid, ops):
         mod = types.ModuleType('turtle')
         state = {'t': None}
 
-        # 类实例默认使用模块绑定的画布 cid，使 t = turtle.Turtle() 也能画到画布上
+        # 类实例默认绑定模块的画布 cid 与命令列表
         _BaseTurtle = Turtle
 
         class TurtleWithCanvas(_BaseTurtle):
-            def __init__(self, c=None):
-                _BaseTurtle.__init__(self, cid if c is None else c)
+            def __init__(self, c=None, o=None):
+                _BaseTurtle.__init__(self, cid if c is None else c, ops if o is None else o)
 
         def _get():
             if state['t'] is None:
-                state['t'] = TurtleWithCanvas(cid)
+                state['t'] = TurtleWithCanvas(cid, ops)
             return state['t']
 
         def _module_getattr(name):
@@ -568,7 +423,7 @@ def _install(js):
         mod.RawTurtle = TurtleWithCanvas
         mod.Screen = Screen
         mod.getscreen = lambda *a, **k: Screen()
-        names = ['Turtle', 'Pen', 'RawTurtle', 'Screen', 'getscrenn', 'forward', 'fd',
+        names = ['Turtle', 'Pen', 'RawTurtle', 'Screen', 'getscreen', 'forward', 'fd',
                  'backward', 'bk', 'back', 'right', 'rt', 'left', 'lt', 'goto', 'setpos',
                  'setposition', 'setx', 'sety', 'setheading', 'seth', 'home', 'circle',
                  'dot', 'penup', 'pu', 'up', 'pendown', 'pd', 'down', 'pencolor',
@@ -577,38 +432,424 @@ def _install(js):
                  'exitonclick', 'mainloop', 'screensize', 'setup', 'title', 'bgcolor',
                  'colormode', 'reset', 'clear', 'position', 'pos', 'xcor', 'ycor',
                  'towards', 'distance', 'pen', 'isdown', 'isvisible', 'window_width',
-                 'window_height']
-        names[4] = 'getscreen'
+                 'window_height', 'heading']
         mod.__all__ = names
         return mod
 
     return make_turtle_module
 
-def make_turtle(cid):
+def make_turtle(cid, ops=None):
     import js
     factory = _install(js)
-    return factory(cid)
+    return factory(cid, ops)
 `;
 
-/* 把 turtle shim 注册进 Pyodide（作为独立模块 turtle_shim） */
-Engine._installTurtleShim = function () {
-  if (!this.pyodide) return;
-  this.pyodide.globals.set('_turtle_src', TURTLE_SHIM_SRC);
-  this.pyodide.runPython(`
+/* ---------- 浏览器端无法支持的库 → 中文提示 ---------- */
+const UNSUPPORTED = {
+  jieba: 'jieba 分词库无法在浏览器判题环境中加载（官方只有源码包，无 wheel）。本题为“读代码理解”题：请对照参考答案，掌握“jieba.lcut 分词 → 字典计数 → sorted 排序”的套路即可。',
+  wordcloud: 'wordcloud 词云库无法在浏览器判题环境中安装（含 C 扩展）。本题为“读代码理解”题：请对照参考答案掌握套路。',
+  tkinter: 'tkinter 窗口库无法在浏览器中运行。GUI 题为读代码理解题，请对照参考答案。'
+};
+
+function unsupportedCheck(code) {
+  for (const [mod, msg] of Object.entries(UNSUPPORTED)) {
+    if (new RegExp('\\bimport\\s+' + mod + '\\b|\\bfrom\\s+' + mod + '\\b').test(code)) {
+      return '⚠ ' + msg;
+    }
+  }
+  return null;
+}
+
+/* 浏览器端也可安装的第三方库 */
+function detectPackages(code) {
+  const pkgs = [];
+  if (/\bimport\s+matplotlib|from\s+matplotlib\b/.test(code)) pkgs.push('matplotlib');
+  if (/\bimport\s+openpyxl|from\s+openpyxl\b/.test(code)) pkgs.push('openpyxl');
+  return pkgs;
+}
+
+/* ---------- Worker 源码（Blob 构造；内嵌 harness 与 turtle shim） ---------- */
+function buildWorkerSource(cdns, pins) {
+  return `
+let pyodide = null;
+const CDNS = ${JSON.stringify(cdns)};
+const PINS = ${JSON.stringify(pins)};
+
+function detectPackages(code) {
+  const pkgs = [];
+  if (/\\bimport\\s+matplotlib|from\\s+matplotlib\\b/.test(code)) pkgs.push('matplotlib');
+  if (/\\bimport\\s+openpyxl|from\\s+openpyxl\\b/.test(code)) pkgs.push('openpyxl');
+  return pkgs;
+}
+
+self.onmessage = async (e) => {
+  const msg = e.data;
+  if (msg.type === 'init') {
+    // Pyodide 314 仅支持 ES Module 形式在 Worker 中运行（classic worker 会抛
+    // "Classic web workers are not supported"），故本 Worker 以 type:module 创建
+    for (const base of CDNS) {
+      try {
+        const mod = await import(base + 'pyodide.mjs');
+        self.pyodide = await mod.loadPyodide({ indexURL: base });
+        break;
+      } catch (err) {
+        self.pyodide = null;
+      }
+    }
+    if (!self.pyodide) { postMessage({ type: 'initFail' }); return; }
+    self.pyodide.runPython(${JSON.stringify(HARNESS_PY)});
+    self.pyodide.globals.set('_turtle_src', ${JSON.stringify(TURTLE_SHIM_SRC)});
+    self.pyodide.runPython(\`
+import sys, types
+_mod = types.ModuleType('turtle_shim')
+exec(compile(_turtle_src, 'turtle_shim.py', 'exec'), _mod.__dict__)
+sys.modules['turtle_shim'] = _mod
+del _turtle_src
+\`);
+    postMessage({ type: 'ready', version: self.pyodide.version });
+    return;
+  }
+  if (msg.type === 'run') {
+    const { id, code, stdin, files, timeoutS, maxEvents, mountId } = msg;
+    try {
+      for (const p of detectPackages(code)) {
+        if (p === 'matplotlib') await self.pyodide.loadPackage('matplotlib');
+        else {
+          await self.pyodide.loadPackage('micropip');
+          const spec = PINS[p] ? (p + '==' + PINS[p]) : p;
+          await self.pyodide.runPythonAsync('import micropip; await micropip.install(' + JSON.stringify(spec) + ')');
+        }
+      }
+      if (files && files.length) {
+        self.pyodide.runPython("import os; os.makedirs('/home/pyodide/data', exist_ok=True); os.chdir('/home/pyodide/data')");
+        for (const f of files) {
+          self.pyodide.globals.set('_fname', f.name);
+          self.pyodide.globals.set('_fcontent', f.content);
+          self.pyodide.globals.set('_fb64', !!f.b64);
+          self.pyodide.runPython(\`
+import base64 as _b64mod, os as _osmod
+_p = '/home/pyodide/data'
+for seg in _fname.split('/')[:-1]:
+    _p = _p + '/' + seg
+    _osmod.makedirs(_p, exist_ok=True)
+if _fb64:
+    with open('/home/pyodide/data/' + _fname, 'wb') as _f:
+        _f.write(_b64mod.b64decode(_fcontent))
+else:
+    with open('/home/pyodide/data/' + _fname, 'w', encoding='utf-8') as _f:
+        _f.write(_fcontent)
+\`);
+        }
+        self.pyodide.globals.set('_fname', null);
+        self.pyodide.globals.set('_fcontent', null);
+        self.pyodide.globals.set('_fb64', null);
+      }
+      let timeoutS2 = timeoutS || 8;
+      let maxEvents2 = maxEvents || 2000000;
+      if (/\\bimport\\s+matplotlib|from\\s+matplotlib\\b/.test(code)) {
+        timeoutS2 = Math.max(timeoutS2, 60);
+        maxEvents2 = Math.max(maxEvents2, 100000000);
+      }
+      const py = self.pyodide;
+      py.globals.set('_code', code);
+      py.globals.set('_stdin', stdin || '');
+      py.globals.set('_timeout', timeoutS2);
+      py.globals.set('_maxev', maxEvents2);
+      py.globals.set('_cid', mountId || null);
+      py.runPython('_ops = []');
+      const raw = py.runPython('_run_user(_code, _stdin, _timeout, _maxev, _cid, _ops)');
+      const obj = raw.toJs({ dict_converter: Object.fromEntries });
+      raw.destroy();
+      const opsProxy = py.globals.get('_ops');
+      const ops = opsProxy ? opsProxy.toJs({ dict_converter: Object.fromEntries }) : [];
+      if (opsProxy) opsProxy.destroy();
+      postMessage({ type: 'result', id, ok: obj.ok, stdout: obj.stdout, prompts: obj.prompts,
+                    error: obj.error, tb: obj.tb, canvasOps: ops });
+    } catch (e) {
+      postMessage({ type: 'result', id, ok: false, stdout: '', prompts: '', error: String(e && e.message || e), tb: '', canvasOps: [] });
+    }
+  }
+};
+`;
+}
+
+/* ---------- 主线程：把 turtle 命令回放到 canvas ---------- */
+function renderTurtleOps(mount, ops) {
+  if (!mount || !ops || !ops.length) return;
+  const cv = document.createElement('canvas');
+  cv.width = 480; cv.height = 360;
+  cv.setAttribute('data-turtle', '1');
+  cv.style.background = '#fff';
+  cv.style.border = '1px solid #d5dde7';
+  cv.style.maxWidth = '100%';
+  mount.appendChild(cv);
+  const c = cv.getContext('2d');
+  for (const o of ops) {
+    if (o.op === 'line') {
+      c.strokeStyle = o.color; c.lineWidth = o.width || 2;
+      c.beginPath(); c.moveTo(o.x1, o.y1); c.lineTo(o.x2, o.y2); c.stroke();
+    } else if (o.op === 'dot') {
+      c.fillStyle = o.color; c.beginPath(); c.arc(o.x, o.y, o.r, 0, Math.PI * 2); c.fill();
+    } else if (o.op === 'poly') {
+      if (!o.pts || o.pts.length < 3) continue;
+      c.fillStyle = o.color; c.beginPath();
+      c.moveTo(o.pts[0][0], o.pts[0][1]);
+      for (let i = 1; i < o.pts.length; i++) c.lineTo(o.pts[i][0], o.pts[i][1]);
+      c.closePath(); c.fill();
+    } else if (o.op === 'text') {
+      c.fillStyle = o.color; c.font = '14px monospace'; c.fillText(o.s, o.x, o.y);
+    }
+  }
+}
+
+/* ============================================================
+ * Engine：Worker 优先，主线程回退
+ * ============================================================ */
+const Engine = {
+  status: 'idle',        // idle | loading | ready | error
+  mode: null,            // 'worker' | 'main'
+  pyodide: null,         // 主线程模式下的实例
+  worker: null,
+  _loadingPromise: null,
+  _pending: new Map(),   // runId -> {resolve, timer}
+  _runSeq: 0,
+
+  chip(text, cls) {
+    const el = document.getElementById('engine-chip');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'chip' + (cls ? ' ' + cls : '');
+  },
+
+  async ensure() {
+    if (this.status === 'ready') return true;
+    if (this._loadingPromise) return this._loadingPromise;
+    this._loadingPromise = this._load();
+    return this._loadingPromise;
+  },
+
+  async _load() {
+    this.status = 'loading';
+    this.chip('判题引擎：加载中…');
+    // 1) 优先 Worker：判题不阻塞界面，且可被主线程强制终止
+    if (typeof Worker !== 'undefined' && typeof Blob !== 'undefined') {
+      try {
+        const ok = await this._loadWorker();
+        if (ok) {
+          this.mode = 'worker';
+          this.status = 'ready';
+          this.chip('判题引擎：就绪 ✓（后台线程）', 'chip-ok');
+          return true;
+        }
+      } catch (e) {
+        console.warn('Worker 引擎初始化失败，回退主线程', e);
+      }
+    }
+    // 2) 主线程回退（file:// 等）
+    try {
+      const ok = await this._loadMain();
+      if (ok) {
+        this.mode = 'main';
+        this.status = 'ready';
+        this.chip('判题引擎：就绪 ✓', 'chip-ok');
+        return true;
+      }
+    } catch (e) {
+      console.warn('主线程引擎初始化失败', e);
+    }
+    this.status = 'error';
+    this.chip('判题引擎：加载失败（可用“对照自评”模式）', 'chip-err');
+    this._loadingPromise = null;
+    return false;
+  },
+
+  /* ---- Worker 模式 ---- */
+  _loadWorker() {
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (ok) => { if (!settled) { settled = true; resolve(ok); } };
+      let worker;
+      let src;
+      try {
+        src = buildWorkerSource(window.CONFIG.pyodideCDNs, window.CONFIG.packagePins || {});
+        worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })), { type: 'module' });
+      } catch (e) { finish(false); return; }
+      const initTimer = setTimeout(() => { finish(false); worker.terminate(); }, 180000);
+      worker.onmessage = (e) => {
+        const m = e.data;
+        if (m.type === 'ready') {
+          clearTimeout(initTimer);
+          this.worker = worker;
+          worker.onmessage = (ev) => this._onWorkerMessage(ev.data);
+          finish(true);
+        } else if (m.type === 'initFail') {
+          clearTimeout(initTimer);
+          worker.terminate();
+          finish(false);
+        }
+      };
+      worker.onerror = (e) => {
+        clearTimeout(initTimer);
+        if (!settled) { finish(false); worker.terminate(); }
+      };
+      worker.postMessage({ type: 'init' });
+    });
+  },
+
+  _onWorkerMessage(m) {
+    if (m.type === 'result') {
+      const p = this._pending.get(m.id);
+      if (p) {
+        clearTimeout(p.timer);
+        this._pending.delete(m.id);
+        p.resolve({ ok: m.ok, stdout: m.stdout, prompts: m.prompts, error: m.error, tb: m.tb,
+          canvasOps: m.canvasOps || [], hasCanvas: (m.canvasOps || []).length > 0 });
+      }
+    }
+  },
+
+  /* ---- 主线程模式 ---- */
+  _loadMain() {
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (ok) => { if (!settled) { settled = true; resolve(ok); } };
+      const tryNext = async (idx) => {
+        if (idx >= window.CONFIG.pyodideCDNs.length) { finish(false); return; }
+        const base = window.CONFIG.pyodideCDNs[idx];
+        try {
+          await this._loadScript(base + 'pyodide.js');
+          const py = await window.loadPyodide({ indexURL: base });
+          this.pyodide = py;
+          py.runPython(HARNESS_PY);
+          py.globals.set('_turtle_src', TURTLE_SHIM_SRC);
+          py.runPython(`
 import sys, types
 _mod = types.ModuleType('turtle_shim')
 exec(compile(_turtle_src, 'turtle_shim.py', 'exec'), _mod.__dict__)
 sys.modules['turtle_shim'] = _mod
 del _turtle_src
 `);
-};
+          finish(true);
+        } catch (e) {
+          console.warn('Pyodide CDN 失败，尝试下一个源', base, e);
+          tryNext(idx + 1);
+        }
+      };
+      tryNext(0);
+    });
+  },
 
-/* 包装 _load：在 harness 注入后安装 turtle shim */
-const _origLoad = Engine._load.bind(Engine);
-Engine._load = async function () {
-  const ok = await _origLoad();
-  if (ok) {
-    try { this._installTurtleShim(); } catch (e) { console.warn('turtle shim 安装失败', e); }
+  _loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('脚本加载失败: ' + src));
+      document.head.appendChild(s);
+    });
+  },
+
+  /* ---- 运行入口（两种模式同形） ---- */
+  async run(code, opts = {}) {
+    const unsup = unsupportedCheck(code);
+    if (unsup) {
+      return { ok: false, stdout: '', prompts: '', error: unsup, hasCanvas: false, canvasOps: [] };
+    }
+    const ready = await this.ensure();
+    if (!ready) {
+      return { ok: false, stdout: '', prompts: '', error: '判题引擎未加载（需联网首次加载，约 10~20MB）', hasCanvas: false, canvasOps: [] };
+    }
+    let timeoutS = opts.timeoutS || 8;
+    let maxEvents = opts.maxEvents || 2000000;
+    if (/\bimport\s+matplotlib|from\s+matplotlib\b/.test(code)) {
+      timeoutS = Math.max(timeoutS, 60);
+      maxEvents = Math.max(maxEvents, 100000000);
+    }
+    if (this.mode === 'worker') return this._runWorker(code, opts, timeoutS, maxEvents);
+    return this._runMain(code, opts, timeoutS, maxEvents);
+  },
+
+  _runWorker(code, opts, timeoutS, maxEvents) {
+    return new Promise((resolve) => {
+      const id = ++this._runSeq;
+      let mountId = null;
+      if (opts.mount && opts.mount.nodeType) {
+        if (!opts.mount.id) opts.mount.id = 'mount-w' + id;
+        mountId = opts.mount.id;
+      }
+      // 主线程 deadline：对 settrace 无法打断的底层调用兜底（强制 terminate）
+      const timer = setTimeout(() => {
+        this._pending.delete(id);
+        if (this.worker) { this.worker.terminate(); this.worker = null; }
+        this.status = 'idle';
+        this._loadingPromise = null; // 下次 ensure 重新拉起 worker
+        resolve({ ok: false, stdout: '', prompts: '', error: '执行超时：已强制重置判题引擎（后台线程模式）', hasCanvas: false, canvasOps: [] });
+      }, (timeoutS + 5) * 1000);
+      this._pending.set(id, { resolve, timer });
+      this.worker.postMessage({ type: 'run', id, code, stdin: opts.stdin || '', files: opts.files || [],
+        timeoutS, maxEvents, mountId });
+    }).then((res) => {
+      if (res.canvasOps && res.canvasOps.length && opts.mount) renderTurtleOps(opts.mount, res.canvasOps);
+      return res;
+    });
+  },
+
+  _runMain(code, opts, timeoutS, maxEvents) {
+    return (async () => {
+      const py = this.pyodide;
+      try {
+        for (const p of detectPackages(code)) {
+          if (p === 'matplotlib') await py.loadPackage('matplotlib');
+          else {
+            await py.loadPackage('micropip');
+            const pin = (window.CONFIG.packagePins || {})[p];
+            const spec = pin ? p + '==' + pin : p;
+            await py.runPythonAsync('import micropip; await micropip.install(' + JSON.stringify(spec) + ')');
+          }
+        }
+        let mountId = null;
+        if (opts.files && opts.files.length) {
+          py.runPython("import os; os.makedirs('/home/pyodide/data', exist_ok=True); os.chdir('/home/pyodide/data')");
+          for (const f of opts.files) {
+            py.globals.set('_fname', f.name);
+            py.globals.set('_fcontent', f.content);
+            py.globals.set('_fb64', !!f.b64);
+            py.runPython(`
+import base64 as _b64mod, os as _osmod
+_p = '/home/pyodide/data'
+for seg in _fname.split('/')[:-1]:
+    _p = _p + '/' + seg
+    _osmod.makedirs(_p, exist_ok=True)
+if _fb64:
+    with open('/home/pyodide/data/' + _fname, 'wb') as _f:
+        _f.write(_b64mod.b64decode(_fcontent))
+else:
+    with open('/home/pyodide/data/' + _fname, 'w', encoding='utf-8') as _f:
+        _f.write(_fcontent)
+`);
+          }
+          py.globals.set('_fname', null); py.globals.set('_fcontent', null); py.globals.set('_fb64', null);
+        }
+        if (opts.mount && opts.mount.nodeType) {
+          if (!opts.mount.id) opts.mount.id = 'mount-m' + Math.random().toString(36).slice(2, 8);
+          mountId = opts.mount.id;
+        }
+        py.globals.set('_code', code);
+        py.globals.set('_stdin', opts.stdin || '');
+        py.globals.set('_timeout', timeoutS);
+        py.globals.set('_maxev', maxEvents);
+        py.globals.set('_cid', mountId);
+        py.runPython('_ops = []');
+        const raw = py.runPython('_run_user(_code, _stdin, _timeout, _maxev, _cid, _ops)');
+        const obj = raw.toJs({ dict_converter: Object.fromEntries });
+        raw.destroy();
+        obj.canvasOps = [];
+        const hostEl = mountId ? document.getElementById(mountId) : null;
+        obj.hasCanvas = !!(hostEl && hostEl.querySelector('canvas[data-turtle]'));
+        return obj;
+      } catch (e) {
+        return { ok: false, stdout: '', prompts: '', error: String(e.message || e), hasCanvas: false, canvasOps: [] };
+      }
+    })();
   }
-  return ok;
 };
