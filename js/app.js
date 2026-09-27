@@ -9,7 +9,7 @@ const LEVEL_META = [
   { no: 4,  title: '函数与代码复用',     sub: '参数传递 · 作用域 · 高阶函数 · 递归' },
   { no: 5,  title: '文件与数据分析',     sub: '文件读写 · 编码 · CSV · 词频统计' },
   { no: 6,  title: '常用库与生态',       sub: 'random/math/time · turtle · jieba · 第三方库' },
-  { no: 7,  title: '冲刺三级（选学）',   sub: '正则 · SQLite · 面向对象 · GUI · 数据可视化' }
+  { no: 7,  title: '冲刺三级',   sub: '正则 · SQLite · 面向对象 · GUI · 数据可视化' }
 ];
 
 const PLAN = [
