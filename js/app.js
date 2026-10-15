@@ -605,15 +605,19 @@ const App = {
     ));
     if (q.desc) card.append(h('div', { class: 'qtext', html: miniMdInline(q.desc) }));
 
-    /* 填空题：空白输入框 */
+    /* 填空题：题干代码 + 空白输入框（答案按空保存为草稿，刷新不丢） */
     let blankInputs = [];
     if (kind === 'blank') {
+      card.append(h('div', { class: 'io-label' }, '程序代码（黄色标记处即第 n 空）：'), blankCodeBlock(q.code));
       const wrap = h('div', { style: 'margin:8px 0' });
       (q.blanks || []).forEach(b => {
+        const key = `blank:${q.id}:${b.n}`;
+        const inp = h('input', { class: 'blank-input', 'data-n': b.n, placeholder: '在此填写代码，如 len(s)', style: 'flex:1;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:13.5px' });
+        inp.value = State.draft(key) || '';
+        inp.addEventListener('input', () => State.saveDraft(key, inp.value));
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runBtn.click(); } });
         wrap.append(h('div', { style: 'display:flex;gap:8px;align-items:center;margin:4px 0' },
-          h('span', { class: 'inline-code', style: 'min-width:52px;text-align:center' }, `第${b.n}空`),
-          h('input', { class: 'blank-input', 'data-n': b.n, placeholder: '在此填写代码，如 len(s)', style: 'flex:1;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:13.5px' })
-        ));
+          h('span', { class: 'inline-code', style: 'min-width:52px;text-align:center' }, `第${b.n}空`), inp));
       });
       card.append(wrap);
       blankInputs = Array.from(card.querySelectorAll('.blank-input'));
@@ -1154,7 +1158,7 @@ const Mock = {
       const card = h('div', { class: 'qcard' },
         h('div', { class: 'qno' }, `${i + 1}. ${q.title || ''}`),
         q.desc ? h('div', { class: 'qtext', html: miniMdInline(q.desc) }) : null,
-        codeBlock(q.code));
+        blankCodeBlock(q.code));
       const grid = h('div');
       (q.blanks || []).forEach(b => {
         grid.append(h('div', { style: 'display:flex;gap:8px;align-items:center;margin:4px 0' },
