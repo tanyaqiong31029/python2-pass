@@ -99,6 +99,15 @@ function hlPython(code) {
   return out;
 }
 
+/* 内联 markdown：`code` 与 **粗体**；代码段先换成占位符，避免 `2**3` 里的 ** 被当成粗体 */
+function mdInline(s) {
+  const codes = [];
+  return esc(s)
+    .replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\uE100${codes.length - 1}\uE101`; })
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\uE100(\d+)\uE101/g, (_, k) => `<code>${codes[Number(k)]}</code>`);
+}
+
 function codeBlock(code, cls) {
   const pre = h('pre', { class: cls || 'codeblock' });
   pre.innerHTML = hlPython(code);
@@ -156,11 +165,7 @@ function miniMd(src) {
       buf = []; inTable = false;
     }
   };
-  function inline(s) {
-    return esc(s)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-  }
+  const inline = mdInline;
   for (const raw of lines) {
     const line = raw.replace(/\s+$/, '');
     if (line.startsWith('```')) {
