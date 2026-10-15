@@ -385,7 +385,7 @@ def main():
     index_path = os.path.join(ROOT, "index.html")
     with open(index_path, encoding="utf-8") as f:
         html = f.read()
-    html2 = re.sub(r"(js/(?:config|core|data|util|state|runner|app)\.js\?v=)\w+", r"\g<1>" + stamp, html)
+    html2 = re.sub(r"((?:js/(?:config|core|data|util|state|runner|app)\.js|css/style\.css)\?v=)\w+", r"\g<1>" + stamp, html)
     if html2 != html:
         with open(index_path, "w", encoding="utf-8") as f:
             f.write(html2)

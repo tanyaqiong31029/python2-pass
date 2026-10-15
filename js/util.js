@@ -114,6 +114,15 @@ function codeBlock(code, cls) {
   return pre;
 }
 
+/* 程序填空题题干代码：___(n)___ 先换成单字符占位，高亮后再还原成醒目的空位标记，避免打乱分词 */
+function blankCodeBlock(code) {
+  const pre = h('pre', { class: 'codeblock' });
+  const marked = String(code || '').replace(/___\((\d+)\)___/g, (_, n) => String.fromCharCode(0xE000 + Number(n)));
+  pre.innerHTML = hlPython(marked).replace(/[\uE000-\uE0FF]/g,
+    c => `<span class="blank-slot">___(${c.charCodeAt(0) - 0xE000})___</span>`);
+  return pre;
+}
+
 /* ---------- 存储 ---------- */
 const Store = {
   key: 'py2pass_v1',

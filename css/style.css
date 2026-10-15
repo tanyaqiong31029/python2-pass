@@ -173,6 +173,7 @@ h3 { font-size: 16.5px; margin: 18px 0 8px; }
   overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; margin: 10px 0;
 }
 .lesson pre code { background: none; color: inherit; padding: 0; }
+.blank-slot { background: #f7c948; color: #10192a; font-weight: 700; padding: 0 4px; border-radius: 4px; }
 .keypoints { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
 .keypoint {
   background: var(--amber-bg); border: 1px solid #f2dfae; border-radius: 10px; padding: 10px 14px; font-size: 13.5px;
