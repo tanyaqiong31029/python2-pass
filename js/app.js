@@ -273,7 +273,7 @@ const App = {
             + ` ${lastMock.score} 分 · ${lastMock.grade}`) : null)
       ),
       diag ? h('div', { style: 'margin-top:6px' },
-        h('button', { class: 'btn btn-ghost btn-sm', onclick: () => { State.data.diagnosis = null; State.save(); App.render(); } }, '重做入学诊断')) : null
+        h('button', { class: 'btn btn-ghost btn-sm', onclick: () => { State.data.diagnosis = null; State.save(); App._diagAnswers = null; App._diagDone = false; App.render(); } }, '重做入学诊断')) : null
     );
   },
 
@@ -283,7 +283,7 @@ const App = {
   viewDiagnostic(app) {
     app.innerHTML = '';
     const diag = State.data.diagnosis;
-    if (this._diagAnswers && this._diagDone) {
+    if (this._diagAnswers && this._diagDone && State.data.diagnosis) {
       return this.renderDiagResult(app);
     }
     if (!this._diagAnswers) {
@@ -301,8 +301,8 @@ const App = {
     const D = this._diagAnswers;
     app.append(
       h('h1', { class: 'page-title' }, '🧭 入学诊断'),
-      h('p', { class: 'page-sub' }, `共 ${D.qs.length} 题（每关 2 题），不计入进度与错题本。凭第一感觉作答，答完给出起点建议与各关掌握度。`),
-      D.qs.forEach((q, i) => {
+      h('p', { class: 'page-sub' }, `共 ${D.qs.length} 题（每关 2 题），不计入进度与错题本。凭第一感觉作答，答完给出起点建议与各关掌握度。`));
+    D.qs.forEach((q, i) => {
         const letters = ['A', 'B', 'C', 'D'];
         const opts = h('div', { class: 'opts' });
         q.opts.forEach((o, j) => {
@@ -314,7 +314,8 @@ const App = {
         app.append(h('div', { class: 'qcard' },
           h('div', { class: 'qhead' }, h('span', { class: 'qno' }, `${i + 1}. `), h('span', { class: 'qtag' }, `第 ${q.level} 关 · ${q.topic || ''}`)),
           h('div', { class: 'qtext', html: miniMdInline(q.q) }), opts));
-      }),
+    });
+    app.append(
       h('div', { style: 'text-align:center;margin:20px 0' },
         h('button', { class: 'btn btn-green', style: 'font-size:16px;padding:12px 40px', onclick: () => {
           const unanswered = D.qs.filter(q => D.ans[q.id] === undefined).length;
@@ -431,7 +432,7 @@ const App = {
     );
     app.append(
       h('h1', { class: 'page-title' }, `第 ${meta.no} 关 · ${meta.title}`),
-      h('p', { class: 'page-sub' }, meta.sub + (meta.no === 7 && State.target().startsWith('t3') ? '　<b>（三级必修关）</b>' : '')),
+      h('p', { class: 'page-sub' }, meta.sub, meta.no === 7 && State.target().startsWith('t3') ? h('b', null, '　（三级必修关）') : null),
       tabs
     );
     const box = h('div');
@@ -855,9 +856,9 @@ const App = {
           h('tr', null, h('td', null, '参考教材'), h('td', null, '李东方等主编《Python 程序设计基础（第3版）》电子工业出版社 2023'))
         ),
         h('h2', null, '二级与三级的分界（重要）'),
-        h('p', null, '**二三级是同一张卷子、同一场考试**，报名科目即“Python 程序设计及应用（二三级）”。成绩划为五档：不合格 / 二级合格 / 二级优秀 / 三级合格 / 三级优秀，分数线由考委会划定——分数够高直接拿三级，无需另外报名或加试。'),
+        h('p', { html: miniMdInline('**二三级是同一张卷子、同一场考试**，报名科目即“Python 程序设计及应用（二三级）”。成绩划为五档：不合格 / 二级合格 / 二级优秀 / 三级合格 / 三级优秀，分数线由考委会划定——分数够高直接拿三级，无需另外报名或加试。') }),
         h('p', null, '二级要求：数据类型、基本语句、模块化程序设计、常用算法、函数、文件与基于文本文件的数据分析（大纲要求层级：知道/理解/掌握）。'),
-        h('p', null, '**三级增量（大纲要求全部为“掌握”）**：递归、数据库应用（SQLite）、数据可视化、文本信息正则提取，以及综合应用能力。本站第 7 关即对准这些增量考点，三级目标下为必修关。'),
+        h('p', { html: miniMdInline('**三级增量（大纲要求全部为“掌握”）**：递归、数据库应用（SQLite）、数据可视化、文本信息正则提取，以及综合应用能力。本站第 7 关即对准这些增量考点，三级目标下为必修关。') }),
         h('h2', null, '本站判题与真实考试的差异'),
         h('ul', null,
           h('li', null, '真实考试在 Windows + IDLE/PyCharm 等环境中作答，本站在浏览器内运行 Python（Pyodide），个别第三方库（如 wordcloud）浏览器端不支持，相关题目以理解代码为主。'),
@@ -918,7 +919,7 @@ function computeNextStep() {
 
 /* ---------- 内联 markdown（题目文本用：仅 `code` 与 **b**） ---------- */
 function miniMdInline(s) {
-  return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  return mdInline(s);
 }
 
 /* ---------- 填空工具（实现移至 js/core.js） ---------- */
@@ -1022,8 +1023,8 @@ const Mock = {
       };
     }
     // 标准：按关卡比例均衡
-    const byLevel = {};
     const pickL = (arr, n, off) => {
+      const byLevel = {}; // 每种题型单独分组，避免后面的题型混入前面题型的题
       arr.forEach(q => { (byLevel[q.level] = byLevel[q.level] || []).push(q); });
       const levels = Object.keys(byLevel).map(Number).sort((a, b) => a - b);
       const out = [];
@@ -1139,14 +1140,15 @@ const Mock = {
     this.qs.mcq.forEach((q, i) => {
       const letters = ['A', 'B', 'C', 'D'];
       const card = h('div', { class: 'qcard' },
-        h('div', { class: 'qno' }, `${i + 1}. ${q.q}`));
+        h('div', { class: 'qno' }, `${i + 1}.`),
+        h('div', { class: 'qtext', html: miniMdInline(q.q) }));
       const opts = h('div', { class: 'opts' });
       q.opts.forEach((o, j) => {
         const opt = h('div', { class: 'opt' + (this.answers.mcq[q.id] === j ? ' selected' : ''), onclick: () => {
           this.answers.mcq[q.id] = j;
           this.persist();
           opts.querySelectorAll('.opt').forEach((e, jj) => e.classList.toggle('selected', jj === j));
-        } }, h('span', { class: 'opt-key' }, letters[j] + '.'), h('span', null, o));
+        } }, h('span', { class: 'opt-key' }, letters[j] + '.'), h('span', { html: miniMdInline(o) }));
         opts.append(opt);
       });
       card.append(opts);
@@ -1191,7 +1193,7 @@ const Mock = {
       ta.value = this.answers.coding[q.id] !== undefined ? this.answers.coding[q.id] : (q.starter || '# ' + (q.title || '') + '\n');
       ta.addEventListener('input', () => { this.answers.coding[q.id] = ta.value; this.persist(); });
       app.append(h('div', { class: 'qcard' },
-        h('div', { class: 'qno' }, `${i + 1}. ${q.title || ''}　${h('span', { class: 'badge' }, (q.score || window.CONFIG.mockStructure.coding.perScore) + '分')}`),
+        h('div', { class: 'qno' }, `${i + 1}. ${q.title || ''}　`, h('span', { class: 'badge' }, (q.score || window.CONFIG.mockStructure.coding.perScore) + '分')),
         h('div', { class: 'qtext', html: miniMdInline(q.desc || '') }),
         ta,
         q.tests && q.tests.some(t2 => t2.stdin) ? [h('div', { class: 'io-label' }, '测试输入样例：'), h('pre', { class: 'output' }, q.tests.filter(t2 => t2.stdin).map(t2 => t2.stdin).join('---\n'))] : null));
